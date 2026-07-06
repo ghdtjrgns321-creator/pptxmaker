@@ -1,0 +1,38 @@
+# pptmaker
+
+내가 만든 프로젝트를 소개하는 B2B 셀링 PPT를 자동 생성하는 도구.
+
+## 하네스: PPT 자동생성
+
+**목표:** 기존 프로젝트를 읽어, 공장처럼 일관된 골격·브랜드로 셀링에 특화된 네이티브 .pptx를 찍어낸다.
+
+**트리거:** "프로젝트 PPT 만들어줘 / 소개 자료 생성 / 발표자료 / pptx 생성" 및 후속 "다시 만들어 /
+슬라이드 수정 / 브랜드 바꿔 재빌드 / 스토리 다시" 요청 시 `pptmaker` 오케스트레이터 스킬을 사용하라.
+단순 질문은 직접 응답 가능.
+
+**구성:** 서브 에이전트 파이프라인 — project-analyst → selling-curator → pptx-builder → consistency-qa.
+브랜드 일관성 단일 출처는 `.claude/skills/pptx-build/assets/brand-kit.yaml`(이 파일만 고치면 전체 반영).
+
+## 환경·의존성 (uv)
+
+- 패키지·가상환경은 **uv**로 관리. `.venv`·`uv.lock`으로 재현 가능. Python 3.13 고정(`.python-version`).
+- 스크립트 실행은 `uv run python <경로>` — venv 자동 활성, 별도 activate 불필요.
+- 의존성 추가: `uv add <pkg>`(런타임) / `uv add --dev <pkg>`(개발). 런타임=`python-pptx`·`pyyaml`, 개발=`ruff`.
+- `.venv`·`*.pptx`(빌드 산출물)·`.claude/state`는 커밋하지 않음(`.gitignore`).
+
+## git 운영
+
+- 브랜치 흐름 `feature→develop→main`. **main 직접 커밋 금지**, 기본 작업 브랜치는 `develop`.
+- 커밋은 사용자 요청 시만. Conventional Commits, 1커밋=1논리변경, **AI/Claude 서명 금지**.
+
+## 변경 이력
+
+| 날짜       | 변경 내용                 | 대상                                                       | 사유                                                                                                       |
+| ---------- | ------------------------- | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 2026-07-06 | 초기 구성                 | 전체                                                       | 프로젝트 소개용 B2B 셀링 PPT 자동생성 하네스 신규 구축                                                     |
+| 2026-07-06 | 공장 골격 확정            | selling-curation, deck-spec-schema                         | 표준 골격을 "문제→솔루션→증거 8슬라이드"(B2B 표준)로 박제, 앞뒤 고정·본문 유연                             |
+| 2026-07-06 | 브랜드킷 흑백+포인트 확정 | pptx-build/assets/brand-kit.yaml                           | 무채색 베이스(primary #15171B) + 포인트 Muted Ember(accent #D66E3A) 단일 포인트 컨셉                       |
+| 2026-07-06 | 마스터 틀 구현            | pptx-build/scripts/build_pptx.py                           | 컨설팅 표준 틀(헤더 구분선·푸터 회사명·우하단 페이지번호·출처선) 전 장 자동 스탬프                         |
+| 2026-07-06 | AI티 제거·문서형 개편     | build_pptx.py, deck-spec-schema, selling-curation          | BCG 레퍼런스 기준: 세로 rail→헤더 이중룰, hero카드→인라인 **강조**, 문서형 푸터(중앙 워드마크·세로 저작권) |
+| 2026-07-06 | 실측 반영(글자·밀도·구성) | brand-kit, build_pptx, reference-metrics, selling-curation | NYCHA BCG 111슬라이드 실측: 제목24·본문13·캡션9pt, 부제·중첩불릿(•/–)·각주 지원, 밀도 120~200단어          |
+| 2026-07-06 | git·uv 관리 전환          | pyproject.toml, uv.lock, .gitignore, CLAUDE.md             | 재현 가능 환경(uv venv·lock)과 버전관리(main/develop) 도입, Python 3.13 고정                               |

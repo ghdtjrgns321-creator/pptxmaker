@@ -1,0 +1,18 @@
+[project]
+name = "pptmaker"
+version = "0.1.0"
+description = "내 프로젝트를 소개하는 B2B 셀링 PPT를 자동 생성하는 도구"
+readme = "CLAUDE.md"
+requires-python = ">=3.13"
+dependencies = [
+    "python-pptx>=1.0.2",
+    "pyyaml>=6.0.3",
+]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.15.20",
+]
+
+[tool.ruff]
+line-length = 100

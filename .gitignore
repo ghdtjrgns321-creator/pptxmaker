@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ruff_cache/
+
+# uv / venv
+.venv/
+
+# 빌드 산출물 (생성된 발표자료)
+*.pptx
+!**/assets/**/*.pptx
+
+# 로컬 상태 (세션별 계약)
+.claude/state/
+
+# OS
+.DS_Store
+Thumbs.db
