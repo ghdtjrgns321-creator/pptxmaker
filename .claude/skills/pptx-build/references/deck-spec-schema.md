@@ -1,6 +1,6 @@
 # deck-spec.json 스키마 (에이전트 간 데이터 계약)
 
-`selling-curator`가 산출하고 `pptx-build`가 소비하는 단일 계약. 이 스키마를 벗어난 키는
+`deck-composer`가 산출하고 `pptx-build`가 소비하는 단일 계약. 이 스키마를 벗어난 키는
 빌더가 무시하거나 실패한다. 슬라이드 **골격**(앞뒤 고정, 본문 유연)은 여기서 강제된다.
 
 ## 최상위 구조
@@ -16,22 +16,34 @@
 
 - **맨 앞 고정:** `cover` → `toc` 로 시작
 - **맨 뒤 고정:** `cta` 로 종료
-- **본문(유연):** 그 사이는 프로젝트 성격에 맞게 `bullets/two_column/table/chart/metrics/section`을 자유 배치
+- **본문(유연):** 그 사이는 프로젝트 성격에 맞게 `bullets/two_column/table/chart/diagram/metrics/section`을 자유 배치
 - `toc`는 items를 비워두면 본문 섹션 제목으로 자동 채워진다 → 목차/본문 순서가 항상 일치
 
 ## 슬라이드 타입별 필드
 
-| type         | 필수 필드                                                                    | 용도                          |
-| ------------ | ---------------------------------------------------------------------------- | ----------------------------- |
-| `cover`      | `title`, `subtitle`                                                          | 표지                          |
-| `toc`        | (없음) `items` 선택                                                          | 목차. 비우면 본문 제목 자동   |
-| `section`    | `title`                                                                      | 섹션 구분(전환)               |
-| `bullets`    | `title`, `bullets[]`                                                         | 불릿 3~5개. Pain/특징 등      |
-| `two_column` | `title`, `left{heading,items[]}`, `right{heading,items[]}`                   | 문제/솔루션·Before/After 대비 |
-| `metrics`    | `title`, `items[{value,label}]`                                              | 큰 숫자 KPI 최대 4개          |
-| `table`      | `title`, `headers[]`, `rows[[]]`                                             | 네이티브 표(기술스택·비교표)  |
-| `chart`      | `title`, `chart_type`(bar/line/pie), `categories[]`, `series{name:[values]}` | 네이티브 차트(성장·비중)      |
-| `cta`        | `title`, `contact{email,site,...}`                                           | 마무리·연락처                 |
+| type         | 필수 필드                                                                    | 용도                           |
+| ------------ | ---------------------------------------------------------------------------- | ------------------------------ |
+| `cover`      | `title`, `subtitle`                                                          | 표지                           |
+| `toc`        | (없음) `items` 선택                                                          | 목차. 비우면 본문 제목 자동    |
+| `section`    | `title`                                                                      | 섹션 구분(전환)                |
+| `bullets`    | `title`, `bullets[]`                                                         | 불릿 3~5개. Pain/특징 등       |
+| `two_column` | `title`, `left{heading,items[]}`, `right{heading,items[]}`                   | 문제/솔루션·Before/After 대비  |
+| `metrics`    | `title`, `items[{value,label}]`                                              | 큰 숫자 KPI 최대 4개           |
+| `table`      | `title`, `headers[]`, `rows[[]]`                                             | 네이티브 표(기술스택·비교표)   |
+| `chart`      | `title`, `chart_type`(bar/line/pie), `categories[]`, `series{name:[values]}` | 네이티브 차트(성장·비중)       |
+| `diagram`    | `title`, `layout`(flow/layers), `nodes[{label,sub?}]`                        | 도형 다이어그램(흐름·아키텍처) |
+| `cta`        | `title`, `contact{email,site,...}`                                           | 마무리·연락처                  |
+
+### `diagram` 상세 (pptx-visuals 스킬이 렌더)
+
+- `layout: "flow"` — 노드 좌→우 배치 + accent 화살표. 프로세스·파이프라인용. 노드 3~5개 권장.
+- `layout: "layers"` — 노드 상→하 적층. 아키텍처 레이어용. 노드 2~5개 권장.
+- 노드: `{"label": "굵은 제목", "sub": "설명 한 줄(선택)"}`. `sub`는 생략 가능.
+
+```json
+{"type":"diagram","title":"처리 흐름","layout":"flow",
+ "nodes":[{"label":"수집","sub":"pptx 파싱"},{"label":"통합"},{"label":"빌드","sub":"brand-kit 적용"}]}
+```
 
 ## 공장 표준 골격 (박제 — 문제→솔루션→증거)
 

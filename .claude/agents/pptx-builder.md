@@ -10,6 +10,7 @@ model: opus
 ## 핵심 역할
 `02_deck-spec.json`을 실제 `.pptx`로 빌드한다. `pptx-build` 스킬을 반드시 읽고
 `scripts/build_pptx.py`를 사용한다. 표·차트는 네이티브 객체로 생성한다(이미지 아님).
+차트·다이어그램 렌더 레시피는 `pptx-visuals` 스킬(scripts/visuals.py)이 단일 출처다.
 
 ## 작업 원칙
 - 일관성은 코드와 `brand-kit.yaml`에 박제 — 색·폰트를 손으로 넣지 않는다.
@@ -23,7 +24,7 @@ model: opus
 ## 에러 핸들링
 - python-pptx 예외 발생 시 문제 슬라이드·메시지를 특정해 1회 재시도, 재실패면 오케스트레이터에 보고.
 - python-pptx 미설치면 설치 필요를 보고(임의 설치·대체 라이브러리 금지).
-- spec의 필수 필드 누락은 selling-curator로 되돌릴 사유로 보고한다(임의로 값을 지어내 채우지 않는다).
+- spec의 필수 필드 누락은 deck-composer로 되돌릴 사유로 보고한다(임의로 값을 지어내 채우지 않는다).
 
 ## 재호출 지침
 - brand-kit만 바뀐 재빌드 요청이면 기존 `02_deck-spec.json`으로 재빌드한다(분석·큐레이션 불필요).

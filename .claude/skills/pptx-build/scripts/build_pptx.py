@@ -18,11 +18,13 @@ from pathlib import Path
 
 import yaml
 from pptx import Presentation
-from pptx.chart.data import CategoryChartData
 from pptx.dml.color import RGBColor
-from pptx.enum.chart import XL_CHART_TYPE, XL_LEGEND_POSITION
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR
 from pptx.util import Inches, Pt
+
+# 차트·다이어그램 렌더는 pptx-visuals 스킬이 단일 출처
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pptx-visuals" / "scripts"))
+import visuals  # noqa: E402
 
 # 16:9 고정 캔버스 (inch)
 EMU_W, EMU_H = 13.333, 7.5
@@ -114,9 +116,7 @@ class Deck:
             parts.append((text[i:], False))
         return parts or [(text, False)]
 
-    def _rich_text(
-        self, slide, x, y, w, h, text, size, color, *, font=None, align=PP_ALIGN.LEFT
-    ):
+    def _rich_text(self, slide, x, y, w, h, text, size, color, *, font=None, align=PP_ALIGN.LEFT):
         """본문 텍스트 — `**핵심**`은 그 run만 bold + accent색으로. 나머지는 color."""
         tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
         tf = tb.text_frame
@@ -183,9 +183,7 @@ class Deck:
                 font=self.f["body"],
             )
         self._hline(slide, m, EMU_W - m, HEADER_HAIR_Y, self.c["primary"], weight=2.5)
-        self._hline(
-            slide, m, EMU_W - m, HEADER_HAIR_Y + 0.05, self.c["muted"], weight=0.75
-        )
+        self._hline(slide, m, EMU_W - m, HEADER_HAIR_Y + 0.05, self.c["muted"], weight=0.75)
 
     def _footnotes(self, slide, notes):
         """각주(7~8pt) — 참조·단서를 푸터 헤어라인 위에. BCG식 하단 각주."""
@@ -252,12 +250,8 @@ class Deck:
     def _vcopyright(self, slide):
         """우측 여백에 세로로 흐르는 저작권선 — 실제 기관 덱의 대표 시그니처."""
         yr = self.meta.get("year", "")
-        txt = f"© {yr} {self.b['brand']['name']}. All rights reserved.".replace(
-            "©  ", "© "
-        )
-        tb = slide.shapes.add_textbox(
-            Inches(EMU_W - 2.6), Inches(3.55), Inches(4.6), Inches(0.28)
-        )
+        txt = f"© {yr} {self.b['brand']['name']}. All rights reserved.".replace("©  ", "© ")
+        tb = slide.shapes.add_textbox(Inches(EMU_W - 2.6), Inches(3.55), Inches(4.6), Inches(0.28))
         tb.rotation = 270
         tf = tb.text_frame
         tf.word_wrap = False
@@ -399,9 +393,7 @@ class Deck:
             )
             y += 0.44
             for sub in subs:  # 2단계 중첩 (BCG식 – 서브불릿)
-                self._text(
-                    s, m + 0.55, y, 0.3, 0.3, "–", self.s["body"] - 1, self.c["muted"]
-                )
+                self._text(s, m + 0.55, y, 0.3, 0.3, "–", self.s["body"] - 1, self.c["muted"])
                 self._rich_text(
                     s,
                     m + 0.85,
@@ -502,9 +494,7 @@ class Deck:
                 align=PP_ALIGN.CENTER,
             )
             # 값 아래 짧은 accent 밑줄 — 포인트는 여기 극소량만
-            self._hline(
-                s, x + colw * 0.32, x + colw * 0.68, 3.78, self.c["accent"], weight=2.0
-            )
+            self._hline(s, x + colw * 0.32, x + colw * 0.68, 3.78, self.c["accent"], weight=2.0)
             self._text(
                 s,
                 x,
@@ -543,9 +533,7 @@ class Deck:
             for j, val in enumerate(row):
                 cell = tbl.cell(i, j)
                 cell.fill.solid()
-                cell.fill.fore_color.rgb = rgb(
-                    self.c["bg"] if i % 2 else self.c["bg_alt"]
-                )
+                cell.fill.fore_color.rgb = rgb(self.c["bg"] if i % 2 else self.c["bg_alt"])
                 self._cell_text(cell, str(val), self.c["text"])
         return s
 
@@ -563,24 +551,15 @@ class Deck:
     def chart(self, spec):
         s = self._slide()
         self._title_block(s, spec["title"], spec.get("subtitle"))
-        ct = {
-            "bar": XL_CHART_TYPE.COLUMN_CLUSTERED,
-            "line": XL_CHART_TYPE.LINE,
-            "pie": XL_CHART_TYPE.PIE,
-        }.get(spec.get("chart_type", "bar"), XL_CHART_TYPE.COLUMN_CLUSTERED)
-        data = CategoryChartData()
-        data.categories = spec["categories"]
-        for name, values in spec["series"].items():
-            data.add_series(name, values)
         m = self.margin
-        gf = s.shapes.add_chart(
-            ct, Inches(m), Inches(2.0), Inches(EMU_W - 2 * m), Inches(4.6), data
-        )
-        ch = gf.chart
-        ch.has_legend = len(spec["series"]) > 1 or ct == XL_CHART_TYPE.PIE
-        if ch.has_legend:
-            ch.legend.position = XL_LEGEND_POSITION.BOTTOM
-            ch.legend.include_in_layout = False
+        visuals.add_chart(s, spec, self.b, m, 2.0, EMU_W - 2 * m, 4.6)
+        return s
+
+    def diagram(self, spec):
+        s = self._slide()
+        self._title_block(s, spec["title"], spec.get("subtitle"))
+        m = self.margin
+        visuals.add_diagram(s, spec, self.b, m, BODY_TOP + 0.3, EMU_W - 2 * m, 4.2)
         return s
 
     def cta(self, spec):
@@ -623,17 +602,24 @@ class Deck:
         "metrics": metrics,
         "table": table,
         "chart": chart,
+        "diagram": diagram,
         "cta": cta,
     }
 
     def build(self, spec):
         self.meta = spec.get("meta", {})
         # 목차 자동 채움: 본문 섹션(section/bullets/two_column/table/chart/metrics) 제목 수집
-        body_types = {"section", "bullets", "two_column", "table", "chart", "metrics"}
+        body_types = {
+            "section",
+            "bullets",
+            "two_column",
+            "table",
+            "chart",
+            "diagram",
+            "metrics",
+        }
         self._toc_items = [
-            sl["title"]
-            for sl in spec["slides"]
-            if sl["type"] in body_types and sl.get("title")
+            sl["title"] for sl in spec["slides"] if sl["type"] in body_types and sl.get("title")
         ]
         total = len(spec["slides"])
         for i, sl in enumerate(spec["slides"], start=1):

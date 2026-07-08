@@ -14,6 +14,7 @@ description: 빌드된 .pptx가 브랜드 일관성(색·폰트·여백)과 셀�
 `scripts/audit_pptx.py`로 pptx를 재파싱해 확인한다:
 - deck-spec의 `table` 슬라이드 수 == pptx의 `has_table` 수 (이미지로 새지 않았는지)
 - deck-spec의 `chart` 슬라이드 수 == pptx의 `has_chart` 수
+- `diagram` 슬라이드는 도형(자동도형) 렌더가 정상 — 그림(PICTURE)으로 새지 않았는지
 - 그림(PICTURE)으로 잡힌 표·차트 = 0
 - 슬라이드 수 == spec의 slides 길이
 
@@ -29,13 +30,13 @@ description: 빌드된 .pptx가 브랜드 일관성(색·폰트·여백)과 셀�
 
 ## 3. 셀링 품질 (정성 기준)
 
-| 항목        | 합격 기준                           | 실패 시         |
-| ----------- | ----------------------------------- | --------------- |
-| 표지 명료성 | 표지만으로 "무엇을 파는지" 이해     | selling-curator |
-| 흐름        | 문제→솔루션→가치 순서 유지          | selling-curator |
-| 정보 밀도   | 슬라이드당 불릿 5개 이하, 한 메시지 | selling-curator |
-| 근거        | 숫자에 출처(01_facts) 대응          | selling-curator |
-| 오탈자      | 명백한 맞춤법·깨진 글자 0           | pptx-builder    |
+| 항목        | 합격 기준                           | 실패 시       |
+| ----------- | ----------------------------------- | ------------- |
+| 표지 명료성 | 표지만으로 "무엇을 파는지" 이해     | deck-composer |
+| 흐름        | 문제→솔루션→가치 순서 유지          | deck-composer |
+| 정보 밀도   | 슬라이드당 불릿 5개 이하, 한 메시지 | deck-composer |
+| 근거        | 숫자에 출처(01_extracted) 대응      | deck-composer |
+| 오탈자      | 명백한 맞춤법·깨진 글자 0           | pptx-builder  |
 
 ## 출력: `_workspace/03_qa-report.md`
 
