@@ -32,11 +32,21 @@ EMU_W, EMU_H = 13.333, 7.5
 # 마스터 틀(컨설팅 표준) 고정 좌표 — 모든 슬라이드에 동일 위치로 스탬프
 FOOT_Y = EMU_H - 0.42  # 푸터 텍스트 y (회사명·페이지번호)
 HAIR_Y = EMU_H - 0.5  # 푸터 헤어라인 y
-HEADER_HAIR_Y = 1.42  # 제목(+부제) 아래 헤더 구분선 y
-BODY_TOP = 1.72  # 본문 시작 y (헤더 이중룰 바로 아래 — 밀도 확보)
-SRC_Y = EMU_H - 0.72  # 출처선 y (푸터 위)
+HEADER_HAIR_Y = 1.42  # 제목(+부제) 아래 헤더 구분선 y (파트 없는 구형 레이아웃)
+BODY_TOP = 1.72  # 본문 시작 y (파트 없는 구형 레이아웃)
+# 내비게이션 헤더(우석진 템플릿 실측 — _workspace/06_reference-notes.md)
+TAB_Y = 0.2  # 섹션 탭 y
+KICKER_Y = 0.66  # 소분류 라벨 y
+TITLE_Y = 0.86  # 계층번호 제목 y
+SUB_Y = 1.42  # 거버닝 메시지 y
+NAV_RULE_Y = 1.8  # 헤더 하단 헤어라인 y
+NAV_BODY_TOP = 1.95  # 파트 체계 사용 시 본문 시작 y
+ROMAN = ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ"]
+SRC_Y = EMU_H - 0.85  # 출처선 y (각주 위 — 겹침 방지)
 FOOTNOTE_Y = EMU_H - 0.62  # 각주 y (푸터 헤어라인 위)
 PAGE_W = 2.0  # 페이지번호 박스 폭 (우측 정렬)
+BODY_BOTTOM = EMU_H - 0.95  # 본문(개체) 하한 — 출처·각주 영역 침범 금지
+COMMENT_W = 4.4  # 해설 칼럼 폭 (개체 좌측)
 
 
 def load_brand(path):
@@ -63,7 +73,13 @@ class Deck:
         self.prs.slide_width = Inches(EMU_W)
         self.prs.slide_height = Inches(EMU_H)
         self.blank = self.prs.slide_layouts[6]
-        self._toc_items = []  # 목차용: 본문 섹션 제목 수집
+        self._toc_items = []  # 목차용: 본문 섹션 제목 수집(파트 없을 때)
+        self.parts = []  # [{no,title,items:[제목…]}] — part 타입 pre-pass로 채움
+        self.body_top = BODY_TOP  # 파트 체계 사용 시 NAV_BODY_TOP으로 전환
+        self._page_no = 0
+        self._total = 0
+        self.meta = {}
+        self._comment_side = "left"  # 해설 칼럼 좌/우 교차 토글(형식 반복 방지)
 
     # --- 저수준 헬퍼 ---
     def _slide(self, bg=None):
@@ -154,10 +170,55 @@ class Deck:
         ln.line.width = Pt(weight)
         return ln
 
-    def _title_block(self, slide, title, subtitle=None):
-        """헤더(기관 문서형): 좌정렬 액션 제목 + 설명 부제 + 이중룰(굵은선+얇은선).
-        BCG 실측: 제목 24pt, 부제 ~15pt. AI티 나는 '제목 옆 세로 accent 바' 미사용."""
+    def _title_block(self, slide, title, subtitle=None, spec=None):
+        """헤더. 파트 체계 사용 시(우석진 실측): 섹션 탭 → 소분류 kicker → 계층번호 제목
+        → accent 틱 거버닝 메시지 → 헤어라인. 파트 없으면 구형(제목+이중룰) 유지."""
         m = self.margin
+        if self.parts:
+            self._nav_tabs(slide, (spec or {}).get("_part_no"))
+            part_no = (spec or {}).get("_part_no")
+            if part_no:
+                part = self.parts[part_no - 1]
+                self._text(
+                    slide,
+                    m,
+                    KICKER_Y,
+                    EMU_W - 2 * m,
+                    0.28,
+                    f"{part_no}. {part['title']}",
+                    10,
+                    self.c["muted"],
+                )
+            num = (spec or {}).get("_num")
+            title_text = f"{num}. {title}" if num else title
+            self._text(
+                slide,
+                m,
+                TITLE_Y,
+                EMU_W - 2 * m,
+                0.55,
+                title_text,
+                self.s["section"],
+                self.c["primary"],
+                font=self.f["head"],
+                bold=True,
+            )
+            if subtitle:
+                # 거버닝 메시지 좌측 accent 틱 — 전 장 반복되는 시각 모티프
+                self._accent_bar(slide, m, SUB_Y + 0.05, w=0.05, h=0.2)
+                self._text(
+                    slide,
+                    m + 0.16,
+                    SUB_Y,
+                    EMU_W - 2 * m - 0.16,
+                    0.4,
+                    subtitle,
+                    self.s.get("sub", 15),
+                    self.c["text"],
+                    font=self.f["body"],
+                )
+            self._hline(slide, m, EMU_W - m, NAV_RULE_Y, self.c["muted"], weight=0.75)
+            return
         self._text(
             slide,
             m,
@@ -185,6 +246,82 @@ class Deck:
         self._hline(slide, m, EMU_W - m, HEADER_HAIR_Y, self.c["primary"], weight=2.5)
         self._hline(slide, m, EMU_W - m, HEADER_HAIR_Y + 0.05, self.c["muted"], weight=0.75)
 
+    def _nav_tabs(self, slide, cur_part_no):
+        """상단 섹션 탭(현재 위치 하이라이트) + 우측 문서명·페이지 + 전폭 룰."""
+        from pptx.enum.shapes import MSO_SHAPE
+
+        m = self.margin
+        info_w = 3.8
+        tab_w = min(2.3, (EMU_W - 2 * m - info_w) / max(len(self.parts), 1))
+        for p in self.parts:
+            x = m + (p["no"] - 1) * tab_w
+            label = f"{ROMAN[p['no'] - 1]}. {p['title']}"
+            if p["no"] == cur_part_no:
+                chip = slide.shapes.add_shape(
+                    MSO_SHAPE.RECTANGLE, Inches(x), Inches(TAB_Y), Inches(tab_w), Inches(0.3)
+                )
+                chip.fill.solid()
+                chip.fill.fore_color.rgb = rgb(self.c["bg_alt"])
+                chip.line.fill.background()
+                self._text(
+                    slide,
+                    x,
+                    TAB_Y + 0.02,
+                    tab_w,
+                    0.26,
+                    label,
+                    10,
+                    self.c["primary"],
+                    bold=True,
+                    align=PP_ALIGN.CENTER,
+                )
+                self._hline(slide, x, x + tab_w, TAB_Y + 0.31, self.c["accent"], weight=2.0)
+            else:
+                self._text(
+                    slide,
+                    x,
+                    TAB_Y + 0.02,
+                    tab_w,
+                    0.26,
+                    label,
+                    10,
+                    self.c["muted"],
+                    align=PP_ALIGN.CENTER,
+                )
+        self._text(
+            slide,
+            EMU_W - m - info_w,
+            TAB_Y + 0.02,
+            info_w,
+            0.26,
+            f"{self.meta.get('project', '')}   {self._page_no:02d} / {self._total:02d}",
+            self.s["caption"],
+            self.c["muted"],
+            align=PP_ALIGN.RIGHT,
+        )
+        self._hline(slide, m, EMU_W - m, TAB_Y + 0.34, self.c["primary"], weight=1.2)
+
+    def _num_circle(self, slide, x, y, num, *, d=0.44, dark_bg=False):
+        """넘버 서클 — 간지·목차·불릿에 반복되는 시각 모티프(accent 테두리 원 + 번호)."""
+        from pptx.enum.shapes import MSO_SHAPE
+
+        c = slide.shapes.add_shape(MSO_SHAPE.OVAL, Inches(x), Inches(y), Inches(d), Inches(d))
+        c.fill.background()
+        c.line.color.rgb = rgb(self.c["accent"])
+        c.line.width = Pt(1.5)
+        tf = c.text_frame
+        tf.word_wrap = False
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        run = p.add_run()
+        run.text = num
+        run.font.size = Pt(11)
+        run.font.bold = True
+        run.font.name = self.f["head"]
+        run.font.color.rgb = rgb("FFFFFF" if dark_bg else self.c["primary"])
+        return c
+
     def _footnotes(self, slide, notes):
         """각주(7~8pt) — 참조·단서를 푸터 헤어라인 위에. BCG식 하단 각주."""
         txt = (
@@ -203,6 +340,72 @@ class Deck:
             self.c["muted"],
             font=self.f["body"],
         )
+
+    def _next_side(self):
+        """개체 슬라이드 해설 칼럼의 좌/우를 결정적으로 교차 — 연속 동일 배치 방지."""
+        side = self._comment_side
+        self._comment_side = "right" if side == "left" else "left"
+        return side
+
+    def _intro(self, slide, spec):
+        """intro 서술 문단(2~4문장, 전폭) — 컨설팅 보고서식 리드. 본문 y 오프셋 반환."""
+        text = spec.get("intro")
+        if not text:
+            return 0.0
+        tb = slide.shapes.add_textbox(
+            Inches(self.margin),
+            Inches(self.body_top + 0.05),
+            Inches(EMU_W - 2 * self.margin),
+            Inches(0.85),
+        )
+        tf = tb.text_frame
+        tf.word_wrap = True
+        self._emph_runs(tf.paragraphs[0], text, self.s["body"], self.c["text"])
+        return 1.0
+
+    def _commentary(self, slide, spec, *, below=None, side="left", y_off=0.0):
+        """해설 칼럼/블록 — 개체(차트·표·다이어그램)에 분석 텍스트를 붙여 문서 밀도를 만든다.
+        below=None이면 side 방향 칼럼(개체는 반대편), below=y이면 그 아래 전폭 블록.
+        한 텍스트박스 안에서 문단으로 흘려 줄바꿈이 겹치지 않게 한다(자동 플로우)."""
+        items = spec.get("commentary", [])
+        if not items:
+            return False
+        m = self.margin
+        if below is None:
+            x = m if side == "left" else EMU_W - m - (COMMENT_W - 0.3)
+            y = self.body_top + y_off + 0.12
+            w = COMMENT_W - 0.3
+            h = BODY_BOTTOM - y - 0.08
+        else:
+            x, y, w, h = m, below, EMU_W - 2 * m, BODY_BOTTOM - below
+        tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
+        tf = tb.text_frame
+        tf.word_wrap = True
+        size = self.s["body"]
+        first = True
+        for it in items:
+            text = it if isinstance(it, str) else it.get("text", "")
+            subs = [] if isinstance(it, str) else it.get("sub", [])
+            p = tf.paragraphs[0] if first else tf.add_paragraph()
+            first = False
+            p.space_before = Pt(0 if len(tf.paragraphs) == 1 else 8)
+            p.space_after = Pt(2)
+            self._emph_runs(p, f"• {text}", size, self.c["text"])
+            for sub in subs:
+                p2 = tf.add_paragraph()
+                p2.space_after = Pt(1)
+                self._emph_runs(p2, f"   – {sub}", size - 1, self.c["text"])
+        return True
+
+    def _emph_runs(self, para, text, size, color):
+        """문단에 `**강조**` 지원 run들을 채운다(_rich_text의 문단 버전)."""
+        for seg, emph in self._parse_emph(text):
+            run = para.add_run()
+            run.text = seg
+            run.font.size = Pt(size)
+            run.font.name = self.f["body"]
+            run.font.bold = bool(emph)
+            run.font.color.rgb = rgb(self.c["accent"] if emph else color)
 
     def _frame(self, slide, page_no, total):
         """마스터 틀(기관 문서형 푸터): 헤어라인 + 좌 문서명 + 중앙 브랜드 워드마크
@@ -324,9 +527,73 @@ class Deck:
 
     def toc(self, spec):
         s = self._slide()
-        self._title_block(s, spec.get("title", "목차"))
-        items = spec.get("items") or self._toc_items
+        self._title_block(s, spec.get("title", "목차"), None, spec)
         m = self.margin
+        if self.parts:
+            # PART별 그룹 목차(2단) — 로마숫자 헤딩 + 계층번호 항목
+            cols = [[], []]
+            weights = [0.0, 0.0]
+            for p in self.parts:
+                k = 0 if weights[0] <= weights[1] else 1
+                cols[k].append(p)
+                weights[k] += len(p["items"]) + 1.8
+            colw = (EMU_W - 2 * m - 0.8) / 2
+            for ci, plist in enumerate(cols):
+                x = m + ci * (colw + 0.8)
+                y = self.body_top + 0.15
+                for p in plist:
+                    self._text(
+                        s,
+                        x,
+                        y,
+                        0.6,
+                        0.4,
+                        ROMAN[p["no"] - 1],
+                        self.s["head"],
+                        self.c["accent"],
+                        font=self.f["head"],
+                        bold=True,
+                    )
+                    self._text(
+                        s,
+                        x + 0.55,
+                        y,
+                        colw - 0.55,
+                        0.4,
+                        p["title"],
+                        self.s.get("sub", 15),
+                        self.c["primary"],
+                        font=self.f["head"],
+                        bold=True,
+                    )
+                    self._hline(s, x, x + colw, y + 0.42, self.c["muted"], weight=0.75)
+                    y += 0.58
+                    for j, item in enumerate(p["items"], 1):
+                        self._text(
+                            s,
+                            x + 0.15,
+                            y,
+                            0.6,
+                            0.3,
+                            f"{p['no']}-{j}",
+                            self.s["caption"] + 1,
+                            self.c["accent"],
+                            bold=True,
+                        )
+                        self._text(
+                            s,
+                            x + 0.8,
+                            y,
+                            colw - 0.8,
+                            0.34,
+                            item,
+                            self.s["body"] - 1,
+                            self.c["text"],
+                        )
+                        y += 0.35
+                    y += 0.28
+            return s
+        items = spec.get("items") or self._toc_items
         y = 2.0
         for i, it in enumerate(items, 1):
             self._text(
@@ -341,17 +608,84 @@ class Deck:
                 font=self.f["head"],
                 bold=True,
             )
+            self._text(s, m + 0.9, y, EMU_W - 2 * m - 0.9, 0.5, it, self.s["body"], self.c["text"])
+            y += 0.62
+        return s
+
+    def part(self, spec):
+        """간지(PART divider) — 전면 primary 배경 + PART 칩 + 로마숫자 제목 +
+        하단 소주제 프리뷰(넘버 서클 모티프). 우석진 템플릿 p3 구성 이식."""
+        from pptx.enum.shapes import MSO_SHAPE
+
+        s = self._slide(bg=self.c["primary"])
+        m = self.margin
+        no = spec["_part_no"]
+        chip = s.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE, Inches(m), Inches(1.5), Inches(1.5), Inches(0.44)
+        )
+        chip.fill.solid()
+        chip.fill.fore_color.rgb = rgb(self.c["accent"])
+        chip.line.fill.background()
+        tf = chip.text_frame
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        run = p.add_run()
+        run.text = f"PART {no:02d}"
+        run.font.size = Pt(12)
+        run.font.bold = True
+        run.font.name = self.f["head"]
+        run.font.color.rgb = rgb("FFFFFF")
+        self._text(
+            s,
+            m,
+            2.15,
+            EMU_W - 2 * m,
+            1.0,
+            f"{ROMAN[no - 1]}. {spec['title']}",
+            self.s["title"] + 4,
+            "FFFFFF",
+            font=self.f["head"],
+            bold=True,
+        )
+        if spec.get("subtitle"):
+            self._accent_bar(s, m, 3.42, w=0.05, h=0.4)
             self._text(
                 s,
-                m + 0.9,
-                y,
-                EMU_W - 2 * m - 0.9,
-                0.5,
-                it,
-                self.s["body"],
-                self.c["text"],
+                m + 0.18,
+                3.35,
+                EMU_W - 2 * m - 3.0,
+                0.9,
+                spec["subtitle"],
+                self.s.get("sub", 15),
+                self.c["bg_alt"],
             )
-            y += 0.62
+        # 하단 소주제 프리뷰 — 이 PART에 속한 본문 슬라이드 제목
+        items = self.parts[no - 1]["items"][:4]
+        if items:
+            colw = (EMU_W - 2 * m) / len(items)
+            for i, item in enumerate(items):
+                x = m + i * colw
+                self._num_circle(s, x + colw / 2 - 0.22, 5.0, f"{i + 1:02d}", dark_bg=True)
+                self._text(
+                    s,
+                    x + 0.2,
+                    5.6,
+                    colw - 0.4,
+                    0.7,
+                    item,
+                    self.s["body"] - 1,
+                    self.c["bg_alt"],
+                    align=PP_ALIGN.CENTER,
+                )
+                if i:
+                    from pptx.enum.shapes import MSO_CONNECTOR
+
+                    ln = s.shapes.add_connector(
+                        MSO_CONNECTOR.STRAIGHT, Inches(x), Inches(5.0), Inches(x), Inches(6.2)
+                    )
+                    ln.line.color.rgb = rgb(self.c["muted"])
+                    ln.line.width = Pt(0.5)
         return s
 
     def section(self, spec):
@@ -374,44 +708,51 @@ class Deck:
 
     def bullets(self, spec):
         s = self._slide()
-        self._title_block(s, spec["title"], spec.get("subtitle"))
+        self._title_block(s, spec["title"], spec.get("subtitle"), spec)
         m = self.margin
-        y = BODY_TOP
-        for bt in spec.get("bullets", []):
+        y = self.body_top + self._intro(s, spec) + 0.08
+        for i, bt in enumerate(spec.get("bullets", []), 1):
             text = bt if isinstance(bt, str) else bt.get("text", "")
             subs = [] if isinstance(bt, str) else bt.get("sub", [])
-            self._text(s, m, y, 0.3, 0.35, "•", self.s["body"], self.c["muted"])
+            icon = None if isinstance(bt, str) else bt.get("icon")
+            # 리드 마커: 아이콘 지정 시 픽토그램, 아니면 넘버 서클 모티프
+            if icon:
+                visuals.add_icon(s, icon, m, y - 0.04, 0.36, color="accent")
+            else:
+                self._num_circle(s, m, y - 0.04, f"{i:02d}", d=0.36)
             self._rich_text(
                 s,
-                m + 0.3,
+                m + 0.52,
                 y,
-                EMU_W - 2 * m - 0.3,
+                EMU_W - 2 * m - 0.52,
                 0.5,
                 text,
                 self.s["body"],
                 self.c["text"],
             )
-            y += 0.44
+            y += 0.46
             for sub in subs:  # 2단계 중첩 (BCG식 – 서브불릿)
-                self._text(s, m + 0.55, y, 0.3, 0.3, "–", self.s["body"] - 1, self.c["muted"])
+                self._text(s, m + 0.72, y, 0.3, 0.3, "–", self.s["body"] - 1, self.c["muted"])
                 self._rich_text(
                     s,
-                    m + 0.85,
+                    m + 1.0,
                     y,
-                    EMU_W - 2 * m - 0.85,
+                    EMU_W - 2 * m - 1.0,
                     0.4,
                     sub,
                     self.s["body"] - 1,
                     self.c["text"],
                 )
                 y += 0.36
-            y += 0.08
+            y += 0.1
         return s
 
     def two_column(self, spec):
         s = self._slide()
-        self._title_block(s, spec["title"], spec.get("subtitle"))
+        self._title_block(s, spec["title"], spec.get("subtitle"), spec)
         m = self.margin
+        off = self._intro(s, spec)
+        top = self.body_top + off
         colw = (EMU_W - 2 * m - 0.6) / 2
         for idx, key in enumerate(("left", "right")):
             col = spec.get(key, {})
@@ -419,7 +760,7 @@ class Deck:
             self._text(
                 s,
                 x,
-                1.72,
+                top,
                 colw,
                 0.4,
                 col.get("heading", ""),
@@ -428,8 +769,8 @@ class Deck:
                 font=self.f["head"],
                 bold=True,
             )
-            self._hline(s, x, x + colw, 2.16, self.c["primary"], weight=1.5)
-            y = 2.34
+            self._hline(s, x, x + colw, top + 0.44, self.c["primary"], weight=1.5)
+            y = top + 0.62
             for it in col.get("items", []):
                 text = it if isinstance(it, str) else it.get("text", "")
                 subs = [] if isinstance(it, str) else it.get("sub", [])
@@ -472,18 +813,25 @@ class Deck:
 
     def metrics(self, spec):
         s = self._slide()
-        self._title_block(s, spec["title"], spec.get("subtitle"))
+        self._title_block(s, spec["title"], spec.get("subtitle"), spec)
         items = spec.get("items", [])[:4]
         m = self.margin
         n = max(len(items), 1)
         colw = (EMU_W - 2 * m) / n
+        # 해설이 있으면 카드를 상단으로 올리고 아래 전폭 해설 블록
+        top = self.body_top + (0.25 if spec.get("commentary") else 0.75)
+        icon_off = 0.6 if any(isinstance(it, dict) and it.get("icon") for it in items) else 0
         for i, it in enumerate(items):
             x = m + i * colw
+            if it.get("icon"):
+                visuals.add_icon(
+                    s, it["icon"], x + colw / 2 - 0.25, top - 0.08, 0.5, color="accent"
+                )
             # 숫자는 primary(잉크) — hero 오렌지 카드 대신 절제된 문서형
             self._text(
                 s,
                 x,
-                2.6,
+                top + icon_off,
                 colw,
                 1.1,
                 str(it.get("value", "")),
@@ -494,11 +842,18 @@ class Deck:
                 align=PP_ALIGN.CENTER,
             )
             # 값 아래 짧은 accent 밑줄 — 포인트는 여기 극소량만
-            self._hline(s, x + colw * 0.32, x + colw * 0.68, 3.78, self.c["accent"], weight=2.0)
+            self._hline(
+                s,
+                x + colw * 0.32,
+                x + colw * 0.68,
+                top + icon_off + 1.18,
+                self.c["accent"],
+                weight=2.0,
+            )
             self._text(
                 s,
                 x,
-                3.9,
+                top + icon_off + 1.3,
                 colw,
                 0.7,
                 it.get("label", ""),
@@ -506,41 +861,65 @@ class Deck:
                 self.c["muted"],
                 align=PP_ALIGN.CENTER,
             )
+        self._commentary(s, spec, below=top + icon_off + 2.25)
         return s
 
     def table(self, spec):
         s = self._slide()
-        self._title_block(s, spec["title"], spec.get("subtitle"))
+        self._title_block(s, spec["title"], spec.get("subtitle"), spec)
         headers = spec["headers"]
         rows = spec["rows"]
-        m = self.margin
+        matrix = spec.get("style") == "matrix"  # 비교 매트릭스: 마지막 열(제안) 강조
+        off = self._intro(s, spec)
+        # 해설 칼럼이 있으면 표는 반대편으로(좌/우 교차) — 남는 공백을 분석 텍스트로 채운다
+        x, w = self._exhibit_zone(s, spec, off)
         nrows, ncols = len(rows) + 1, len(headers)
+        # 본문 영역을 채우도록 행 높이를 늘린다(상단 고정·하단 공백 방지)
+        avail = BODY_BOTTOM - (self.body_top + off + 0.12)
+        row_h = min(0.68, max(0.42, avail / nrows))
         gf = s.shapes.add_table(
             nrows,
             ncols,
-            Inches(m),
-            Inches(2.0),
-            Inches(EMU_W - 2 * m),
-            Inches(0.4 * nrows),
+            Inches(x),
+            Inches(self.body_top + off + 0.12),
+            Inches(w),
+            Inches(row_h * nrows),
         )
         tbl = gf.table
+        for r in range(nrows):
+            tbl.rows[r].height = Inches(row_h)
         for j, h in enumerate(headers):
             cell = tbl.cell(0, j)
             cell.fill.solid()
-            cell.fill.fore_color.rgb = rgb(self.c["primary"])
-            self._cell_text(cell, h, self.c["bg"], bold=True)
+            last = matrix and j == ncols - 1
+            cell.fill.fore_color.rgb = rgb(self.c["accent"] if last else self.c["primary"])
+            self._cell_text(
+                cell,
+                h,
+                self.c["bg"],
+                bold=True,
+                align=PP_ALIGN.CENTER if (matrix and j) else PP_ALIGN.LEFT,
+            )
         for i, row in enumerate(rows, 1):
             for j, val in enumerate(row):
                 cell = tbl.cell(i, j)
                 cell.fill.solid()
                 cell.fill.fore_color.rgb = rgb(self.c["bg"] if i % 2 else self.c["bg_alt"])
-                self._cell_text(cell, str(val), self.c["text"])
+                last = matrix and j == ncols - 1
+                self._cell_text(
+                    cell,
+                    str(val),
+                    self.c["primary"] if last else self.c["text"],
+                    bold=last,
+                    align=PP_ALIGN.CENTER if (matrix and j) else PP_ALIGN.LEFT,
+                )
         return s
 
-    def _cell_text(self, cell, text, color, bold=False):
+    def _cell_text(self, cell, text, color, bold=False, align=PP_ALIGN.LEFT):
         cell.vertical_anchor = MSO_ANCHOR.MIDDLE
         tf = cell.text_frame
         p = tf.paragraphs[0]
+        p.alignment = align
         run = p.add_run()
         run.text = text
         run.font.size = Pt(self.s["body"] - 3)
@@ -548,18 +927,112 @@ class Deck:
         run.font.name = self.f["body"]
         run.font.color.rgb = rgb(color)
 
+    def _exhibit_zone(self, slide, spec, off):
+        """해설 칼럼(좌/우 교차) 렌더 후 개체가 쓸 (x, w)를 돌려준다."""
+        m = self.margin
+        side = self._next_side() if spec.get("commentary") else None
+        has_comment = self._commentary(slide, spec, side=side or "left", y_off=off)
+        if has_comment:
+            x = m + COMMENT_W if side == "left" else m
+            return x, EMU_W - 2 * m - COMMENT_W
+        return m, EMU_W - 2 * m
+
+    def _banner(self, slide, text):
+        """하단 결론 배너(BCG p28 실측) — 전폭 primary 스트립. source·footnotes와 병용 금지."""
+        from pptx.enum.shapes import MSO_SHAPE
+
+        m = self.margin
+        bar = slide.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE,
+            Inches(m),
+            Inches(EMU_H - 0.92),
+            Inches(EMU_W - 2 * m),
+            Inches(0.36),
+        )
+        bar.fill.solid()
+        bar.fill.fore_color.rgb = rgb(self.c["primary"])
+        bar.line.fill.background()
+        tf = bar.text_frame
+        tf.word_wrap = True
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        for seg, emph in self._parse_emph(text):
+            run = p.add_run()
+            run.text = seg
+            run.font.size = Pt(self.s["body"])
+            run.font.bold = True
+            run.font.name = self.f["head"]
+            run.font.color.rgb = rgb("FFFFFF" if not emph else self.c["accent"])
+
     def chart(self, spec):
         s = self._slide()
-        self._title_block(s, spec["title"], spec.get("subtitle"))
-        m = self.margin
-        visuals.add_chart(s, spec, self.b, m, 2.0, EMU_W - 2 * m, 4.6)
+        self._title_block(s, spec["title"], spec.get("subtitle"), spec)
+        off = self._intro(s, spec)
+        # 멀티패널(BCG p8 실측): 미니 차트 2~3개 나란히, 각자 소제목+밑줄
+        if spec.get("panels"):
+            m = self.margin
+            panels = spec["panels"][:3]
+            n = len(panels)
+            pw = (EMU_W - 2 * m - 0.5 * (n - 1)) / n
+            top = self.body_top + off + 0.1
+            for i, pn in enumerate(panels):
+                px = m + i * (pw + 0.5)
+                self._text(
+                    s,
+                    px,
+                    top,
+                    pw,
+                    0.55,
+                    pn["title"],
+                    self.s.get("sub", 15) - 1,
+                    self.c["primary"],
+                    font=self.f["head"],
+                    bold=True,
+                    align=PP_ALIGN.CENTER,
+                )
+                self._hline(
+                    s, px + pw * 0.2, px + pw * 0.8, top + 0.6, self.c["primary"], weight=1.5
+                )
+                visuals.add_chart(s, pn, self.b, px, top + 0.75, pw, BODY_BOTTOM - top - 0.85)
+            return s
+        x, w = self._exhibit_zone(s, spec, off)
+        visuals.add_chart(
+            s,
+            spec,
+            self.b,
+            x,
+            self.body_top + off + 0.12,
+            w,
+            BODY_BOTTOM - self.body_top - off - 0.12,
+        )
         return s
 
     def diagram(self, spec):
         s = self._slide()
-        self._title_block(s, spec["title"], spec.get("subtitle"))
+        self._title_block(s, spec["title"], spec.get("subtitle"), spec)
         m = self.margin
-        visuals.add_diagram(s, spec, self.b, m, BODY_TOP + 0.3, EMU_W - 2 * m, 4.2)
+        off = self._intro(s, spec)
+        if spec.get("layout") in ("layers", "branch", "cards"):
+            # 적층/분기/카드 — 해설 칼럼 좌/우 교차, 다이어그램은 반대편
+            x, w = self._exhibit_zone(s, spec, off)
+            visuals.add_diagram(
+                s,
+                spec,
+                self.b,
+                x,
+                self.body_top + off + 0.12,
+                w,
+                BODY_BOTTOM - self.body_top - off - 0.2,
+            )
+        else:
+            # flow/timeline/from_to는 전폭 가로 — 다이어그램 상단, 해설은 아래 전폭 블록
+            avail = BODY_BOTTOM - (self.body_top + off + 0.12)
+            diag_h = 2.35 if spec.get("commentary") else min(4.2, avail)
+            visuals.add_diagram(
+                s, spec, self.b, m, self.body_top + off + 0.12, EMU_W - 2 * m, diag_h
+            )
+            self._commentary(s, spec, below=self.body_top + off + 0.12 + diag_h + 0.25)
         return s
 
     def cta(self, spec):
@@ -596,6 +1069,7 @@ class Deck:
     RENDERERS = {
         "cover": cover,
         "toc": toc,
+        "part": part,
         "section": section,
         "bullets": bullets,
         "two_column": two_column,
@@ -608,7 +1082,6 @@ class Deck:
 
     def build(self, spec):
         self.meta = spec.get("meta", {})
-        # 목차 자동 채움: 본문 섹션(section/bullets/two_column/table/chart/metrics) 제목 수집
         body_types = {
             "section",
             "bullets",
@@ -618,22 +1091,42 @@ class Deck:
             "diagram",
             "metrics",
         }
+        # PART pre-pass: 간지 수집 + 본문 계층 번호(N-M) 부여 (내비게이션 단일 출처)
+        seq = 0
+        for sl in spec["slides"]:
+            if sl["type"] == "part":
+                seq = 0
+                sl["_part_no"] = len(self.parts) + 1
+                self.parts.append({"no": sl["_part_no"], "title": sl["title"], "items": []})
+            elif sl["type"] in body_types and self.parts:
+                seq += 1
+                sl["_part_no"] = self.parts[-1]["no"]
+                sl["_num"] = f"{sl['_part_no']}-{seq}"
+                self.parts[-1]["items"].append(sl.get("title", ""))
+        self.body_top = NAV_BODY_TOP if self.parts else BODY_TOP
+        # 목차 자동 채움(파트 없을 때만 사용 — 파트 있으면 toc가 그룹 목차를 그림)
         self._toc_items = [
             sl["title"] for sl in spec["slides"] if sl["type"] in body_types and sl.get("title")
         ]
         total = len(spec["slides"])
+        self._total = total
         for i, sl in enumerate(spec["slides"], start=1):
             renderer = self.RENDERERS.get(sl["type"])
             if renderer is None:
                 raise ValueError(f"unknown slide type: {sl['type']}")
+            self._page_no = i
             slide = renderer(self, sl)
-            # 마스터 틀: 표지·CTA를 제외한 전 장에 푸터+페이지번호 스탬프
-            if sl["type"] not in ("cover", "cta"):
+            # 마스터 틀: 표지·간지·CTA를 제외한 전 장에 푸터 스탬프
+            if sl["type"] not in ("cover", "part", "cta"):
                 self._frame(slide, i, total)
-            if sl.get("source"):
-                self._source(slide, sl["source"])
-            if sl.get("footnotes"):
-                self._footnotes(slide, sl["footnotes"])
+            if sl.get("banner") and sl["type"] not in ("cover", "toc", "part", "cta"):
+                # 배너는 하단 스트립을 점유 — source·footnotes와 병용 금지(겹침)
+                self._banner(slide, sl["banner"])
+            else:
+                if sl.get("source"):
+                    self._source(slide, sl["source"])
+                if sl.get("footnotes"):
+                    self._footnotes(slide, sl["footnotes"])
         return self.prs
 
 

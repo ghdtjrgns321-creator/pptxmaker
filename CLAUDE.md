@@ -4,8 +4,9 @@
 
 ## 하네스: PPT 서식 공장 (v2)
 
-**역할 분리:** 콘텐츠 생산(리서치·초안 pptx 3~5개)은 사용자가 NotebookLM에서 해온다.
-이 하네스는 그 초안을 통합하고 **일관된 골격·브랜드의 네이티브 .pptx로 재빌드**한다.
+**역할 분리(v3):** 재료 추출은 **Claude 직접 추출이 메인**(로컬 소스 → 보고서형 8요소,
+content-extract 모드 A), NotebookLM은 보조(관점 변주·비로컬 소스, 보고서형 텍스트만).
+이 하네스가 재료를 통합하고 **일관된 골격·브랜드의 네이티브 .pptx로 빌드**한다.
 전체 설계·원칙은 `docs/PIPELINE.md`.
 
 **트리거:** "프로젝트 PPT 만들어줘 / 소개 자료 생성 / 발표자료 / pptx 생성 / 초안 통합" 및 후속
@@ -31,13 +32,14 @@
 
 ## 변경 이력
 
-| 날짜       | 변경 내용                 | 대상                                                                                          | 사유                                                                                                                        |
-| ---------- | ------------------------- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-06 | 초기 구성                 | 전체                                                                                          | 프로젝트 소개용 B2B 셀링 PPT 자동생성 하네스 신규 구축                                                                      |
-| 2026-07-06 | 공장 골격 확정            | selling-curation, deck-spec-schema                                                            | 표준 골격을 "문제→솔루션→증거 8슬라이드"(B2B 표준)로 박제, 앞뒤 고정·본문 유연                                              |
-| 2026-07-06 | 브랜드킷 흑백+포인트 확정 | pptx-build/assets/brand-kit.yaml                                                              | 무채색 베이스(primary #15171B) + 포인트 Muted Ember(accent #D66E3A) 단일 포인트 컨셉                                        |
-| 2026-07-06 | 마스터 틀 구현            | pptx-build/scripts/build_pptx.py                                                              | 컨설팅 표준 틀(헤더 구분선·푸터 회사명·우하단 페이지번호·출처선) 전 장 자동 스탬프                                          |
-| 2026-07-06 | AI티 제거·문서형 개편     | build_pptx.py, deck-spec-schema, selling-curation                                             | BCG 레퍼런스 기준: 세로 rail→헤더 이중룰, hero카드→인라인 **강조**, 문서형 푸터(중앙 워드마크·세로 저작권)                  |
-| 2026-07-06 | 실측 반영(글자·밀도·구성) | brand-kit, build_pptx, reference-metrics, selling-curation                                    | NYCHA BCG 111슬라이드 실측: 제목24·본문13·캡션9pt, 부제·중첩불릿(•/–)·각주 지원, 밀도 120~200단어                           |
-| 2026-07-06 | git·uv 관리 전환          | pyproject.toml, uv.lock, .gitignore, CLAUDE.md                                                | 재현 가능 환경(uv venv·lock)과 버전관리(main/develop) 도입, Python 3.13 고정                                                |
-| 2026-07-08 | v2 파이프라인 전환        | docs/PIPELINE.md, content-extract·pptx-visuals 신설, deck-compose 개편, project-analysis 폐기 | 콘텐츠 생산을 NotebookLM으로 이관(초안 3~5개 통합), 이 프로젝트는 서식·템플릿 일관성에 집중. diagram 타입(flow/layers) 추가 |
+| 날짜       | 변경 내용                  | 대상                                                                                          | 사유                                                                                                                                                                                                                                           |
+| ---------- | -------------------------- | --------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-06 | 초기 구성                  | 전체                                                                                          | 프로젝트 소개용 B2B 셀링 PPT 자동생성 하네스 신규 구축                                                                                                                                                                                         |
+| 2026-07-06 | 공장 골격 확정             | selling-curation, deck-spec-schema                                                            | 표준 골격을 "문제→솔루션→증거 8슬라이드"(B2B 표준)로 박제, 앞뒤 고정·본문 유연                                                                                                                                                                 |
+| 2026-07-06 | 브랜드킷 흑백+포인트 확정  | pptx-build/assets/brand-kit.yaml                                                              | 무채색 베이스(primary #15171B) + 포인트 Muted Ember(accent #D66E3A) 단일 포인트 컨셉                                                                                                                                                           |
+| 2026-07-06 | 마스터 틀 구현             | pptx-build/scripts/build_pptx.py                                                              | 컨설팅 표준 틀(헤더 구분선·푸터 회사명·우하단 페이지번호·출처선) 전 장 자동 스탬프                                                                                                                                                             |
+| 2026-07-06 | AI티 제거·문서형 개편      | build_pptx.py, deck-spec-schema, selling-curation                                             | BCG 레퍼런스 기준: 세로 rail→헤더 이중룰, hero카드→인라인 **강조**, 문서형 푸터(중앙 워드마크·세로 저작권)                                                                                                                                     |
+| 2026-07-06 | 실측 반영(글자·밀도·구성)  | brand-kit, build_pptx, reference-metrics, selling-curation                                    | NYCHA BCG 111슬라이드 실측: 제목24·본문13·캡션9pt, 부제·중첩불릿(•/–)·각주 지원, 밀도 120~200단어                                                                                                                                              |
+| 2026-07-06 | git·uv 관리 전환           | pyproject.toml, uv.lock, .gitignore, CLAUDE.md                                                | 재현 가능 환경(uv venv·lock)과 버전관리(main/develop) 도입, Python 3.13 고정                                                                                                                                                                   |
+| 2026-07-08 | v2 파이프라인 전환         | docs/PIPELINE.md, content-extract·pptx-visuals 신설, deck-compose 개편, project-analysis 폐기 | 콘텐츠 생산을 NotebookLM으로 이관(초안 3~5개 통합), 이 프로젝트는 서식·템플릿 일관성에 집중. diagram 타입(flow/layers) 추가                                                                                                                    |
+| 2026-07-08 | v3 슬라이드 문법·시각 어휘 | build_pptx.py, visuals.py, audit_pptx.py, visual-selection.md, 스킬 4종, PIPELINE.md          | PART 탭·간지·계층번호(우석진 실측), 시각 13종(cards·branch·timeline·from_to·panels·banner 등, Dallas/BCG 실측), Lucide 아이콘 72종, intro·commentary 문서형 밀도, QA 게이트 8종. 재료는 Claude 직접 추출 메인 + NotebookLM 보조(A/B 실측 근거) |

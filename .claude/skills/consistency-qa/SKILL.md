@@ -28,7 +28,24 @@ description: 빌드된 .pptx가 브랜드 일관성(색·폰트·여백)과 셀�
 
 불일치 시 → **pptx-builder 또는 brand-kit 확인**.
 
-## 3. 셀링 품질 (정성 기준)
+## 3. 렌더 눈검증 (필수 — 기계 검사가 못 잡는 시각 결함)
+
+audit PASS 후 반드시 전 장을 PNG로 렌더해 **직접 본다**(겹침·잘림·여백 과다는 파싱으로 안 잡힘):
+
+```powershell
+$ppt = New-Object -ComObject PowerPoint.Application
+$pres = $ppt.Presentations.Open((Resolve-Path "_workspace\deck.pptx").Path, $true, $false, $false)
+New-Item -ItemType Directory -Force _workspace\render | Out-Null
+$pres.SaveAs((Resolve-Path "_workspace\render").Path + "\slide", 18); $pres.Close(); $ppt.Quit()
+```
+
+- PNG 수 == 슬라이드 수 확인(전수), 최소 표본: 간지 1 + 차트 1 + 표 1 + 다이어그램 각 레이아웃 1 + 최다 텍스트 슬라이드 1을 Read로 판독
+- 체크: 텍스트 겹침/잘림 0, 개체가 본문 영역 밖으로 나가지 않음, 슬라이드 하단 40% 공백이면 밀도 결함
+- 발견 결함은 [되돌릴 대상]과 함께 리포트에 좌표·슬라이드 번호로 특정
+- 렌더 후 산출물 복사가 "다른 프로세스가 사용 중"으로 잠기면 유령 POWERPNT 프로세스가
+  원인 — `Get-Process POWERPNT`로 확인 후 종료하고 재시도(COM Quit이 즉시 안 풀릴 수 있음)
+
+## 4. 셀링 품질 (정성 기준)
 
 | 항목        | 합격 기준                           | 실패 시       |
 | ----------- | ----------------------------------- | ------------- |

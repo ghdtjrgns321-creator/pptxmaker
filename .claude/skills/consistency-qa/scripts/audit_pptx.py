@@ -43,7 +43,8 @@ def main():
     slides = spec["slides"]
 
     want_tables = sum(1 for s in slides if s["type"] == "table")
-    want_charts = sum(1 for s in slides if s["type"] == "chart")
+    # 멀티패널 chart는 패널 수만큼 네이티브 차트를 만든다
+    want_charts = sum(len(s.get("panels") or [None]) for s in slides if s["type"] == "chart")
 
     got_tables = got_charts = got_pics = 0
     for slide in prs.slides:
@@ -63,17 +64,39 @@ def main():
             f"{len(prs.slides)}/{len(slides)}",
         )
     )
-    checks.append(
-        ("native_tables", got_tables == want_tables, f"{got_tables}/{want_tables}")
-    )
-    checks.append(
-        ("native_charts", got_charts == want_charts, f"{got_charts}/{want_charts}")
-    )
+    checks.append(("native_tables", got_tables == want_tables, f"{got_tables}/{want_tables}"))
+    checks.append(("native_charts", got_charts == want_charts, f"{got_charts}/{want_charts}"))
     # 골격: 첫 두 장 cover/toc, 마지막 cta
     types = [s["type"] for s in slides]
     skeleton_ok = types[:2] == ["cover", "toc"] and types[-1] == "cta"
+    checks.append(("skeleton(cover→toc..cta)", skeleton_ok, str(types[:2] + ["..", types[-1]])))
+
+    # 정보 밀도: 본문 슬라이드(표지·목차·섹션·CTA 제외) 단어수 하한 — 빈 슬라이드 차단
+    MIN_BODY_WORDS = 60
+    frame_types = {"cover", "toc", "part", "section", "cta"}
+    thin = []
+    for idx, (sl, spec_sl) in enumerate(zip(prs.slides, slides), 1):
+        if spec_sl["type"] in frame_types:
+            continue
+        words = sum(len(sh.text_frame.text.split()) for sh in sl.shapes if sh.has_text_frame)
+        if words < MIN_BODY_WORDS:
+            thin.append(f"s{idx}({spec_sl['type']}:{words})")
+    n_body = sum(1 for s in slides if s["type"] not in frame_types)
     checks.append(
-        ("skeleton(cover→toc..cta)", skeleton_ok, str(types[:2] + ["..", types[-1]]))
+        (
+            f"density(본문 {MIN_BODY_WORDS}단어 미만 0장)",
+            not thin,
+            f"미달 {len(thin)}/{n_body}" + (f" {thin}" if thin else ""),
+        )
+    )
+
+    # 구성 규칙(deck-compose 계약을 기계로 강제 — 프롬프트 규칙은 요동, 게이트는 불변)
+    n_bullets = types.count("bullets")
+    checks.append(("bullets_slides(≤2)", n_bullets <= 2, f"{n_bullets}/2"))
+    n_parts = types.count("part")
+    part_ok = n_parts >= 3 or len(slides) < 12
+    checks.append(
+        ("part_navigation(≥3 when slides≥12)", part_ok, f"part={n_parts}, slides={len(slides)}")
     )
 
     # 폰트 일관성 (brand-kit 제공 시)

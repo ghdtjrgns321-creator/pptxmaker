@@ -17,8 +17,10 @@ description: NotebookLM pptx 초안들을 통합해 일관 서식의 B2B 셀링 
 
 작업 시작 전 입력과 `_workspace/` 상태를 본다:
 
-- `input/<프로젝트명>/*.pptx` 미확보 → 사용자에게 NotebookLM 초안 위치를 묻는다.
-  아직 안 만들었다면 `assets/notebooklm-prompt.md` 템플릿을 안내한다(필수 입력).
+- **입력 우선순위(2026-07-08 A/B 확정):** ① 로컬 프로젝트 소스 경로(→ content-extract
+  모드 A 직접 추출, 기본) ② `input/<프로젝트명>/*.md` NotebookLM 보고서(보조·관점 변주)
+  ③ pptx(최후 수단·이미지 판독). 소스 경로도 input도 없으면 사용자에게 프로젝트 소스
+  경로를 묻는다(필수 입력).
 - `_workspace/` 없음 → **초기 실행** (Phase 1부터 전체)
 - `_workspace/` 있음 + "특정 슬라이드/스토리만 수정" → **부분 재실행**
   (카피·구성이면 deck-composer→pptx-builder, 색·폰트면 brand-kit→pptx-builder,
@@ -35,6 +37,7 @@ description: NotebookLM pptx 초안들을 통합해 일관 서식의 B2B 셀링 
 ② deck-composer     → _workspace/02_deck-spec.json (통합·골격 배치)
 ③ pptx-builder      → _workspace/deck.pptx         (네이티브 pptx 빌드)
 ④ consistency-qa    → _workspace/03_qa-report.md   (일관성·품질 검증)
+                      audit 기계검사 + 전장 PNG 렌더 눈검증(겹침·잘림·공백) 필수
                       FAIL → 지정 단계로 1회 되돌림 → 재빌드 → 재검증
 ```
 
@@ -55,7 +58,7 @@ description: NotebookLM pptx 초안들을 통합해 일관 서식의 B2B 셀링 
 
 | 상황                    | 대응                                                                                                                |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| input/에 pptx 없음      | NotebookLM 초안 생성 안내(assets/notebooklm-prompt.md), 빈 재료로 진행 금지                                         |
+| input/에 pptx 없음      | NotebookLM 초안 생성 안내(docs/notebooklm-prompt.md), 빈 재료로 진행 금지                                           |
 | 추출 결과가 거의 빈약   | 사용자에게 초안 품질·개수 재확인 요청(프롬프트 변주 추가 생성 제안)                                                 |
 | 차트 수치 추출 실패     | 텍스트 복원 시도 → 실패 시 이미지 폴백을 리포트에 명시(조용히 버리지 않음)                                          |
 | deck-spec이 스키마 위반 | deck-composer에 스키마 명시하여 1회 재요청, 재실패 시 위반 항목 보고                                                |
