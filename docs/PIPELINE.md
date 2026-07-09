@@ -30,12 +30,13 @@ input/<프로젝트명>/ 에 저장 ──▶│            ▼                 
 
 ## 단계별 역할
 
-| 단계 | 에이전트          | 스킬            | 입력                     | 출력                            |
-| ---- | ----------------- | --------------- | ------------------------ | ------------------------------- |
-| ①    | content-extractor | content-extract | input/ 의 pptx 3~5개     | 01_extracted.md, charts, images |
-| ②    | deck-composer     | deck-compose    | 01_extracted.md          | 02_deck-spec.json               |
-| ③    | pptx-builder      | pptx-build      | 02_deck-spec.json        | deck.pptx                       |
-| ④    | consistency-qa    | consistency-qa  | deck.pptx + 02_deck-spec | 03_qa-report.md                 |
+| 단계 | 에이전트           | 스킬            | 입력                         | 출력                                            |
+| ---- | ------------------ | --------------- | ---------------------------- | ----------------------------------------------- |
+| ①    | content-extractor  | content-extract | 로컬 소스(기본)·input/(보조) | 01_extracted.md, charts, images                 |
+| ②    | deck-composer      | deck-compose    | 01_extracted.md              | 03_exhibit-candidates.json(시각 후보)           |
+| ②.5  | 사용자 승인 게이트 | pptx-visuals    | 후보 JSON → make_mockups.py  | mockups/gallery.html → 회신 → 02_deck-spec.json |
+| ③    | pptx-builder       | pptx-build      | 02_deck-spec.json            | deck.pptx (하이브리드: 네이티브+mpl PNG)        |
+| ④    | consistency-qa     | consistency-qa  | deck.pptx + 02_deck-spec     | 03_qa-report.md (+다양성 게이트 3종)            |
 
 ## 원칙 (박제)
 
@@ -75,3 +76,9 @@ python-pptx에는 다이어그램 객체가 없으므로 도형+커넥터 조합
 - v2 (2026-07-08): 콘텐츠 생산을 NotebookLM으로 이관. project-analysis/project-analyst 폐기,
   selling-curation → deck-compose(통합·선별로 역할 축소), content-extract·pptx-visuals 신설.
 - 샘플 NotebookLM pptx 미확보 상태로 설계 — 첫 실전 투입 때 추출 로직(특히 차트 형태)을 보정한다.
+- v4 (2026-07-08): 시각 다양성 파이프라인. 첫 실전 덱이 "막대 1·표 3·박스플로우" 3어휘로
+  수렴한 문제를 4방법론 조합으로 해결 — ①익스히빗 사양서 선행 패스(②.5 사용자 승인 게이트,
+  make_mockups.py 갤러리) ②확장 매핑·다양성 강제 3조항(visual-selection C-2, audit 게이트)
+  ③mpl 하이브리드 7종(mpl_exhibits.py — 네이티브 편집성은 기본 6종 유지, 확장만 이미지)
+  ④레퍼런스 앵커링(ref/catalog.md, Dallas 6페이지). 스타일 지렛대 박제: 전부 회색 + 강조만
+  accent 1색 + 콜아웃 + 출처 각주. 롤백 지점: git tag `v3-pre-visual-diversity`.

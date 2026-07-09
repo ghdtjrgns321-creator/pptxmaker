@@ -21,19 +21,19 @@
 
 ## 슬라이드 타입별 필드
 
-| type         | 필수 필드                                                                                              | 용도                                                          |
-| ------------ | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------- |
-| `cover`      | `title`, `subtitle`                                                                                    | 표지                                                          |
-| `toc`        | (없음) `items` 선택                                                                                    | 목차. 비우면 본문 제목 자동                                   |
-| `section`    | `title`                                                                                                | 섹션 구분(전환)                                               |
-| `bullets`    | `title`, `bullets[]`                                                                                   | 불릿 3~5개. Pain/특징 등                                      |
-| `two_column` | `title`, `left{heading,items[]}`, `right{heading,items[]}`                                             | 문제/솔루션·Before/After 대비                                 |
-| `metrics`    | `title`, `items[{value,label}]`                                                                        | 큰 숫자 KPI 최대 4개                                          |
-| `table`      | `title`, `headers[]`, `rows[[]]`                                                                       | 네이티브 표(기술스택·비교표)                                  |
-| `chart`      | `title`, `chart_type`(bar/hbar/line/pie/doughnut/stacked_bar), `categories[]`, `series{name:[values]}` | 네이티브 차트. 타입은 데이터 형태로 결정(pptx-visuals 결정표) |
-| `diagram`    | `title`, `layout`(flow/layers/branch/timeline), `nodes[{label,sub?}]`                                  | 도형 다이어그램(흐름·아키텍처)                                |
-| `part`       | `title`, `subtitle`(선택)                                                                              | 간지(PART divider)                                            |
-| `cta`        | `title`, `contact{email,site,...}`                                                                     | 마무리·연락처                                                 |
+| type         | 필수 필드                                                                                                                                                                         | 용도                                                         |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| `cover`      | `title`, `subtitle`                                                                                                                                                               | 표지                                                         |
+| `toc`        | (없음) `items` 선택                                                                                                                                                               | 목차. 비우면 본문 제목 자동                                  |
+| `section`    | `title`                                                                                                                                                                           | 섹션 구분(전환)                                              |
+| `bullets`    | `title`, `bullets[]`                                                                                                                                                              | 불릿 3~5개. Pain/특징 등                                     |
+| `two_column` | `title`, `left{heading,items[]}`, `right{heading,items[]}`                                                                                                                        | 문제/솔루션·Before/After 대비                                |
+| `metrics`    | `title`, `items[{value,label}]`                                                                                                                                                   | 큰 숫자 KPI 최대 4개                                         |
+| `table`      | `title`, `headers[]`, `rows[[]]`                                                                                                                                                  | 네이티브 표(기술스택·비교표)                                 |
+| `chart`      | `title`, `chart_type`(bar/hbar/line/pie/doughnut/stacked_bar + 확장 waterfall/heatmap/dumbbell/slope/funnel/annotated_scatter/histogram), `categories[]`, `series{name:[values]}` | 차트. 기본 6종은 네이티브, 확장 7종은 mpl 이미지(하이브리드) |
+| `diagram`    | `title`, `layout`(flow/layers/branch/timeline), `nodes[{label,sub?}]`                                                                                                             | 도형 다이어그램(흐름·아키텍처)                               |
+| `part`       | `title`, `subtitle`(선택)                                                                                                                                                         | 간지(PART divider)                                           |
+| `cta`        | `title`, `contact{email,site,...}`                                                                                                                                                | 마무리·연락처                                                |
 
 ## PART 내비게이션 체계 (우석진 템플릿 이식 — _workspace/06_reference-notes.md)
 
@@ -63,12 +63,55 @@
   **source·footnotes와 병용 금지**(같은 영역 점유 — 빌더가 배너 우선).
 - 형식 선택은 `pptx-visuals/references/visual-selection.md` 결정표를 따른다(주장 한 문장 → 형식).
 - `layout: "layers"` — 노드 상→하 적층. 아키텍처 레이어용. 노드 2~5개 권장.
+- `layout: "process_band"` (v4.1) — 체브론 단계 밴드 + 각 단계 아래 상세 칼럼. 빈 박스
+  나열 금지의 대안: 파이프라인·프로세스는 이것이 기본. `nodes[{label, sub?, details:[..]}]`
+  3~6개, details 2~4줄. 상세가 칼럼에 있으므로 commentary 병용 비권장.
+- `layout: "band_table"` (v4.1, Dallas p46) — 그룹 밴드 표(좌측 세로 그룹 라벨 셀 병합 +
+  줄무늬 행 + 행 하이라이트). `headers[]`, `groups[{label, rows:[[..]]}]`,
+  `highlight:["행 첫 셀 텍스트"]`(선택, accent 행 강조). 검증 결과·항목 그룹 나열용.
+- `layout: "matrix_2x2"` (v4.2) — 2×2 사분면 포지셔닝. `x_axis:["좌","우"]`, `y_axis:["하","상"]`,
+  `quadrants:[4라벨(선택)]`, `items:[{label, x:0~1, y:0~1, emphasis?}]`. 정성 경쟁 비교용.
+- `layout: "spectrum"` (v4.2) — 성숙도 스펙트럼(점진 음영 밴드 + 현위치 accent 마커).
+  `stages:[{label, sub?}]` 4~6개, `marker: <0-base 현위치>`. 수준·단계 위의 위치 주장용.
+- `layout: "harvey_table"` (v4.2) — 하비볼 비교표. `cols[]`, `rows:[{label, scores:[0~4]}]`,
+  `emphasis_col: <0-base>`. 대안별 충족도(다축 우월) 정성 비교용.
+- `layout: "check_matrix"` (v4.2) — 체크매트릭스(✓/✗/–). harvey_table과 동일 형식,
+  scores에 "y"/"n"/"-". 요건 충족 비교용.
+- v4.4 채굴 승격 4종:
+  - `chart_type:"bubble"` (mpl 이미지) — `items:[{label, value, emphasis?}]` 4~9개. 원 면적 비교.
+  - `chart_type:"waffle"` (mpl 이미지) — `items:[{label, percent, emphasis?}]` 1~3개. 10×10 도트 %.
+  - `layout:"venn"` (도형) — `sets:[{label, sub?}]` 2~3개 + `overlap:"교집합 라벨"`. 개념 겹침.
+  - `layout:"pro_con"` (도형) — `cols:[{heading, tone:"pro"|"con", items:[{text, sub?}]}]` 2열.
+    혜택/리스크 컬러바 대비 리스트(McKinsey 실측).
+- `meta.frame_style: "v3"|"v44"` — 표지·간지 틀 스타일. v44 = 채굴 구도(표지 kicker+메타 행,
+  간지 숫자 워터마크+진행 도트). cover에 `kicker` 필드(상단 시리즈 라벨) 지원.
+- 아키타입 L-ID·형상 매핑·세트 제약은 `pptx-visuals/references/archetype-catalog.md`가 단일 출처.
 - 노드: `{"label": "굵은 제목", "sub": "설명 한 줄(선택)"}`. `sub`는 생략 가능.
 
 ```json
 {"type":"diagram","title":"처리 흐름","layout":"flow",
  "nodes":[{"label":"수집","sub":"pptx 파싱"},{"label":"통합"},{"label":"빌드","sub":"brand-kit 적용"}]}
 ```
+
+## v4 하이브리드 익스히빗 필드 (chart 타입 확장)
+
+- **렌더 경로 자동 판별**: `chart_type`이 확장 7종(waterfall·heatmap·dumbbell·slope·funnel·
+  annotated_scatter·histogram)이면 mpl 220dpi PNG로 삽입된다(**수치편집불가** — 수정은
+  deck-spec 재빌드). 기본 6종은 네이티브 유지(수치편집가능). `"render": "image"`로 강제 가능.
+- `emphasis: ["항목명"]` — **전부 회색 + 강조만 accent 1색** BCG 규칙. 네이티브(카테고리/
+  시리즈명 매칭)·mpl 공통. 없으면 기존 팔레트 순환.
+- `annotations: [{"text": "...", ...}]` — 콜아웃 주석.
+  - 네이티브 경로: `{"at": [fx, fy], "point_to": [fx, fy]?}` — 개체 영역 분수 좌표에 pptx
+    도형(편집가능)으로 얹는다.
+  - mpl 경로: `{"xy": [데이터x, 데이터y]?, "at": [fx, fy]?}` — 이미지 안에 굽는다.
+- `ref: "ref/dallas_p18.png"` — 레퍼런스 앵커(ref/catalog.md). 목업 갤러리에 표시되고
+  레이아웃 기준이 된다. 빌더는 무시(스타일은 코드가 보장).
+- `sub_table: {"headers":[..], "rows":[[..]]}` (v4.1, BCG p18) — chart 슬라이드 차트 아래
+  부속 데이터 행(네이티브 미니 표, 1~3행). "한 장 안의 조합"(차트+부속표)로 밀도를 만든다.
+- 확장 유형별 데이터 필드: waterfall `categories+values(+total_label)` · heatmap
+  `rows+cols+values[2D]` · dumbbell `categories+series(2개)` · slope `columns(2)+series{name:[v1,v2]}`
+  · funnel `stages+values` · annotated_scatter `points[{x,y,label,emphasis?}](+x_label,y_label)`
+  · histogram `values(+bins,x_label)`. mpl 경로 출처는 `note` 필드(이미지 내 각주).
 
 ## 공장 표준 골격 (박제 — 문제→솔루션→증거)
 

@@ -25,8 +25,12 @@ python scripts/build_pptx.py <deck-spec.json> <out.pptx> [--brand assets/brand-k
 
 - **한다:** 골격(cover→toc→본문→cta) 렌더, 네이티브 표/차트 생성, brand-kit 색·폰트 적용,
   목차 자동 채움(본문 섹션 제목).
-- **하지 않는다:** 표·차트를 이미지로 굽지 않는다. 색·폰트를 하드코딩하지 않는다(brand-kit에서만).
-  spec에 없는 슬라이드 타입을 임의 발명하지 않는다(스키마의 9종만).
+- **하이브리드(v4):** `chart_type`이 확장 7종(waterfall·heatmap·dumbbell·slope·funnel·
+  annotated_scatter·histogram)이거나 `render:"image"`면 pptx-visuals의 `mpl_exhibits`로
+  220dpi PNG를 `<out>/render/`에 생성해 삽입한다 — 이것만이 허용된 이미지 차트 경로.
+  네이티브 차트의 `emphasis`(회색+강조 1색)와 `annotations`(도형 콜아웃)도 렌더한다.
+- **하지 않는다:** 기본 6종 차트·표를 이미지로 굽지 않는다. 색·폰트를 하드코딩하지 않는다
+  (brand-kit에서만). spec에 없는 슬라이드 타입을 임의 발명하지 않는다.
 
 ## 빌드 후 자체 확인
 

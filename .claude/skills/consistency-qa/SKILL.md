@@ -13,12 +13,21 @@ description: 빌드된 .pptx가 브랜드 일관성(색·폰트·여백)과 셀�
 
 `scripts/audit_pptx.py`로 pptx를 재파싱해 확인한다:
 - deck-spec의 `table` 슬라이드 수 == pptx의 `has_table` 수 (이미지로 새지 않았는지)
-- deck-spec의 `chart` 슬라이드 수 == pptx의 `has_chart` 수
+- deck-spec의 **네이티브** `chart` 수 == pptx의 `has_chart` 수 — 확장 7종(waterfall 등)·
+  `render:"image"`는 mpl PNG가 정상 경로이므로 Picture로 계수(image_exhibits 검사)
 - `diagram` 슬라이드는 도형(자동도형) 렌더가 정상 — 그림(PICTURE)으로 새지 않았는지
-- 그림(PICTURE)으로 잡힌 표·차트 = 0
 - 슬라이드 수 == spec의 slides 길이
 
 불일치 시 → **pptx-builder로 되돌림**.
+
+## 1-2. 다양성 게이트 4종 (v4.2 — audit_pptx.py가 spec 기준 기계 검증)
+
+- `diversity_cooldown`: 동일 시각 유형(chart:종류/diagram:레이아웃/table…) 간격 3장 미만 = FAIL
+- `diversity_min_kinds`: 본문 5장 이상인데 유형 5종 미만 = FAIL
+- `diversity_box_ratio`: 박스 다이어그램(flow/layers/cards/branch/from_to) 본문의 30% 초과 = FAIL
+- `diversity_max_repeat`: 동일 유형 덱 전체 3회 이상 = FAIL
+
+위반 시 → **deck-composer로 되돌림**(아키타입 재배정 — archetype-catalog.md 세트 제약).
 
 ## 2. 브랜드 일관성 (스크립트 + 대조)
 

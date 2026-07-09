@@ -24,6 +24,7 @@ from pptx.util import Inches, Pt
 
 # 차트·다이어그램 렌더는 pptx-visuals 스킬이 단일 출처
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pptx-visuals" / "scripts"))
+import mpl_exhibits  # noqa: E402
 import visuals  # noqa: E402
 
 # 16:9 고정 캔버스 (inch)
@@ -34,13 +35,13 @@ FOOT_Y = EMU_H - 0.42  # 푸터 텍스트 y (회사명·페이지번호)
 HAIR_Y = EMU_H - 0.5  # 푸터 헤어라인 y
 HEADER_HAIR_Y = 1.42  # 제목(+부제) 아래 헤더 구분선 y (파트 없는 구형 레이아웃)
 BODY_TOP = 1.72  # 본문 시작 y (파트 없는 구형 레이아웃)
-# 내비게이션 헤더(우석진 템플릿 실측 — _workspace/06_reference-notes.md)
+# 내비게이션 헤더(우석진 실측 + v4.5 헤드라인 2줄 허용)
 TAB_Y = 0.2  # 섹션 탭 y
-KICKER_Y = 0.66  # 소분류 라벨 y
-TITLE_Y = 0.86  # 계층번호 제목 y
-SUB_Y = 1.42  # 거버닝 메시지 y
-NAV_RULE_Y = 1.8  # 헤더 하단 헤어라인 y
-NAV_BODY_TOP = 1.95  # 파트 체계 사용 시 본문 시작 y
+KICKER_Y = 0.62  # 소분류 라벨 y
+TITLE_Y = 0.82  # 계층번호 헤드라인 y (28pt 2줄 = 0.95in 확보)
+SUB_Y = 1.80  # 리드 문단 y (14pt 2줄 = 0.55in 확보)
+NAV_RULE_Y = 2.42  # 헤더 하단 헤어라인 y
+NAV_BODY_TOP = 2.56  # 파트 체계 사용 시 본문 시작 y
 ROMAN = ["Ⅰ", "Ⅱ", "Ⅲ", "Ⅳ", "Ⅴ", "Ⅵ"]
 SRC_Y = EMU_H - 0.85  # 출처선 y (각주 위 — 겹침 방지)
 FOOTNOTE_Y = EMU_H - 0.62  # 각주 y (푸터 헤어라인 위)
@@ -80,6 +81,8 @@ class Deck:
         self._total = 0
         self.meta = {}
         self._comment_side = "left"  # 해설 칼럼 좌/우 교차 토글(형식 반복 방지)
+        self.render_dir = Path("_workspace/render")  # mpl 익스히빗 PNG 출력처(main이 재설정)
+        self.frame_style = "v3"  # 프레임 틀(표지·간지) 스타일 — build()가 meta.frame_style로 전환
 
     # --- 저수준 헬퍼 ---
     def _slide(self, bg=None):
@@ -196,7 +199,7 @@ class Deck:
                 m,
                 TITLE_Y,
                 EMU_W - 2 * m,
-                0.55,
+                0.95,
                 title_text,
                 self.s["section"],
                 self.c["primary"],
@@ -211,7 +214,7 @@ class Deck:
                     m + 0.16,
                     SUB_Y,
                     EMU_W - 2 * m - 0.16,
-                    0.4,
+                    0.58,
                     subtitle,
                     self.s.get("sub", 15),
                     self.c["text"],
@@ -407,6 +410,14 @@ class Deck:
             run.font.bold = bool(emph)
             run.font.color.rgb = rgb(self.c["accent"] if emph else color)
 
+    def _flatten(self, slide):
+        """전 도형 그림자 제거 — PowerPoint 기본 그림자가 2010년대 PPT 티의 주범."""
+        for sh in slide.shapes:
+            try:
+                sh.shadow.inherit = False
+            except (AttributeError, ValueError, NotImplementedError):
+                continue  # GraphicFrame(표·차트)은 미지원 — 자체 그림자 없음
+
     def _frame(self, slide, page_no, total):
         """마스터 틀(기관 문서형 푸터): 헤어라인 + 좌 문서명 + 중앙 브랜드 워드마크
         + 우하단 페이지번호 + 우측 세로 저작권선. 상수 좌표라 전 장 동일 위치 스탬프."""
@@ -495,6 +506,8 @@ class Deck:
 
     # --- 슬라이드 타입별 렌더러 ---
     def cover(self, spec):
+        if self.frame_style == "v44":
+            return self._cover_v44(spec)
         s = self._slide(bg=self.c["primary"])
         m = self.margin
         self._accent_bar(s, m, 3.0, w=1.6, h=0.12)
@@ -523,6 +536,173 @@ class Deck:
                 font=self.f["body"],
             )
         self._logo_mark(s, color="FFFFFF")
+        return s
+
+    def _cover_v44(self, spec):
+        """표지 v4.4(BCG GenAI p1 실측 구도) — 상단 시리즈 kicker + 헤어라인,
+        좌측 대형 타이틀 블록, 하단 메타 행(브랜드·연도·accent 사각 불릿)."""
+        s = self._slide(bg=self.c["primary"])
+        m = self.margin
+        kicker = (spec.get("kicker") or self.meta.get("project", "")).upper()
+        self._text(
+            s,
+            m,
+            0.7,
+            EMU_W - 2 * m,
+            0.35,
+            kicker,
+            self.s["caption"] + 1,
+            self.c["muted"],
+            font=self.f["head"],
+            bold=True,
+        )
+        self._hline(s, m, EMU_W - m, 1.12, self.c["muted"], weight=0.75)
+        from pptx.enum.shapes import MSO_SHAPE
+
+        sq = s.shapes.add_shape(  # accent 사각 마커 — 표지의 유일한 포인트 색
+            MSO_SHAPE.RECTANGLE,
+            Inches(m),
+            Inches(2.55),
+            Inches(0.28),
+            Inches(0.28),
+        )
+        sq.fill.solid()
+        sq.fill.fore_color.rgb = rgb(self.c["accent"])
+        sq.line.fill.background()
+        self._text(
+            s,
+            m,
+            3.0,
+            EMU_W - 2 * m - 1.5,
+            1.9,
+            spec["title"],
+            self.s["title"] + 4,
+            "FFFFFF",
+            font=self.f["head"],
+            bold=True,
+        )
+        if spec.get("subtitle"):
+            self._text(
+                s,
+                m,
+                4.75,
+                EMU_W - 2 * m - 2.5,
+                1.0,
+                spec["subtitle"],
+                self.s.get("sub", 15),
+                self.c["bg_alt"],
+                font=self.f["body"],
+            )
+        self._hline(s, m, EMU_W - m, EMU_H - 1.05, self.c["muted"], weight=0.75)
+        self._text(
+            s,
+            m,
+            EMU_H - 0.85,
+            6.0,
+            0.35,
+            self.b["brand"]["name"],
+            self.s["caption"] + 1,
+            "FFFFFF",
+            bold=True,
+        )
+        self._text(
+            s,
+            EMU_W - m - 3.0,
+            EMU_H - 0.85,
+            3.0,
+            0.35,
+            str(self.meta.get("year", "")),
+            self.s["caption"] + 1,
+            self.c["muted"],
+            align=PP_ALIGN.RIGHT,
+        )
+        return s
+
+    def _part_v44(self, spec):
+        """간지 v4.4(달러스 p34·BCG 실측 구도) — 우측 대형 로마숫자 워터마크 +
+        좌측 PART 칩·제목 + 하단 파트 진행 인디케이터(도트) + 소주제 프리뷰."""
+        from pptx.enum.shapes import MSO_SHAPE
+
+        s = self._slide(bg=self.c["primary"])
+        m = self.margin
+        no = spec["_part_no"]
+        # 우측 워터마크 — 대형 로마숫자(장식, muted 저대비)
+        wm = s.shapes.add_textbox(Inches(EMU_W - 5.2), Inches(0.6), Inches(4.6), Inches(4.6))
+        wp = wm.text_frame.paragraphs[0]
+        wp.alignment = PP_ALIGN.RIGHT
+        wr = wp.add_run()
+        wr.text = f"{no:02d}"  # 로마숫자 Ⅰ는 대형 렌더 시 막대로 보임 — 숫자 워터마크
+        wr.font.size = Pt(280)
+        wr.font.bold = True
+        wr.font.name = self.f["head"]
+        wr.font.color.rgb = rgb("2A2E35")  # primary 위 저대비 톤(장식 전용)
+        chip = s.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE, Inches(m), Inches(1.5), Inches(1.5), Inches(0.44)
+        )
+        chip.fill.solid()
+        chip.fill.fore_color.rgb = rgb(self.c["accent"])
+        chip.line.fill.background()
+        tf = chip.text_frame
+        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+        p = tf.paragraphs[0]
+        p.alignment = PP_ALIGN.CENTER
+        run = p.add_run()
+        run.text = f"PART {no:02d}"
+        run.font.size = Pt(12)
+        run.font.bold = True
+        run.font.name = self.f["head"]
+        run.font.color.rgb = rgb("FFFFFF")
+        self._text(
+            s,
+            m,
+            2.15,
+            EMU_W - 2 * m - 4.0,
+            1.4,
+            spec["title"],
+            self.s["title"] + 4,
+            "FFFFFF",
+            font=self.f["head"],
+            bold=True,
+        )
+        if spec.get("subtitle"):
+            self._accent_bar(s, m, 3.62, w=0.05, h=0.4)
+            self._text(
+                s,
+                m + 0.18,
+                3.55,
+                EMU_W - 2 * m - 4.5,
+                0.9,
+                spec["subtitle"],
+                self.s.get("sub", 15),
+                self.c["bg_alt"],
+            )
+        # 하단 진행 인디케이터 — 전체 파트 중 현재 위치(accent)
+        dot_y = 4.55
+        for pi in range(len(self.parts)):
+            d = s.shapes.add_shape(
+                MSO_SHAPE.OVAL, Inches(m + pi * 0.34), Inches(dot_y), Inches(0.16), Inches(0.16)
+            )
+            d.fill.solid()
+            d.fill.fore_color.rgb = rgb(self.c["accent"] if pi == no - 1 else self.c["muted"])
+            d.line.fill.background()
+        # 소주제 프리뷰(기존 모티프 유지)
+        items = self.parts[no - 1]["items"][:4]
+        if items:
+            colw = (EMU_W - 2 * m) / len(items)
+            for i, item in enumerate(items):
+                x = m + i * colw
+                self._num_circle(s, x + colw / 2 - 0.22, 5.2, f"{i + 1:02d}", dark_bg=True)
+                self._text(
+                    s,
+                    x + 0.2,
+                    5.8,
+                    colw - 0.4,
+                    0.7,
+                    item,
+                    self.s["body"] - 1,
+                    self.c["bg_alt"],
+                    align=PP_ALIGN.CENTER,
+                )
         return s
 
     def toc(self, spec):
@@ -615,6 +795,8 @@ class Deck:
     def part(self, spec):
         """간지(PART divider) — 전면 primary 배경 + PART 칩 + 로마숫자 제목 +
         하단 소주제 프리뷰(넘버 서클 모티프). 우석진 템플릿 p3 구성 이식."""
+        if self.frame_style == "v44":
+            return self._part_v44(spec)
         from pptx.enum.shapes import MSO_SHAPE
 
         s = self._slide(bg=self.c["primary"])
@@ -877,26 +1059,29 @@ class Deck:
         # 본문 영역을 채우도록 행 높이를 늘린다(상단 고정·하단 공백 방지)
         avail = BODY_BOTTOM - (self.body_top + off + 0.12)
         row_h = min(0.68, max(0.42, avail / nrows))
+        ty = self.body_top + off + 0.12
         gf = s.shapes.add_table(
             nrows,
             ncols,
             Inches(x),
-            Inches(self.body_top + off + 0.12),
+            Inches(ty),
             Inches(w),
             Inches(row_h * nrows),
         )
         tbl = gf.table
         for r in range(nrows):
             tbl.rows[r].height = Inches(row_h)
+        # v4.5 헤어라인 스타일(McKinsey 실측) — 검정 헤더 채움·얼룩말 줄무늬 제거,
+        # 위계는 상단 강한 룰 + 헤더 아래·행 사이 헤어라인으로만.
         for j, h in enumerate(headers):
             cell = tbl.cell(0, j)
             cell.fill.solid()
+            cell.fill.fore_color.rgb = rgb(self.c["bg"])
             last = matrix and j == ncols - 1
-            cell.fill.fore_color.rgb = rgb(self.c["accent"] if last else self.c["primary"])
             self._cell_text(
                 cell,
                 h,
-                self.c["bg"],
+                self.c["accent"] if last else self.c["primary"],
                 bold=True,
                 align=PP_ALIGN.CENTER if (matrix and j) else PP_ALIGN.LEFT,
             )
@@ -904,7 +1089,7 @@ class Deck:
             for j, val in enumerate(row):
                 cell = tbl.cell(i, j)
                 cell.fill.solid()
-                cell.fill.fore_color.rgb = rgb(self.c["bg"] if i % 2 else self.c["bg_alt"])
+                cell.fill.fore_color.rgb = rgb(self.c["bg"])
                 last = matrix and j == ncols - 1
                 self._cell_text(
                     cell,
@@ -913,6 +1098,11 @@ class Deck:
                     bold=last,
                     align=PP_ALIGN.CENTER if (matrix and j) else PP_ALIGN.LEFT,
                 )
+        self._hline(s, x, x + w, ty, self.c["primary"], weight=1.5)
+        self._hline(s, x, x + w, ty + row_h, self.c["primary"], weight=0.75)
+        for i in range(2, nrows):
+            self._hline(s, x, x + w, ty + row_h * i, self.c["bg_alt"], weight=0.75)
+        self._hline(s, x, x + w, ty + row_h * nrows, self.c["muted"], weight=0.75)
         return s
 
     def _cell_text(self, cell, text, color, bold=False, align=PP_ALIGN.LEFT):
@@ -976,6 +1166,9 @@ class Deck:
             n = len(panels)
             pw = (EMU_W - 2 * m - 0.5 * (n - 1)) / n
             top = self.body_top + off + 0.1
+            sub = spec.get("sub_table")
+            sub_h = min(1.3, 0.34 * (len(sub["rows"]) + 1)) if sub else 0.0
+            panel_bottom = BODY_BOTTOM - (sub_h + 0.15 if sub else 0)
             for i, pn in enumerate(panels):
                 px = m + i * (pw + 0.5)
                 self._text(
@@ -994,19 +1187,71 @@ class Deck:
                 self._hline(
                     s, px + pw * 0.2, px + pw * 0.8, top + 0.6, self.c["primary"], weight=1.5
                 )
-                visuals.add_chart(s, pn, self.b, px, top + 0.75, pw, BODY_BOTTOM - top - 0.85)
+                visuals.add_chart(s, pn, self.b, px, top + 0.75, pw, panel_bottom - top - 0.85)
+            if sub:
+                self._mini_table(s, sub, m, panel_bottom + 0.15, EMU_W - 2 * m, sub_h)
             return s
         x, w = self._exhibit_zone(s, spec, off)
-        visuals.add_chart(
-            s,
-            spec,
-            self.b,
-            x,
-            self.body_top + off + 0.12,
-            w,
-            BODY_BOTTOM - self.body_top - off - 0.12,
-        )
+        cy = self.body_top + off + 0.12
+        ch = BODY_BOTTOM - self.body_top - off - 0.12
+        sub = spec.get("sub_table")  # 차트 아래 부속 데이터 행(BCG p18) — 한 장 안 조합
+        sub_h = 0.0
+        if sub:
+            sub_h = min(1.5, 0.34 * (len(sub["rows"]) + 1))
+            ch -= sub_h + 0.15
+        if self._is_image_exhibit(spec):
+            # 하이브리드 이미지 경로: 네이티브가 못 만드는 유형은 mpl PNG(수치편집불가).
+            # 콜아웃·각주는 mpl이 이미지 안에 굽는다 — 도형 오버레이와 이중 표기 금지.
+            png = self.render_dir / f"exhibit_{self._page_no:02d}_{spec['chart_type']}.png"
+            mpl_exhibits.render(spec, self.b, png, w_in=w, h_in=ch)
+            # 종횡비 보존 삽입 — tight crop된 PNG를 존에 강제 스트레치하면 원이 타원이 된다
+            from PIL import Image
+
+            iw, ih = Image.open(png).size
+            if iw / ih >= w / ch:
+                pic_h = w * ih / iw
+                s.shapes.add_picture(
+                    str(png), Inches(x), Inches(cy + (ch - pic_h) / 2), Inches(w), Inches(pic_h)
+                )
+            else:
+                pic_w = ch * iw / ih
+                s.shapes.add_picture(
+                    str(png), Inches(x + (w - pic_w) / 2), Inches(cy), Inches(pic_w), Inches(ch)
+                )
+        else:
+            visuals.add_chart(s, spec, self.b, x, cy, w, ch)
+            if spec.get("annotations"):
+                # 네이티브 경로 콜아웃은 pptx 도형 — PPT에서 문구·위치 편집 가능
+                visuals.add_callouts(s, spec["annotations"], self.b, x, cy, w, ch)
+        if sub:
+            self._mini_table(s, sub, x, cy + ch + 0.15, w, sub_h)
         return s
+
+    def _mini_table(self, slide, sub, x, y, w, h):
+        """차트 부속 데이터 행 — 네이티브 미니 표(수치편집가능). headers+rows 1~3행."""
+        headers, rows = sub["headers"], sub["rows"]
+        nrows, ncols = len(rows) + 1, len(headers)
+        gf = slide.shapes.add_table(nrows, ncols, Inches(x), Inches(y), Inches(w), Inches(h))
+        tbl = gf.table
+        row_h = h / nrows
+        for j, htxt in enumerate(headers):
+            cell = tbl.cell(0, j)
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = rgb(self.c["bg"])
+            self._cell_text(cell, str(htxt), self.c["primary"], bold=True)
+        for i, row in enumerate(rows, 1):
+            for j, val in enumerate(row):
+                cell = tbl.cell(i, j)
+                cell.fill.solid()
+                cell.fill.fore_color.rgb = rgb(self.c["bg"])
+                self._cell_text(cell, str(val), self.c["text"])
+        self._hline(slide, x, x + w, y, self.c["primary"], weight=1.0)
+        self._hline(slide, x, x + w, y + row_h, self.c["muted"], weight=0.75)
+        self._hline(slide, x, x + w, y + h, self.c["muted"], weight=0.75)
+
+    def _is_image_exhibit(self, spec):
+        """mpl 이미지 경로 판별 — 확장 유형이거나 render:image 명시."""
+        return spec.get("chart_type") in mpl_exhibits.MPL_TYPES or spec.get("render") == "image"
 
     def diagram(self, spec):
         s = self._slide()
@@ -1024,6 +1269,12 @@ class Deck:
                 self.body_top + off + 0.12,
                 w,
                 BODY_BOTTOM - self.body_top - off - 0.2,
+            )
+        elif spec.get("layout") in ("icon_rows", "stat_split", "contrast_split", "split_detail"):
+            # v4.5 컴포지트 조판 — 자체 밀도가 높으므로 본문 영역 전체 사용(하단 공백 금지)
+            avail = BODY_BOTTOM - (self.body_top + off + 0.12)
+            visuals.add_diagram(
+                s, spec, self.b, m, self.body_top + off + 0.12, EMU_W - 2 * m, avail
             )
         else:
             # flow/timeline/from_to는 전폭 가로 — 다이어그램 상단, 해설은 아래 전폭 블록
@@ -1082,6 +1333,7 @@ class Deck:
 
     def build(self, spec):
         self.meta = spec.get("meta", {})
+        self.frame_style = self.meta.get("frame_style", "v3")
         body_types = {
             "section",
             "bullets",
@@ -1116,6 +1368,7 @@ class Deck:
                 raise ValueError(f"unknown slide type: {sl['type']}")
             self._page_no = i
             slide = renderer(self, sl)
+            self._flatten(slide)  # v4.5: PowerPoint 기본 그림자 전면 제거(플랫 룩)
             # 마스터 틀: 표지·간지·CTA를 제외한 전 장에 푸터 스탬프
             if sl["type"] not in ("cover", "part", "cta"):
                 self._frame(slide, i, total)
@@ -1143,6 +1396,7 @@ def main():
     brand = load_brand(args.brand)
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
     deck = Deck(brand)
+    deck.render_dir = Path(args.out).resolve().parent / "render"
     prs = deck.build(spec)
     prs.save(args.out)
     print(f"OK: {args.out} ({len(prs.slides)} slides)")

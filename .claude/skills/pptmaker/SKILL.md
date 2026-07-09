@@ -32,14 +32,20 @@ description: NotebookLM pptx 초안들을 통합해 일관 서식의 B2B 셀링 
 ## 파이프라인 (초기 실행)
 
 ```
-입력: input/<프로젝트명>/*.pptx  (NotebookLM 초안 3~5개)
-① content-extractor → _workspace/01_extracted.md   (+extract/charts.json, images/)
-② deck-composer     → _workspace/02_deck-spec.json (통합·골격 배치)
-③ pptx-builder      → _workspace/deck.pptx         (네이티브 pptx 빌드)
-④ consistency-qa    → _workspace/03_qa-report.md   (일관성·품질 검증)
+입력: 로컬 소스(기본) 또는 input/<프로젝트명>/  (NotebookLM 보조)
+① content-extractor  → _workspace/01_extracted.md   (+extract/charts.json, images/)
+② deck-composer      → _workspace/03_exhibit-candidates.json (슬라이드별 시각 후보 2~3안)
+②.5 익스히빗 승인 게이트(v4) — make_mockups.py로 _workspace/mockups/gallery.html 생성,
+                      사용자에게 열어주고 "s07=B" 회신 대기. **승인 전 ③ 진행 금지.**
+                      승인 반영 → _workspace/02_deck-spec.json 확정
+③ pptx-builder       → _workspace/deck.pptx         (하이브리드: 네이티브 + mpl 익스히빗)
+④ consistency-qa     → _workspace/03_qa-report.md   (일관성·품질·다양성 게이트 3종)
                       audit 기계검사 + 전장 PNG 렌더 눈검증(겹침·잘림·공백) 필수
                       FAIL → 지정 단계로 1회 되돌림 → 재빌드 → 재검증
 ```
+
+②.5 게이트는 자동 진행 금지 항목이다(§9 Decision Gating) — 사용자가 명시적으로 "목업 생략"을
+요청한 경우에만 deck-composer가 결정표 최적안으로 단독 확정한다.
 
 각 에이전트는 자기 스킬(content-extract / deck-compose / pptx-build / consistency-qa)을
 읽고 수행한다. 차트·다이어그램 레시피는 `pptx-visuals` 스킬이 단일 출처. 오케스트레이터는

@@ -64,10 +64,43 @@ NotebookLM이 이미 했다 — 여기서는 최선의 재료를 **선별·중�
 - 수치 → `chart`: **데이터 형태를 먼저 판별**하고 타입을 고른다(기본값 bar 금지) —
   크기 비교=bar, 카테고리명 긴 순위·비중=hbar, 시계열=line, 구성비(합≈100%)=pie/doughnut,
   그룹별 구성 변화=stacked_bar. 상세 결정표는 pptx-visuals SKILL
+- **확장 정량 유형(v4·mpl 이미지)**: 기여도 분해=waterfall, 전후 비교=dumbbell/slope(표 금지),
+  교차 밀도=heatmap, 전환·이탈=funnel, 상관+예외=annotated_scatter, 분포=histogram.
+  네이티브 차트엔 `emphasis`(회색+강조 1색)와 `annotations`(콜아웃)를 적극 사용
 - 임팩트 숫자 2~4개 → `metrics` / 대비 서술 → `two_column`
 - `bullets`는 **위 어느 도형에도 안 걸릴 때만** — 덱 전체에서 2장 이하로 제한
 - bullets 리드·metrics 항목에는 의미가 맞는 `icon`(Lucide 24종, make_icons.py ICONS 목록)을
   붙여 픽토그램 모티프를 만든다 — 의미가 안 맞으면 억지로 붙이지 말고 넘버 서클 유지
+
+## 익스히빗 사양서 패스 (v4.2 — 아키타입 배정 + 사용자 승인 게이트)
+
+deck-spec 확정 전에 시각 슬라이드마다 후보를 만들어 사용자 승인을 받는다. 다양성 판단을
+모델 디폴트에 맡기지 않는 장치다. **아키타입 단일 출처는
+`pptx-visuals/references/archetype-catalog.md`** (L01~L30 + 형상 매핑 + 세트 제약).
+
+1. **형상 분류 먼저**: 슬라이드마다 `shape`(시계열/범주비교/구성비/흐름전환/전후/교차다축/
+   분포상관/정성/시간여정/숫자)를 분류하고, 카탈로그의 형상→L-ID 매핑에서 후보군을 고른다.
+   다양성은 장식이 아니라 데이터 형상에서 나온다 — 정성 서술은 L22~L25(2×2·스펙트럼·
+   하비볼·체크매트릭스)로 시각 구조화한다.
+2. 산출: `_workspace/03_exhibit-candidates.json` —
+   `{"slides":[{"no","title","message","shape","current","visual_candidates":[...]}]}`.
+   **슬라이드당 3안**(1·2안 상이 유형, 3안째는 같은 유형의 조합 변주 허용). 모든 후보에
+   조합 장치(emphasis/annotations/sub_table/banner/ref) ≥1. **맨 현행 재출품 금지.**
+   디폴트 어휘(bar·flow·cards) 후보에는 `why_not`(검토한 대안 L-ID와 기각 사유) 의무.
+3. **자기 심사(보고 전 필수)**: `uv run python
+   .claude/skills/pptx-visuals/scripts/check_candidates.py <후보.json> <deck-spec.json>`
+   — RESULT: PASS가 나올 때까지 고친다. 히스토그램에서 단일 유형이 슬라이드의 30%를
+   넘으면 해당 슬라이드를 다른 아키타입으로 재설계.
+4. 렌더(실물): `uv run python .claude/skills/pptx-visuals/scripts/render_real_mockups.py
+   _workspace/03_exhibit-candidates.json _workspace/mockups` → 인터랙티브 gallery.html
+   (라디오 선택 + 실시간 히스토그램·게이트 판정 + 선택 복사). "sNN=X" 회신 대기.
+   **회신 전 deck-spec 확정 금지.** (COM 불가 환경 폴백: make_mockups.py 스케치)
+
+## 다양성 강제 조항 (consistency-qa 게이트 4종이 기계 검증 — 위반이면 되돌아온다)
+
+- 동일 유형 **간격 ≥3장(쿨다운)** · 동일 유형 **덱 전체 ≤2회** · 덱 전체 **최소 5종** ·
+  **박스 다이어그램(flow/layers/cards/branch/from_to) 본문의 30% 이하**.
+  후보 설계 단계에서 게이트 통과 가능한 조합이 존재하게 구성한다(check_candidates가 시뮬레이션).
 
 ## 출력: `_workspace/02_deck-spec.json`
 

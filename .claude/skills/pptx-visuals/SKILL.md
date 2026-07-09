@@ -5,9 +5,30 @@ description: PPTX 안의 네이티브 차트(bar/line/pie)와 다이어그램(fl
 
 # pptx-visuals — 차트·다이어그램 단일 출처
 
-PPT 시각자료의 생성·수정 레시피를 박제한 스킬. 구현은 `scripts/visuals.py` 하나이며
+PPT 시각자료의 생성·수정 레시피를 박제한 스킬. 구현은 `scripts/visuals.py`(네이티브)·
+`scripts/mpl_exhibits.py`(mpl 이미지)·`scripts/make_mockups.py`(승인 게이트 갤러리) 3개이며
 `build_pptx.py`가 import한다. **시각자료 코드는 이 모듈에만 존재한다** — 빌더나 다른 곳에
 차트 코드를 중복 작성하지 않는다.
+
+## v4 하이브리드 익스히빗 (mpl_exhibits.py — 도구 천장 돌파)
+
+- 네이티브가 못 만드는 7종: `waterfall`·`heatmap`·`dumbbell`·`slope`·`funnel`·
+  `annotated_scatter`·`histogram` — `render(spec, brand, out_png, w_in, h_in)`이 220dpi PNG
+  생성, 빌더가 그림으로 삽입(**수치편집불가** — 수정은 deck-spec 재빌드).
+- **BCG 스타일 단일 경로**: 모든 렌더러는 `_fig()`→`_save()` 경유 + `_palette()` 색만 사용 —
+  전부 회색(C7CBD1) + 강조만 accent 1색 + 콜아웃(`annotations`) + 각주(`note`).
+- 네이티브 차트에도 같은 규칙: `emphasis` 필드(add_chart), 콜아웃은 `add_callouts()`가
+  pptx 도형(편집가능)으로 얹는다.
+- 목업 갤러리: 기본은 실물 렌더 `render_real_mockups.py`(빌더+PowerPoint COM, 인터랙티브
+  세트 심사), 폴백은 `make_mockups.py`(mpl 스케치). 사용 절차는 deck-compose SKILL.
+- 후보 검증기: `check_candidates.py` — 3안·shape·why_not·조합장치·게이트 시뮬레이션.
+
+## v4.2 아키타입 카탈로그 (`references/archetype-catalog.md` 단일 출처)
+
+- L01~L30 전 아키타입 + 형상→L-ID 매핑 + 세트 제약(쿨다운·≤2회·≥5종·박스 30%).
+- **카탈로그 행 = 렌더러 실존 보증.** 새 아키타입은 렌더러 구현·스모크 후에만 등재.
+- v4.2 신규 렌더러 4종(visuals.py): `matrix_2x2`(2×2 포지셔닝)·`spectrum`(성숙도 마커)·
+  `harvey_table`(하비볼 0~4)·`check_matrix`(✓/✗/–) — 정성 서술의 시각 구조화 전담.
 
 ## 차트 (네이티브 — 이미지 금지)
 
