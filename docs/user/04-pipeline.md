@@ -11,6 +11,10 @@
 NotebookLM 보고서(보조)      │   보고서형 8요소로 직접 추출 + 수치·고유명사 검증
                              │   → _workspace/01_extracted.md (+charts/*.json, images/)
                              ▼
+                          ①.5 목차 공동설계 게이트 (deck-outline-grill, 신설 예정)
+                             │   초안 목차 제안 → grill식 인터뷰 → 사용자 "확정"
+                             │   → _workspace/01.5_outline.md (아웃라인 계약)
+                             ▼
                           ② deck-composer
                              │   통합·중복제거·B2B 셀링 골격 배치
                              │   → 03_exhibit-candidates.json (시각 후보)
@@ -30,13 +34,14 @@ NotebookLM 보고서(보조)      │   보고서형 8요소로 직접 추출 + 
 
 ## 단계별 역할
 
-| 단계 | 에이전트           | 스킬            | 입력                           | 출력                            |
-| ---- | ------------------ | --------------- | ------------------------------ | ------------------------------- |
-| ①    | content-extractor  | content-extract | 로컬 소스(기본) · input/(보조) | 01_extracted.md, charts, images |
-| ②    | deck-composer      | deck-compose    | 01_extracted.md                | 03_exhibit-candidates.json      |
-| ②.5  | 사용자 승인 게이트 | pptx-visuals    | 후보 JSON                      | 02_deck-spec.json               |
-| ③    | pptx-builder       | pptx-build      | 02_deck-spec.json              | deck.pptx                       |
-| ④    | consistency-qa     | consistency-qa  | deck.pptx + 02_deck-spec.json  | 03_qa-report.md                 |
+| 단계 | 에이전트             | 스킬                           | 입력                              | 출력                            |
+| ---- | -------------------- | ------------------------------ | --------------------------------- | ------------------------------- |
+| ①    | content-extractor    | content-extract                | 로컬 소스(기본) · input/(보조)    | 01_extracted.md, charts, images |
+| ①.5  | 목차 공동설계 게이트 | deck-outline-grill (신설 예정) | 01_extracted.md                   | 01.5_outline.md (아웃라인 계약) |
+| ②    | deck-composer        | deck-compose                   | 01_extracted.md + 01.5_outline.md | 03_exhibit-candidates.json      |
+| ②.5  | 사용자 승인 게이트   | pptx-visuals                   | 후보 JSON                         | 02_deck-spec.json               |
+| ③    | pptx-builder         | pptx-build                     | 02_deck-spec.json                 | deck.pptx                       |
+| ④    | consistency-qa       | consistency-qa                 | deck.pptx + 02_deck-spec.json     | 03_qa-report.md                 |
 
 ## 단일 출처 (여기만 고치면 전체 반영)
 

@@ -34,7 +34,12 @@ description: NotebookLM pptx 초안들을 통합해 일관 서식의 B2B 셀링 
 ```
 입력: 로컬 소스(기본) 또는 input/<프로젝트명>/  (NotebookLM 보조)
 ① content-extractor  → _workspace/01_extracted.md   (+extract/charts.json, images/)
+①.5 목차·콘텐츠 인터뷰 게이트(deck-outline-grill) — 오케스트레이터가 메인 대화에서 직접 수행
+                      (서브에이전트 금지 — 사용자와의 인터뷰 필요). 목차 추천 1안 →
+                      부·장 단위 "가장 전하고 싶은 것" 채록 → _workspace/01.5_outline.md 확정.
+                      **아웃라인 "확정" 전 ② 진행 금지.**
 ② deck-composer      → _workspace/03_exhibit-candidates.json (슬라이드별 시각 후보 2~3안)
+                      01.5_outline.md는 필수 입력·계약 — 장 추가·삭제·메시지 변경 금지
 ②.5 익스히빗 승인 게이트(v4) — make_mockups.py로 _workspace/mockups/gallery.html 생성,
                       사용자에게 열어주고 "s07=B" 회신 대기. **승인 전 ③ 진행 금지.**
                       승인 반영 → _workspace/02_deck-spec.json 확정
@@ -46,6 +51,10 @@ description: NotebookLM pptx 초안들을 통합해 일관 서식의 B2B 셀링 
 
 ②.5 게이트는 자동 진행 금지 항목이다(§9 Decision Gating) — 사용자가 명시적으로 "목업 생략"을
 요청한 경우에만 deck-composer가 결정표 최적안으로 단독 확정한다.
+
+①.5 게이트도 동일하게 자동 진행 금지 — "PPT 만들어줘" 요청 시 빌드 전 반드시 1회 발동한다.
+역할 분담: ①.5는 "무엇을 말할 것인가"(구성·강조점), ②.5는 "어떻게 보일 것인가"(시각)를
+각각 승인받는다. 상세 인터뷰 절차는 `deck-outline-grill` 스킬.
 
 각 에이전트는 자기 스킬(content-extract / deck-compose / pptx-build / consistency-qa)을
 읽고 수행한다. 차트·다이어그램 레시피는 `pptx-visuals` 스킬이 단일 출처. 오케스트레이터는
