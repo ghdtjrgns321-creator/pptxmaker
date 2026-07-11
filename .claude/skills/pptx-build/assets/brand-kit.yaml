@@ -20,6 +20,7 @@ fonts:
   mono: "D2Coding"            # 코드·기술 표기용
 
 sizes:                        # 단위 pt — v4.5 타이포 4단 위계(McKinsey 실측: 대비 ≈3:1)
+  display: 40                 # 대형 무대 활자 — 표지 제목·스탯 콜아웃 핵심 수치 (golden v5)
   title:   32                 # 표지 대형 제목
   section: 28                 # 본문 헤드라인(완결 주장문, 2줄 허용) — 위계 1
   sub:     14                 # 리드 문단(헤드라인 보조 주장) — 위계 2

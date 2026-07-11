@@ -5,6 +5,10 @@ description: NotebookLM 초안들에서 추출된 재료(01_extracted.md)를 통
 
 # deck-compose — 초안 통합·골격 배치
 
+> **골든 레이아웃 배정(Phase 2~):** 각 장의 `type`은 물성 기준으로 `golden.<layout>`을 우선
+> 배정한다 — 판정은 [references/layout-matching.md](references/layout-matching.md)의 15타입
+> 결정표. 어느 타입에도 안 맞으면 끼워맞추지 말고 골든 확장 절차(pull)로 올린다.
+
 3~5개 초안에서 나온 재료를 **통합하고 덜어내어** 하나의 덱으로 만든다. 콘텐츠 창작은
 NotebookLM이 이미 했다 — 여기서는 최선의 재료를 **선별·중복제거·배열**만 한다.
 산출물은 `_workspace/02_deck-spec.json`.

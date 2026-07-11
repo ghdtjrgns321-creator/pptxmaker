@@ -55,3 +55,21 @@ for s in prs.slides:
 ## 스키마
 
 슬라이드 타입·필수 필드·골격 규칙은 `references/deck-spec-schema.md` 참조.
+
+## 골든 엔진 (Phase 2 배선 — 우선 사용)
+
+- deck-spec 슬라이드에 `"type": "golden.<layout>"`을 쓰면 build_pptx가
+  **goldenfab registry**(`scripts/goldenfab/registry.py`, 15타입)로 디스패치한다 —
+  골든 장은 헤더·결론바·출처를 자체 포함하므로 레거시 푸터 스탬프가 붙지 않는다.
+- 콘텐츠: `cover`·`toc`·`part`·`closing`·`screenshot`은 `"content": {...}` dict 지원,
+  나머지 10종은 골든 콘텐츠 내장(파라미터화는 수요 시 pull — content를 주면 명시적 에러).
+- 타입 배정 판정은 deck-compose의 `references/layout-matching.md` 결정표.
+- **회귀 게이트**: goldenfab 수정 후 `uv run python scripts/compare_golden.py` —
+  골든 원본 19장과 도형 전수 비교(501개), 불일치 1건이라도 있으면 FAIL. 통과 없이 반영 금지.
+
+## 디자인 규칙 (골든 확정 — 필수)
+
+레이아웃 GRID·오딧 5종·색 규율·타이포 위계·텍스트 리듬·도형 어휘·구성 문법은
+**`references/design-rules.md`가 단일 출처**다. 슬라이드를 렌더하기 전에 반드시 읽고,
+오딧을 통과하지 못한 산출물은 내보내지 않는다. 사용자 승인으로 확정된 규칙이므로
+임의 변경 금지 — 변경은 골든 덱(golden/) 재승인 경유.
