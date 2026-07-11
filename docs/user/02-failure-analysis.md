@@ -1,4 +1,4 @@
-# 실패 분석 — 왜 결과물이 "없어 보이는가"
+# 02. 실패 분석 — 왜 결과물이 "없어 보이는가"
 
 2026-07-09, 결과물 `results/K-IFRS-1115-온톨로지-RAG-소개.pptx`(25장)를 전 장 렌더하고
 `data/mckinsey-tech-trends-outlook-2022-full-report.pdf`(184쪽) 대표 10쪽과 육안 대조했다.

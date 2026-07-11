@@ -1,4 +1,4 @@
-# Phase 2 — 공장 역설계 진행표
+# 07. Phase 2 — 공장 역설계 진행표 (완료)
 
 골든 덱(19장, 동결 기준 원본)을 공장 레이아웃 엔진(`pptx-build/scripts/goldenfab/`)으로 이식한다.
 검증은 `scripts/compare_golden.py` — 골든 원본과 도형 전수 비교(±0.005", 텍스트·채움색·폰트 포함),
@@ -11,21 +11,21 @@
 | 1   | 표지                   | build_golden.build_s01_cover | `cover`            | 완료 (8/8 일치)       |
 | 2   | 목차                   | build_golden.build_s02_toc   | `toc`              | 완료 (36/36 일치)     |
 | 3   | 간지 Ⅰ                 | build_golden.build_part      | `part`             | 완료 (12/12 ×2케이스) |
-| 4   | 문제 정의(다구획)      | _variant_k.variant_k         | `problem_grid`     | 완료 (42/42) |
+| 4   | 문제 정의(다구획)      | _variant_k.variant_k         | `problem_grid`     | 완료 (42/42)          |
 | 5   | 간지 Ⅱ                 | (part 반복)                  | `part`             | 완료                  |
-| 6   | 파이프라인 실행 그래프 | s06_variants.variant_c       | `exec_graph`       | 완료 (43/43) |
+| 6   | 파이프라인 실행 그래프 | s06_variants.variant_c       | `exec_graph`       | 완료 (43/43)          |
 | 7   | 간지 Ⅲ                 | (part 반복)                  | `part`             | 완료                  |
-| 8   | 기술1 용어사전         | s08_variants.variant_c       | `tech_evidence`    | 완료 (20/20) |
-| 9   | 기술2 지식그래프       | s09_variants.variant_a       | `tech_tree`        | 완료 (39/39) |
+| 8   | 기술1 용어사전         | s08_variants.variant_c       | `tech_evidence`    | 완료 (20/20)          |
+| 9   | 기술2 지식그래프       | s09_variants.variant_a       | `tech_tree`        | 완료 (39/39)          |
 | 10  | 그래프 실물 화면       | s10_screenshot.variant_a     | `screenshot`       | 완료 (21/21·파라미터) |
-| 11  | 기술3 판단트리         | s11_variants.variant_d       | `tech_mechanism`   | 완료 (46/46) |
-| 12  | 기술4 구조화 출력      | s12_variants.variant_b       | `tech_capture`     | 완료 (33/33) |
+| 11  | 기술3 판단트리         | s11_variants.variant_d       | `tech_mechanism`   | 완료 (46/46)          |
+| 12  | 기술4 구조화 출력      | s12_variants.variant_b       | `tech_capture`     | 완료 (33/33)          |
 | 13  | 간지 Ⅳ                 | (part 반복)                  | `part`             | 완료                  |
-| 14  | 트러블슈팅 A/B         | s14_variants.variant_c       | `ab_simulation`    | 완료 (37/37) |
-| 15  | 골든테스트 결과        | s15_variants.variant_c       | `validation`       | 완료 (46/46) |
+| 14  | 트러블슈팅 A/B         | s14_variants.variant_c       | `ab_simulation`    | 완료 (37/37)          |
+| 15  | 골든테스트 결과        | s15_variants.variant_c       | `validation`       | 완료 (46/46)          |
 | 16  | 간지 Ⅴ                 | (part 반복)                  | `part`             | 완료                  |
-| 17  | 7축 미러 매트릭스      | s17_variants.variant_c       | `mirror_matrix`    | 완료 (29/29) |
-| 18  | 정직한 한계(경계)      | s18_variants.variant_b       | `boundary`         | 완료 (26/26) |
+| 17  | 7축 미러 매트릭스      | s17_variants.variant_c       | `mirror_matrix`    | 완료 (29/29)          |
+| 18  | 정직한 한계(경계)      | s18_variants.variant_b       | `boundary`         | 완료 (26/26)          |
 | 19  | 클로징                 | s21_closing.variant_a        | `closing`          | 완료 (15/15·파라미터) |
 
 고유 레이아웃 타입 **15종**(part 1종이 6장 커버 — 초판의 13종은 오산, registry 실측 15).

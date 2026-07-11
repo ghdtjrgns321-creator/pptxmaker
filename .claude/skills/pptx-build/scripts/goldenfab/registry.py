@@ -1,4 +1,4 @@
-"""goldenfab.registry — 레이아웃 타입 13종 → 확정 빌더 매핑 (06-factory-port.md 인벤토리와 1:1).
+"""goldenfab.registry — 레이아웃 타입 15종 → 확정 빌더 매핑 (docs/user/07-factory-port.md 인벤토리와 1:1).
 
 슬라이스 1(cover·toc·part)은 콘텐츠 dict 파라미터, 슬라이스 2의 10종은 골든 콘텐츠 내장
 (closing·screenshot은 c dict 오버라이드 지원) — 심층 파라미터화는 실전 수요 발생 시 pull.

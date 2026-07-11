@@ -1,7 +1,7 @@
-# 07. 시스템 전체 정리 — 무엇을 만들었고 지금 어떻게 도는가
+# 08. 시스템 전체 정리 — 무엇을 만들었고 지금 어떻게 도는가
 
 2026-07-11 기준(Phase 2 완료 시점). 결정 배경은 [03](03-golden-deck.md)·[05](05-golden-deck-plan.md),
-공장 이식 상세는 [06](06-factory-port.md).
+공장 이식 상세는 [07](07-factory-port.md).
 
 ## 정본 팩트시트 (전 수치 실측 — 아래 명령으로 재현 가능)
 
@@ -64,7 +64,7 @@
 | 공장 본체       | `pptx-build/scripts/build_pptx.py`           | 1파일         | deck-spec → pptx (golden.* 디스패치) |
 | 회귀 게이트     | `pptx-build/scripts/compare_golden.py`       | 1파일         | 골든↔공장 도형 전수 비교(501/501)    |
 | 매칭 결정표     | `deck-compose/references/layout-matching.md` | 15행          | 물성→타입 판정 + pull 확장 절차      |
-| 진행표          | `docs/user/06-factory-port.md`               | 19행          | 장↔타입 매핑·이식 상태               |
+| 진행표          | `docs/user/07-factory-port.md`               | 19행          | 장↔타입 매핑·이식 상태               |
 
 ### 골든 덱 19장 구성 (부 6개 × 아키타입 15종)
 
