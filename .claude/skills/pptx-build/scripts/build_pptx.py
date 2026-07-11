@@ -1331,6 +1331,29 @@ class Deck:
         "cta": cta,
     }
 
+    def _render_golden(self, sl):
+        """type "golden.<layout>" — goldenfab registry 호출. content dict는 지원 타입만 전달."""
+        import inspect
+
+        from goldenfab.registry import LAYOUTS as GOLDEN_LAYOUTS
+
+        key = sl["type"].split(".", 1)[1]
+        fn = GOLDEN_LAYOUTS.get(key)
+        if fn is None:
+            raise ValueError(f"unknown golden layout: {key} (등록: {sorted(GOLDEN_LAYOUTS)})")
+        params = inspect.signature(fn).parameters
+        if len(params) >= 2:
+            result = fn(self.prs, sl.get("content"))
+        else:
+            if sl.get("content"):
+                raise ValueError(
+                    f"golden.{key}는 콘텐츠 파라미터 미지원(골든 내장) — content 제거 필요"
+                )
+            result = fn(self.prs)
+        slide = result[0] if isinstance(result, tuple) else result
+        self._flatten(slide)
+        return slide
+
     def build(self, spec):
         self.meta = spec.get("meta", {})
         self.frame_style = self.meta.get("frame_style", "v3")
@@ -1363,6 +1386,11 @@ class Deck:
         total = len(spec["slides"])
         self._total = total
         for i, sl in enumerate(spec["slides"], start=1):
+            if sl["type"].startswith("golden."):
+                # 골든 엔진(goldenfab) 디스패치 — 골든 장은 헤더·결론바·출처를 자체 포함하므로
+                # 레거시 푸터 스탬프·배너를 적용하지 않는다. compare_golden.py가 회귀 게이트.
+                self._render_golden(sl)
+                continue
             renderer = self.RENDERERS.get(sl["type"])
             if renderer is None:
                 raise ValueError(f"unknown slide type: {sl['type']}")
