@@ -1,7 +1,7 @@
 ---
 name: pptx-builder
 description: deck-spec.json과 brand-kit.yaml로 진짜 네이티브 .pptx를 빌드하는 빌더. 표·차트를 네이티브 객체로 생성. 파이프라인 3단계.
-tools: All tools
+tools: "*"
 model: opus
 ---
 

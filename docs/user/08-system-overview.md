@@ -20,12 +20,12 @@
 ## 1. 실전 파이프라인 — "PPT 만들어줘"가 지나는 길 (현재)
 
 ```
-  로컬 소스(코드·보고서)                                      brand-kit.yaml (색·폰트 단일 출처)
+  <프로젝트>/FINAL-REPORT/*.md                                      brand-kit.yaml (색·폰트 단일 출처)
         │                                                              │
         ▼                                                              ▼
-  [① content-extract] ─▶ 01_extracted.md ─▶ [①.5 deck-outline-grill] ─▶ [② deck-compose] ─▶ 02_deck-spec.json
-   보고서형 8요소 추출        재료(출처 필수)      목차·강조점 사용자 인터뷰      물성→타입 배정          장별 type/content
-   창작 금지                                      (게이트 — 대화형)            (layout-matching.md)          │
+  [① deck-outline-grill] ─▶ 01.5_outline.md ─▶ [② deck-compose] ─▶ 02_deck-spec.json
+   목차·강조점 사용자 인터뷰      아웃라인 계약        물성→타입 배정          장별 type/content
+   (게이트 — 대화형)                                (layout-matching.md)          │
                                                                                                             ▼
                                             [④ consistency-qa] ◀─ .pptx ◀─ [③ pptx-build  build_pptx.py]
                                              브랜드·품질 검수                    type이 "golden.*"면 ─▶ goldenfab registry(15타입)

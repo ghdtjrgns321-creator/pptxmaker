@@ -732,13 +732,65 @@ def variant_c(prs):
     return slide
 
 
-def variant_d(prs):
-    """D — vC 개정: 좌하 '주입 뒤 세 갈래' 도해(§4.4), 우측 칩 축소로 밀도 완화."""
+DEFAULT = {  # 텍스트 내용만(좌표·색·크기·도형은 코드 고정). c=None이면 골든 기본값.
+    "kicker": KICKER,
+    "headline": "판단트리 41개 — 흩어진 조건-분기를 판단 순서로 미리 조립",
+    "narratives": NARRATIVES,
+    "steps_head": "트리는 이렇게 걸린다 — 주제기반 다중주입",
+    "steps": STEPS,
+    "branch_label": "주입 뒤 — 답변은 질문 성격에 따라 세 갈래로 갈린다",
+    "flow_head": "적용 실물 — 질문에서 트리 분기까지",
+    "question": "“볼륨디스카운트 조항이 있는 계약은…”",
+    "topic_label": "주제 지목 — 변동대가",
+    "tree_chip": "「변동대가 (추정)」 걸림",
+    "diamond": "변동금액 포함?",
+    "diamond_anchor": "문단 51",
+    "method1_head": "기댓값",
+    "method1_sub": "확률 가중 합",
+    "method2_head": "가능성 최고 금액",
+    "method2_sub": "단일 결과치",
+    "flow_foot": "문단 53 — 더 잘 예측하는 방법 하나를 일관 적용(문단 54)",
+    "bar": "질문이 여러 판단에 걸치면 걸린 절차를 모두 넣는다 — 트리 41개, 전부 원문 앵커",
+    "source": SOURCE,
+}
+
+
+def variant_d(prs, c=None):
+    """D — vC 개정: 좌하 '주입 뒤 세 갈래' 도해(§4.4), 우측 칩 축소로 밀도 완화.
+
+    c: 텍스트 내용 override(None=골든 기본값). 좌표·색·크기·도형은 고정.
+    header()/bar_and_source()는 kicker·source를 c에서 받기 위해 인라인(출력 동일).
+    """
+    c = {**DEFAULT, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "판단트리 41개 — 흩어진 조건-분기를 판단 순서로 미리 조립")
+    add_text(
+        slide,
+        G.MARGIN_L,
+        0.42,
+        8.0,
+        0.28,
+        c["kicker"],
+        S["caption"],
+        F["head"],
+        C["muted"],
+        bold=True,
+    )
+    add_text(
+        slide,
+        G.MARGIN_L,
+        0.72,
+        G.RIGHT_EDGE - G.MARGIN_L,
+        0.55,
+        c["headline"],
+        S["section"],
+        F["head"],
+        C["primary"],
+        bold=True,
+    )
+    add_box(slide, G.MARGIN_L, G.RULE_Y, G.RIGHT_EDGE - G.MARGIN_L, 0.014, fill=C["muted"])
     nar_w = (G.RIGHT_EDGE - G.MARGIN_L - 2 * 0.4) / 3
-    for i, (head, body) in enumerate(NARRATIVES):
+    for i, (head, body) in enumerate(c["narratives"]):
         nx = G.MARGIN_L + i * (nar_w + 0.4)
         add_text(
             slide,
@@ -746,7 +798,7 @@ def variant_d(prs):
             G.CONTENT_TOP,
             nar_w,
             0.28,
-            f"0{i + 1}  {head}",
+            [(f"0{i + 1}", {"color": C["accent"]}), (f"  {head}", {})],
             S["head"],
             F["head"],
             C["primary"],
@@ -768,11 +820,11 @@ def variant_d(prs):
             add_box(slide, nx + nar_w + 0.2, G.CONTENT_TOP, 0.012, 1.2, fill=C["bg_alt"])
     # ── 하단 좌: 진입 규칙 3단계 ──
     lx, lw = G.MARGIN_L, 7.5
-    _subhead(slide, lx, 3.05, lw, "트리는 이렇게 걸린다 — 주제기반 다중주입")
+    _subhead(slide, lx, 3.05, lw, c["steps_head"])
     step_w, gap = 2.3, 0.3
     from pptx.enum.lang import MSO_LANGUAGE_ID
 
-    for i, (head, body) in enumerate(STEPS):
+    for i, (head, body) in enumerate(c["steps"]):
         sx = lx + i * (step_w + gap)
         box = add_box(slide, sx, 3.6, step_w, 1.1, fill=C["bg"], line=C["muted"], line_w=1.0)
         tf = box.text_frame
@@ -810,7 +862,7 @@ def variant_d(prs):
         4.82,
         lw,
         0.22,
-        "주입 뒤 — 답변은 질문 성격에 따라 세 갈래로 갈린다",
+        c["branch_label"],
         S["caption"],
         F["head"],
         C["primary"],
@@ -830,7 +882,7 @@ def variant_d(prs):
     tx = 8.5
     tw = G.RIGHT_EDGE - tx
     cx = tx + tw / 2
-    _subhead(slide, tx, 3.05, tw, "적용 실물 — 질문에서 트리 분기까지")
+    _subhead(slide, tx, 3.05, tw, c["flow_head"])
     q = add_box(
         slide,
         tx + 0.3,
@@ -842,7 +894,7 @@ def variant_d(prs):
         line_w=1.0,
         shape="round",
     )
-    set_shape_text(q, "“볼륨디스카운트 조항이 있는 계약은…”", S["caption"], F["body"], C["primary"])
+    set_shape_text(q, c["question"], S["caption"], F["body"], C["primary"])
     _arrow(slide, cx, 3.95, cx, 4.22)
     add_text(
         slide,
@@ -850,13 +902,13 @@ def variant_d(prs):
         3.97,
         tw / 2 - 0.15,
         0.2,
-        "주제 지목 — 변동대가",
+        c["topic_label"],
         S["caption"],
         F["body"],
         C["muted"],
     )
     chip = add_box(slide, tx + 0.85, 4.22, tw - 1.7, 0.38, fill=C["primary"], shape="round")
-    set_shape_text(chip, "「변동대가 (추정)」 걸림", S["caption"], F["head"], C["bg"], bold=True)
+    set_shape_text(chip, c["tree_chip"], S["caption"], F["head"], C["bg"], bold=True)
     _arrow(slide, cx, 4.6, cx, 4.8)
     dia_w, dia_h = 1.5, 0.62
     dia = add_box(
@@ -870,36 +922,55 @@ def variant_d(prs):
         line_w=1.75,
         shape="diamond",
     )
-    set_shape_text(dia, "변동금액 포함?", S["caption"], F["head"], C["primary"], bold=True)
+    set_shape_text(dia, c["diamond"], S["caption"], F["head"], C["primary"], bold=True)
     add_text(
         slide,
         cx + dia_w / 2 + 0.08,
         5.0,
         1.1,
         0.22,
-        "문단 51",
+        c["diamond_anchor"],
         S["caption"],
         F["body"],
         C["muted"],
     )
     _arrow(slide, cx - 0.35, 5.38, tx + 1.0, 5.62)
     _arrow(slide, cx + 0.35, 5.38, tx + tw - 1.0, 5.62)
-    _two_line_box(slide, tx + 0.1, 5.62, 1.85, 0.5, "기댓값", "확률 가중 합")
-    _two_line_box(slide, tx + tw - 1.95, 5.62, 1.85, 0.5, "가능성 최고 금액", "단일 결과치")
+    _two_line_box(slide, tx + 0.1, 5.62, 1.85, 0.5, c["method1_head"], c["method1_sub"])
+    _two_line_box(slide, tx + tw - 1.95, 5.62, 1.85, 0.5, c["method2_head"], c["method2_sub"])
     add_text(
         slide,
         tx,
         6.14,
         tw,
         0.21,
-        "문단 53 — 더 잘 예측하는 방법 하나를 일관 적용(문단 54)",
+        c["flow_foot"],
         S["caption"],
         F["body"],
         C["muted"],
         align=PP_ALIGN.CENTER,
     )
-    bar_and_source(
-        slide, "질문이 여러 판단에 걸치면 걸린 절차를 모두 넣는다 — 트리 41개, 전부 원문 앵커"
+    # bar_and_source() 인라인 — bar·source를 c에서 받음(도형·좌표·색 동일)
+    bar = add_box(slide, G.MARGIN_L, G.BAR_Y, G.RIGHT_EDGE - G.MARGIN_L, G.BAR_H, fill=C["primary"])
+    tfbar = bar.text_frame
+    tfbar.vertical_anchor = MSO_ANCHOR.MIDDLE
+    pbar = tfbar.paragraphs[0]
+    pbar.alignment = PP_ALIGN.CENTER
+    rbar = pbar.add_run()
+    rbar.text = c["bar"]
+    rbar.font.name, rbar.font.bold = F["head"], True
+    rbar.font.size = Pt(S["body"])
+    rbar.font.color.rgb = C["bg"]
+    add_text(
+        slide,
+        G.MARGIN_L,
+        G.SOURCE_Y,
+        G.RIGHT_EDGE - G.MARGIN_L,
+        0.3,
+        c["source"],
+        S["foot"],
+        F["body"],
+        C["muted"],
     )
     return slide
 

@@ -56,13 +56,13 @@ $pres.SaveAs((Resolve-Path "_workspace\render").Path + "\slide", 18); $pres.Clos
 
 ## 4. 셀링 품질 (정성 기준)
 
-| 항목        | 합격 기준                           | 실패 시       |
-| ----------- | ----------------------------------- | ------------- |
-| 표지 명료성 | 표지만으로 "무엇을 파는지" 이해     | deck-composer |
-| 흐름        | 문제→솔루션→가치 순서 유지          | deck-composer |
-| 정보 밀도   | 슬라이드당 불릿 5개 이하, 한 메시지 | deck-composer |
-| 근거        | 숫자에 출처(01_extracted) 대응      | deck-composer |
-| 오탈자      | 명백한 맞춤법·깨진 글자 0           | pptx-builder  |
+| 항목        | 합격 기준                                   | 실패 시       |
+| ----------- | ------------------------------------------- | ------------- |
+| 표지 명료성 | 표지만으로 "무엇을 파는지" 이해             | deck-composer |
+| 흐름        | 문제→솔루션→가치 순서 유지                  | deck-composer |
+| 정보 밀도   | 슬라이드당 불릿 5개 이하, 한 메시지         | deck-composer |
+| 근거        | 숫자·고유명사가 FINAL-REPORT에 대응(창작 0) | deck-composer |
+| 오탈자      | 명백한 맞춤법·깨진 글자 0                   | pptx-builder  |
 
 ## 출력: `_workspace/03_qa-report.md`
 

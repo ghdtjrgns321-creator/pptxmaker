@@ -18,31 +18,65 @@ from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, set_shape_text
 K = load_kit()
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
-KICKER = "3. 기술 설명 — TECH 02 · Retrieve"
-SOURCE = "출처: 2_DATA-TAXONOMY.md · 3_KNOWLEDGE-GRAPH.md (00_factsheet.md §C·§D)"
 IMG_3D = r"C:\Users\ghdtj\workspace\portfolio\k-ifrs-1115\images\knowledge_graph_3d.png"
 
-BUILD_ROWS = [  # 유형별 구축 방법 — 2_DATA-TAXONOMY·3_KNOWLEDGE-GRAPH 사실만
-    ("구성 요소", "어떻게 만들었나", "수"),
-    ("개념", "기준서 공식 소제목을 그대로 노드로 — 이름도 경계도 창작하지 않음", "80"),
-    (
-        "문단·계층",
-        "본문의 위계(목차 구조)를 그대로 간선으로 — 내 판단이 아니라 기준서의 질서",
-        "250 · 79",
-    ),
-    (
-        "사례",
-        "QNA·감리는 제목이 정제돼 있어 제목을 색인으로, 본문이 인용한 문단 번호로 그래프에 연결",
-        "188 (연결 1,220)",
-    ),
-    ("상호참조", "문단이 서로를 인용하는 관계를 간선으로 — 임베딩이 못 잡는 '법적 이웃'", "244"),
-    ("용어", "사람 1차 자료 3종에서 전수 검수로 등재 (TECH 01)", "423"),
-]
+# 콘텐츠 기본값(골든 내용) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색 고정)
+DEFAULT = {
+    "kicker": "3. 기술 설명 — TECH 02 · Retrieve",
+    "headline": "지식그래프 — 기준서의 구조를 그대로 옮긴 결정적 지도",
+    "narratives": [
+        (
+            "왜 필요한가",
+            "문단 뭉치에는 순서도 관계도 없다. 기준서는 계층·상호참조·사례가 얽힌 구조 — 그 구조를 보존해야 근거가 근거로 이어진다.",
+        ),
+        (
+            "파이프라인에서의 역할",
+            "Retrieve의 지도. 진입 개념에서 관계를 한 단계만 따라 문단·사례·근거를 수집한다 — 수집 범위 자체가 그래프로 고정된다.",
+        ),
+        (
+            "어떻게 만들었나",
+            "기준서 공식 소제목 80개를 그대로 개념 노드로, 뼈대 간선은 기준서에서 기계 생성 — AI 판단 0. 고립 노드 0을 감사로 확인했다.",
+        ),
+    ],
+    "struct_head": "구조 — 기준서의 위계 그대로",
+    "root": "기준서 1115",
+    "concepts": ["변동대가", "보증", "⋯ 80"],
+    "paras": ["문단 50", "문단 56", "B33"],
+    "layer_tag1": "개념 80",
+    "layer_tag2": "문단 250",
+    "term_chip": "“볼륨디스카운트”",
+    "term_cap": "용어 423 — 진입",
+    "case_chip": "사례 188",
+    "xref_cap": "사례는 인용 문단으로 연결 · 문단끼리는 상호참조(E3 244)",
+    "table_title": ("무엇을 어떻게 만들었나", "    그래프 v14 — 노드 929 · 간선 2,697 · 고립 0"),
+    "build_rows": [  # 유형별 구축 방법 — 2_DATA-TAXONOMY·3_KNOWLEDGE-GRAPH 사실만
+        ("구성 요소", "어떻게 만들었나", "수"),
+        ("개념", "기준서 공식 소제목을 그대로 노드로 — 이름도 경계도 창작하지 않음", "80"),
+        (
+            "문단·계층",
+            "본문의 위계(목차 구조)를 그대로 간선으로 — 내 판단이 아니라 기준서의 질서",
+            "250 · 79",
+        ),
+        (
+            "사례",
+            "QNA·감리는 제목이 정제돼 있어 제목을 색인으로, 본문이 인용한 문단 번호로 그래프에 연결",
+            "188 (연결 1,220)",
+        ),
+        (
+            "상호참조",
+            "문단이 서로를 인용하는 관계를 간선으로 — 임베딩이 못 잡는 '법적 이웃'",
+            "244",
+        ),
+        ("용어", "사람 1차 자료 3종에서 전수 검수로 등재 (TECH 01)", "423"),
+    ],
+    "bar": "임베딩이 놓치는 '법적 이웃'을 관계가 잡는다 — 텍스트가 아니라 구조로 검색한다",
+    "source": "출처: 2_DATA-TAXONOMY.md · 3_KNOWLEDGE-GRAPH.md (00_factsheet.md §C·§D)",
+}
 
 
-def header(slide, headline):
+def header(slide, headline, kicker):
     add_text(
-        slide, G.MARGIN_L, 0.42, 8.0, 0.28, KICKER, S["caption"], F["head"], C["muted"], bold=True
+        slide, G.MARGIN_L, 0.42, 8.0, 0.28, kicker, S["caption"], F["head"], C["muted"], bold=True
     )
     add_text(
         slide,
@@ -69,7 +103,7 @@ def narrative_row(slide, narratives):
             G.CONTENT_TOP,
             nar_w,
             0.28,
-            f"0{i + 1}  {head}",
+            [(f"0{i + 1}", {"color": C["accent"]}), (f"  {head}", {})],
             S["head"],
             F["head"],
             C["primary"],
@@ -105,7 +139,7 @@ def build_table(slide, rows, x, y, w):
             cell = tbl.cell(ri, ci)
             cell.fill.solid()
             cell.fill.fore_color.rgb = (
-                C["primary"] if ri == 0 else (C["bg_alt"] if ri % 2 == 0 else C["bg"])
+                C["accent"] if ri == 0 else (C["bg_alt"] if ri % 2 == 0 else C["bg"])
             )
             cell.margin_left = cell.margin_right = Inches(0.08)
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
@@ -121,7 +155,7 @@ def build_table(slide, rows, x, y, w):
             r.font.color.rgb = C["bg"] if ri == 0 else (C["primary"] if ci != 1 else C["text"])
 
 
-def bar_and_source(slide, text):
+def bar_and_source(slide, text, source):
     bar = add_box(slide, G.MARGIN_L, G.BAR_Y, G.RIGHT_EDGE - G.MARGIN_L, G.BAR_H, fill=C["primary"])
     tf = bar.text_frame
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
@@ -138,35 +172,20 @@ def bar_and_source(slide, text):
         G.SOURCE_Y,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
-        SOURCE,
+        source,
         S["foot"],
         F["body"],
         C["muted"],
     )
 
 
-def variant_a(prs):
-    """A — 서사 3칼럼 + 실물 증거(3D 캡처 + 노드·간선 등록부 표)."""
+def variant_a(prs, c=None):
+    """A — 서사 3칼럼 + 실물 증거(3D 캡처 + 노드·간선 등록부 표). c: 텍스트 override(None=골든 기본)."""
+    c = {**DEFAULT, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "지식그래프 — 기준서의 구조를 그대로 옮긴 결정적 지도")
-    narrative_row(
-        slide,
-        [
-            (
-                "왜 필요한가",
-                "문단 뭉치에는 순서도 관계도 없다. 기준서는 계층·상호참조·사례가 얽힌 구조 — 그 구조를 보존해야 근거가 근거로 이어진다.",
-            ),
-            (
-                "파이프라인에서의 역할",
-                "Retrieve의 지도. 진입 개념에서 관계를 한 단계만 따라 문단·사례·근거를 수집한다 — 수집 범위 자체가 그래프로 고정된다.",
-            ),
-            (
-                "어떻게 만들었나",
-                "기준서 공식 소제목 80개를 그대로 개념 노드로, 뼈대 간선은 기준서에서 기계 생성 — AI 판단 0. 고립 노드 0을 감사로 확인했다.",
-            ),
-        ],
-    )
+    header(slide, c["headline"], c["kicker"])
+    narrative_row(slide, c["narratives"])
 
     # ── 하단 좌: 위계 도해 (기준서의 질서 그대로) + 3D 캡처 썸네일 ──
     def _arrow(x1, y1, x2, y2):
@@ -186,7 +205,7 @@ def variant_a(prs):
         3.3,
         4.0,
         0.24,
-        "구조 — 기준서의 위계 그대로",
+        c["struct_head"],
         S["caption"],
         F["head"],
         C["primary"],
@@ -210,15 +229,15 @@ def variant_a(prs):
         return b
 
     root_x, root_w = 2.35, 1.6
-    _node(root_x, 3.6, root_w, "기준서 1115", fill=C["primary"], ink=C["bg"], bold=True)
-    # 개념층 (y 4.45): 변동대가 · 보증 · ⋯ (80)
-    concepts = [("변동대가", 2.05, 1.0), ("보증", 3.2, 0.7), ("⋯ 80", 4.05, 0.65)]
-    for name, cx, cw in concepts:
+    _node(root_x, 3.6, root_w, c["root"], fill=C["primary"], ink=C["bg"], bold=True)
+    # 개념층 (y 4.45): 변동대가 · 보증 · ⋯ (80) — 좌표 고정, 텍스트만 c에서
+    concept_pos = [(2.05, 1.0), (3.2, 0.7), (4.05, 0.65)]  # (cx, cw)
+    for name, (cx, cw) in zip(c["concepts"], concept_pos):
         _node(cx, 4.45, cw, name)
         _arrow(root_x + root_w / 2, 3.94, cx + cw / 2, 4.45)
     # 문단층 (y 5.35): 변동대가→50·56, 보증→B33 (상호참조 화살표 공간 확보용 간격)
-    paras = [("문단 50", 1.75, 0.8, 2.55), ("문단 56", 2.95, 0.8, 2.55), ("B33", 3.95, 0.6, 3.55)]
-    for name, px, pw, src_cx in paras:
+    para_pos = [(1.75, 0.8, 2.55), (2.95, 0.8, 2.55), (3.95, 0.6, 3.55)]  # (px, pw, src_cx)
+    for name, (px, pw, src_cx) in zip(c["paras"], para_pos):
         _node(px, 5.35, pw, name)
         _arrow(src_cx, 4.79, px + pw / 2, 5.35)
     # 층 태그 (좌측 열)
@@ -228,7 +247,7 @@ def variant_a(prs):
         4.5,
         1.15,
         0.22,
-        "개념 80",
+        c["layer_tag1"],
         S["caption"],
         F["head"],
         C["primary"],
@@ -240,20 +259,18 @@ def variant_a(prs):
         5.4,
         1.15,
         0.22,
-        "문단 250",
+        c["layer_tag2"],
         S["caption"],
         F["head"],
         C["primary"],
         bold=True,
     )
     # 용어 칩 → 변동대가 (aliases 실물: 볼륨디스카운트 → 변동대가)
-    _node(G.MARGIN_L, 3.6, 1.45, "“볼륨디스카운트”", fill=C["bg"], line=C["muted"])
-    add_text(
-        slide, G.MARGIN_L, 3.96, 1.5, 0.18, "용어 423 — 진입", S["foot"], F["body"], C["muted"]
-    )
+    _node(G.MARGIN_L, 3.6, 1.45, c["term_chip"], fill=C["bg"], line=C["muted"])
+    add_text(slide, G.MARGIN_L, 3.96, 1.5, 0.18, c["term_cap"], S["foot"], F["body"], C["muted"])
     _arrow(G.MARGIN_L + 1.45, 3.77, 2.05, 4.62)  # 용어는 개념 좌변으로 진입(루트 fan과 분리)
     # 사례 칩 → 문단층 (인용 문단으로 연결)
-    _node(G.MARGIN_L, 5.85, 1.1, "사례 188", fill=C["bg"], line=C["muted"])
+    _node(G.MARGIN_L, 5.85, 1.1, c["case_chip"], fill=C["bg"], line=C["muted"])
     _arrow(G.MARGIN_L + 1.1, 6.02, 1.75, 5.69)
     # 상호참조 양방향 (문단 50 ↔ 문단 56)
     conn = slide.shapes.add_connector(
@@ -272,7 +289,7 @@ def variant_a(prs):
         6.14,
         3.0,
         0.2,
-        "사례는 인용 문단으로 연결 · 문단끼리는 상호참조(E3 244)",
+        c["xref_cap"],
         S["foot"],
         F["body"],
         C["muted"],
@@ -289,20 +306,18 @@ def variant_a(prs):
         [
             [
                 (
-                    "무엇을 어떻게 만들었나",
+                    c["table_title"][0],
                     {"bold": True, "color": C["primary"], "font": F["head"]},
                 ),
-                ("    그래프 v14 — 노드 929 · 간선 2,697 · 고립 0", {}),
+                (c["table_title"][1], {}),
             ]
         ],
         S["caption"],
         F["body"],
         C["muted"],
     )
-    build_table(slide, BUILD_ROWS, tx, 3.62, tw)
-    bar_and_source(
-        slide, "임베딩이 놓치는 '법적 이웃'을 관계가 잡는다 — 텍스트가 아니라 구조로 검색한다"
-    )
+    build_table(slide, c["build_rows"], tx, 3.62, tw)
+    bar_and_source(slide, c["bar"], c["source"])
     return slide
 
 

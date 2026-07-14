@@ -1351,6 +1351,8 @@ class Deck:
                 )
             result = fn(self.prs)
         slide = result[0] if isinstance(result, tuple) else result
+        if slide is None:  # 내부 side-effect 함수(반환 없음) — 방금 추가된 슬라이드 사용
+            slide = self.prs.slides[-1]
         self._flatten(slide)
         return slide
 

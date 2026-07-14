@@ -409,16 +409,70 @@ def _kv_row(slide, x, y, w, k, v):
         r.font.language_id = MSO_LANGUAGE_ID.KOREAN
 
 
-def variant_c(prs):
-    """C — 3구역: ①시험 구성(순환 차단 2겹) ②최종 기록 ③미재현 14건 각 설명."""
+VARIANT_C_DEFAULTS = {  # 텍스트 내용만 — 좌표·색·크기·도형은 함수 코드에 고정, KICKER/SOURCE/STATS/MISS_BUCKETS 흡수
+    "kicker": KICKER,
+    "headline": "골든테스트 92건 — 정답 문서를 차단한 채 사람의 결론을 재현하는가",
+    "col1_head": "① 어떻게 만든 시험인가",
+    "doc_caption": "실제 질의회신 92건 — 질의자·회계기준원·해석위원회 작성",
+    "doc_q_head": "질문",
+    "doc_q_desc": "실무 사실관계",
+    "doc_r_head": "회신",
+    "doc_r_desc": "전문가의 결론",
+    "dests": [
+        "질문만 시스템에 입력",
+        "회신은 채점 정답지로\n3축 대조 — 결론·문단·분기",
+        "문서 자체는 검색 차단 ✕\n격리 증명 0/92",
+    ],
+    "col1_note": "자작 시나리오를 버리고 사람이 쓴 실제 문답으로 — AI가 만든 문제를 AI가 푸는 자가순환과, 자기 답을 자기가 인용하는 순환을 모두 차단했다. 재현 판정 = 결론축 ≥ 1 그리고 3축 합 ≥ 4.",
+    "col2_head": "② 최종 기록",
+    "final_big": "78 / 92",
+    "final_label": "사람 전문가 결론 재현",
+    "stats": STATS,
+    "col2_note": "하드 인용 재현율 59.1%는 별도 보고 — 인용률만으로 품질을 재지 않는다.",
+    "col3_head": "③ 미재현 14건 — 각각 왜",
+    "buckets": MISS_BUCKETS,
+    "col3_note": "합 6+4+2+2 = 14, 전수 귀속 — 검색 재설계로 실제 움직일 수 있는 것은 1건뿐이다.",
+    "bar": "정답이 적힌 문서를 못 보게 한 상태에서 78/92 — 실패 14건까지 전수 해부된 수치다",
+    "source": SOURCE,
+}
+
+
+def variant_c(prs, c=None):
+    """C — 3구역: ①시험 구성(순환 차단 2겹) ②최종 기록 ③미재현 14건 각 설명. c=텍스트 override(None=골든)."""
+    c = {**VARIANT_C_DEFAULTS, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "골든테스트 92건 — 정답 문서를 차단한 채 사람의 결론을 재현하는가")
+    # 헤더 인라인 (kicker·headline만 c에서 — 좌표·색·크기는 header()와 동일하게 고정)
+    add_text(
+        slide,
+        G.MARGIN_L,
+        0.42,
+        8.0,
+        0.28,
+        c["kicker"],
+        S["caption"],
+        F["head"],
+        C["muted"],
+        bold=True,
+    )
+    add_text(
+        slide,
+        G.MARGIN_L,
+        0.72,
+        G.RIGHT_EDGE - G.MARGIN_L,
+        0.55,
+        c["headline"],
+        S["section"],
+        F["head"],
+        C["primary"],
+        bold=True,
+    )
+    add_box(slide, G.MARGIN_L, G.RULE_Y, G.RIGHT_EDGE - G.MARGIN_L, 0.014, fill=C["muted"])
     from pptx.enum.lang import MSO_LANGUAGE_ID
 
     # ── ① 좌: 문서 분해도 — 실제 질의회신 한 건을 세 갈래로 쪼갠다 ──
     ax, aw = G.MARGIN_L, 3.8
-    _subhead(slide, ax, G.CONTENT_TOP, aw, "① 어떻게 만든 시험인가")
+    _subhead(slide, ax, G.CONTENT_TOP, aw, c["col1_head"])
     from pptx.enum.shapes import MSO_CONNECTOR
     from pptx.oxml.ns import qn
 
@@ -442,7 +496,7 @@ def variant_c(prs):
         2.22,
         aw,
         0.24,
-        "실제 질의회신 92건 — 질의자·회계기준원·해석위원회 작성",
+        c["doc_caption"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -455,7 +509,7 @@ def variant_c(prs):
         doc_y + 0.14,
         doc_w,
         0.55,
-        [[("질문", {"bold": True, "color": C["primary"]})], [("실무 사실관계", {})]],
+        [[(c["doc_q_head"], {"bold": True, "color": C["primary"]})], [(c["doc_q_desc"], {})]],
         S["caption"],
         F["body"],
         C["muted"],
@@ -468,7 +522,7 @@ def variant_c(prs):
         doc_y + doc_h / 2 + 0.14,
         doc_w,
         0.55,
-        [[("회신", {"bold": True, "color": C["primary"]})], [("전문가의 결론", {})]],
+        [[(c["doc_r_head"], {"bold": True, "color": C["primary"]})], [(c["doc_r_desc"], {})]],
         S["caption"],
         F["body"],
         C["muted"],
@@ -477,29 +531,13 @@ def variant_c(prs):
     )
     # 분해 3갈래 → 목적지 칩
     dest_x, dest_w = ax + 2.1, aw - 2.1
-    dests = [
-        (2.5, "질문만 시스템에 입력", C["bg"], C["primary"], C["muted"], False, doc_y + 0.42),
-        (
-            3.45,
-            "회신은 채점 정답지로\n3축 대조 — 결론·문단·분기",
-            C["bg"],
-            C["primary"],
-            C["accent"],
-            False,
-            doc_y + doc_h - 0.42,
-        ),
-        (
-            4.5,
-            "문서 자체는 검색 차단 ✕\n격리 증명 0/92",
-            C["bg_alt"],
-            C["muted"],
-            None,
-            True,
-            doc_y + doc_h / 2,
-        ),
+    dest_style = [  # (dy, fill, color, border, dashed, src_y) — 좌표·색 고정, 텍스트는 c["dests"]에서
+        (2.5, C["bg"], C["primary"], C["muted"], False, doc_y + 0.42),
+        (3.45, C["bg"], C["primary"], C["accent"], False, doc_y + doc_h - 0.42),
+        (4.5, C["bg_alt"], C["muted"], None, True, doc_y + doc_h / 2),
     ]
 
-    for dy, text, fill, color, border, dashed, src_y in dests:
+    for (dy, fill, color, border, dashed, src_y), text in zip(dest_style, c["dests"]):
         chip_h = 0.62
         _fan_arrow(doc_x + doc_w, src_y, dest_x - 0.05, dy + chip_h / 2, dashed=dashed)
         chip = add_box(
@@ -526,7 +564,7 @@ def variant_c(prs):
         5.4,
         aw,
         0.9,
-        "자작 시나리오를 버리고 사람이 쓴 실제 문답으로 — AI가 만든 문제를 AI가 푸는 자가순환과, 자기 답을 자기가 인용하는 순환을 모두 차단했다. 재현 판정 = 결론축 ≥ 1 그리고 3축 합 ≥ 4.",
+        c["col1_note"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -536,21 +574,23 @@ def variant_c(prs):
     bx = 4.85
     bw = 2.9
     add_box(slide, 4.6, G.CONTENT_TOP, 0.012, G.CONTENT_BOTTOM - G.CONTENT_TOP, fill=C["bg_alt"])
-    _subhead(slide, bx, G.CONTENT_TOP, bw, "② 최종 기록")
-    add_text(slide, bx, 2.4, bw, 0.75, "78 / 92", S["display"], F["head"], C["accent"], bold=True)
+    _subhead(slide, bx, G.CONTENT_TOP, bw, c["col2_head"])
+    add_text(
+        slide, bx, 2.4, bw, 0.75, c["final_big"], S["display"], F["head"], C["accent"], bold=True
+    )
     add_text(
         slide,
         bx,
         3.15,
         bw,
         0.3,
-        "사람 전문가 결론 재현",
+        c["final_label"],
         S["body"],
         F["head"],
         C["primary"],
         bold=True,
     )
-    for i, (k, v) in enumerate(STATS):
+    for i, (k, v) in enumerate(c["stats"]):
         _kv_row(slide, bx, 3.65 + i * 0.42, bw, k, v)
     add_text(
         slide,
@@ -558,7 +598,7 @@ def variant_c(prs):
         5.5,
         bw,
         0.75,
-        "하드 인용 재현율 59.1%는 별도 보고 — 인용률만으로 품질을 재지 않는다.",
+        c["col2_note"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -568,8 +608,8 @@ def variant_c(prs):
     cx = 8.1
     cw = G.RIGHT_EDGE - cx
     add_box(slide, 7.85, G.CONTENT_TOP, 0.012, G.CONTENT_BOTTOM - G.CONTENT_TOP, fill=C["bg_alt"])
-    _subhead(slide, cx, G.CONTENT_TOP, cw, "③ 미재현 14건 — 각각 왜")
-    for i, (n, head, desc) in enumerate(MISS_BUCKETS):
+    _subhead(slide, cx, G.CONTENT_TOP, cw, c["col3_head"])
+    for i, (n, head, desc) in enumerate(c["buckets"]):
         my = 2.35 + i * 0.86
         badge = add_box(slide, cx, my, 0.44, 0.44, fill=C["primary"])
         tf = badge.text_frame
@@ -611,15 +651,33 @@ def variant_c(prs):
         5.85,
         cw,
         0.45,
-        "합 6+4+2+2 = 14, 전수 귀속 — 검색 재설계로 실제 움직일 수 있는 것은 1건뿐이다.",
+        c["col3_note"],
         S["caption"],
         F["head"],
         C["primary"],
         bold=True,
         line_spacing=1.2,
     )
-    bar_and_source(
-        slide, "정답이 적힌 문서를 못 보게 한 상태에서 78/92 — 실패 14건까지 전수 해부된 수치다"
+    bar = add_box(slide, G.MARGIN_L, G.BAR_Y, G.RIGHT_EDGE - G.MARGIN_L, G.BAR_H, fill=C["primary"])
+    tfb = bar.text_frame
+    tfb.vertical_anchor = MSO_ANCHOR.MIDDLE
+    pb = tfb.paragraphs[0]
+    pb.alignment = PP_ALIGN.CENTER
+    rb = pb.add_run()
+    rb.text = c["bar"]
+    rb.font.name, rb.font.bold = F["head"], True
+    rb.font.size = Pt(S["body"])
+    rb.font.color.rgb = C["bg"]
+    add_text(
+        slide,
+        G.MARGIN_L,
+        G.SOURCE_Y,
+        G.RIGHT_EDGE - G.MARGIN_L,
+        0.3,
+        c["source"],
+        S["foot"],
+        F["body"],
+        C["muted"],
     )
     return slide
 

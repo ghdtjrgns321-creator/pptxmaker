@@ -7,7 +7,7 @@
 | S1 표지 | 전체 | 8/8 일치 | PASS |
 | S2 목차 | 전체 | 36/36 일치 | PASS |
 | S3 간지1 | 전체 | 12/12 일치 | PASS |
-| S4 문제정의 | 전체 | 42/42 일치 | PASS |
+| S4 문제정의 | 전체 | 28/28 일치 | PASS |
 | S5 간지2 | 전체 | 12/12 일치 | PASS |
 | S6 실행그래프 | 전체 | 43/43 일치 | PASS |
 | S7 간지3 | 전체 | 12/12 일치 | PASS |
@@ -24,8 +24,18 @@
 | S18 경계 | 전체 | 26/26 일치 | PASS |
 | S19 클로징 | 전체 | 15/15 일치 | PASS |
 
-총계: 슬라이드 19/19, 도형 일치 501/501, 불일치 0건
+총계: 슬라이드 19/19, 도형 일치 487/487, 불일치 0건
 
 ## 파라미터 유효성 (상이 입력 반영)
 - closing 커스텀: PASS
 - screenshot 커스텀: PASS
+- problem_grid override: PASS
+- exec_graph override: PASS
+- tech_evidence override: PASS
+- tech_tree override: PASS
+- tech_mechanism override: PASS
+- tech_capture override: PASS
+- ab_simulation override: PASS
+- validation override: PASS
+- mirror_matrix override: PASS
+- boundary override: PASS

@@ -1,7 +1,7 @@
 ---
 name: consistency-qa
 description: 빌드된 pptx의 브랜드 일관성·셀링 품질·네이티브 표/차트를 검증하고 실패 시 되돌릴 지시를 내리는 검수관. 파이프라인 4단계. 검증 스크립트를 실행해야 하므로 general-purpose 타입.
-tools: All tools
+tools: "*"
 model: opus
 ---
 
@@ -18,7 +18,7 @@ model: opus
 - FAIL을 관대하게 넘기지 않되, 기준표 밖 주관적 취향은 지적하지 않는다.
 
 ## 입력 / 출력 프로토콜
-- **입력:** `_workspace/deck.pptx` + `_workspace/02_deck-spec.json` + `brand-kit.yaml` + `01_extracted.md`(근거 대조용).
+- **입력:** `_workspace/deck.pptx` + `_workspace/02_deck-spec.json` + `brand-kit.yaml` + `<프로젝트>/FINAL-REPORT/*.md`(근거 대조용).
 - **출력:** `_workspace/03_qa-report.md` — 항목별 PASS/FAIL + FAIL이면 [되돌릴 대상 에이전트]와 구체적 수정 지시.
 
 ## 에러 핸들링

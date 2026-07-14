@@ -31,9 +31,9 @@ AXES = [  # §G 7축 전수
 ]
 
 
-def header(slide, headline):
+def header(slide, headline, kicker=KICKER):
     add_text(
-        slide, G.MARGIN_L, 0.42, 8.0, 0.28, KICKER, S["caption"], F["head"], C["muted"], bold=True
+        slide, G.MARGIN_L, 0.42, 8.0, 0.28, kicker, S["caption"], F["head"], C["muted"], bold=True
     )
     add_text(
         slide,
@@ -330,11 +330,23 @@ def variant_b(prs):
     return slide
 
 
-def variant_c(prs):
-    """C — 풀폭 미러 매트릭스 (사이드바 제거 — 한계는 S18 전용 장으로 분리)."""
+VARIANT_C_DEFAULTS = {  # 텍스트 내용만 — 좌표·색·폰트·도형종류는 코드에 고정
+    "kicker": KICKER,
+    "headline": "일반 임베딩 RAG과 무엇이 다른가 — 7개 축 전부 같은 방향",
+    "left_head": "일반 임베딩 RAG",
+    "right_head": "이 시스템",
+    "mirror": MIRROR,  # (축, RAG 키워드, 시스템 키워드) 중첩 리스트 — §G 7축(variant_b와 공유 상수)
+    "bar": "일반 RAG의 확률 신호 자리마다 기준서의 구조가 들어가 있다 — 7축 전부, 예외 없이",
+    "source": SOURCE,
+}
+
+
+def variant_c(prs, c=None):
+    """C — 풀폭 미러 매트릭스 (사이드바 제거 — 한계는 S18 전용 장으로 분리). c=텍스트 override(None=골든)."""
+    c = {**VARIANT_C_DEFAULTS, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "일반 임베딩 RAG과 무엇이 다른가 — 7개 축 전부 같은 방향")
+    header(slide, c["headline"], c["kicker"])
     from .kit import set_shape_text
 
     wing_l_x, wing_w = G.MARGIN_L, 5.17
@@ -348,7 +360,7 @@ def variant_c(prs):
         2.02,
         wing_w,
         0.3,
-        "일반 임베딩 RAG",
+        c["left_head"],
         S["body"],
         F["head"],
         C["muted"],
@@ -361,14 +373,14 @@ def variant_c(prs):
         2.02,
         wing_r_w,
         0.3,
-        "이 시스템",
+        c["right_head"],
         S["body"],
         F["head"],
         C["primary"],
         bold=True,
         align=PP_ALIGN.CENTER,
     )
-    for i, (axis, rag, ours) in enumerate(MIRROR):
+    for i, (axis, rag, ours) in enumerate(c["mirror"]):
         y = row0 + i * pitch
         _wing_card(slide, wing_l_x, y, wing_w, card_h, rag, dashed=True, align_right=True)
         pill = add_box(
@@ -382,7 +394,7 @@ def variant_c(prs):
     p = tf.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
     run = p.add_run()
-    run.text = "일반 RAG의 확률 신호 자리마다 기준서의 구조가 들어가 있다 — 7축 전부, 예외 없이"
+    run.text = c["bar"]
     run.font.name, run.font.bold = F["head"], True
     run.font.size = Pt(S["body"])
     run.font.color.rgb = C["bg"]
@@ -392,7 +404,7 @@ def variant_c(prs):
         G.SOURCE_Y,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
-        SOURCE,
+        c["source"],
         S["foot"],
         F["body"],
         C["muted"],

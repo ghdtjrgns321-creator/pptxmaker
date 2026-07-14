@@ -23,19 +23,19 @@ pptmaker는 내 프로젝트를 소개하는 B2B 셀링 PPT를 일관 서식으�
 - **Phase 0~2 완료:** 골든 덱 19장(501도형) 사용자 승인 확정 → 공장(goldenfab 15타입) 이식 →
   compare_golden 회귀 게이트로 골든↔공장 도형 501/501 일치 검증.
 - **다음:** Phase 3(K-IFRS 덱을 공장으로 end-to-end 재빌드, 갭 7개 재점검) → Phase 4(v4 잔재 정리).
-- 파이프라인 골격(추출 → 목차 인터뷰 → 구성 → 빌드 → 검수)은 유지. 시각 품질의 수렴점이
+- 파이프라인 골격(목차 인터뷰 → 구성 → 빌드 → 검수)은 유지. 시각 품질의 수렴점이
   "게이트 통과"에서 "골든 덱과의 일치"로 바뀌었다.
 
 ## 구현 자산 인벤토리 (현재 저장소 실측)
 
-| 분류            | 자산                                                                                                                        | 규모              | 상세 문서                    |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------- | ----------------- | ---------------------------- |
-| 스킬 7종        | pptmaker(오케스트레이터) · content-extract · deck-outline-grill · deck-compose · pptx-build · pptx-visuals · consistency-qa | `.claude/skills/` | [04](04-pipeline.md)         |
-| 에이전트 4종    | content-extractor · deck-composer · pptx-builder · consistency-qa                                                           | `.claude/agents/` | [04](04-pipeline.md)         |
-| 골든 덱(정답지) | `golden/` 스크립트 22파일 → golden-deck.pptx 19장·501도형, 시안 렌더 누적 106장                                             | 동결(기준 원본)   | [05](05-golden-deck-plan.md) |
-| 디자인 규칙     | `pptx-build/references/design-rules.md` — Ⅰ전역·Ⅱ장유형 A~J·Ⅲ프로세스 P1~P4                                                 | 96항목            | [08](08-system-overview.md)  |
-| 공장 엔진       | `pptx-build/scripts/goldenfab/` 20파일, 레이아웃 타입 15종 registry + build_pptx.py `golden.*` 디스패치                     | 15타입            | [07](07-factory-port.md)     |
-| 품질 게이트     | compare_golden.py(도형 전수 회귀) · audit_pptx.py(마감 오딧) · 물성 매칭 결정표(layout-matching.md 15행)                    | 4겹 게이트        | [08](08-system-overview.md)  |
+| 분류            | 자산                                                                                                      | 규모              | 상세 문서                    |
+| --------------- | --------------------------------------------------------------------------------------------------------- | ----------------- | ---------------------------- |
+| 스킬 6종        | pptmaker(오케스트레이터) · deck-outline-grill · deck-compose · pptx-build · pptx-visuals · consistency-qa | `.claude/skills/` | [04](04-pipeline.md)         |
+| 에이전트 3종    | deck-composer · pptx-builder · consistency-qa                                                             | `.claude/agents/` | [04](04-pipeline.md)         |
+| 골든 덱(정답지) | `golden/` 스크립트 22파일 → golden-deck.pptx 19장·501도형, 시안 렌더 누적 106장                           | 동결(기준 원본)   | [05](05-golden-deck-plan.md) |
+| 디자인 규칙     | `pptx-build/references/design-rules.md` — Ⅰ전역·Ⅱ장유형 A~J·Ⅲ프로세스 P1~P4                               | 96항목            | [08](08-system-overview.md)  |
+| 공장 엔진       | `pptx-build/scripts/goldenfab/` 20파일, 레이아웃 타입 15종 registry + build_pptx.py `golden.*` 디스패치   | 15타입            | [07](07-factory-port.md)     |
+| 품질 게이트     | compare_golden.py(도형 전수 회귀) · audit_pptx.py(마감 오딧) · 물성 매칭 결정표(layout-matching.md 15행)  | 4겹 게이트        | [08](08-system-overview.md)  |
 
 ## 더 깊은 문서 (개발자용)
 

@@ -31,9 +31,9 @@ BREAKDOWN = [  # 등재 423 분해 (합 423 검산은 audit)
 ]
 
 
-def header(slide, headline):
+def header(slide, headline, kicker=KICKER):
     add_text(
-        slide, G.MARGIN_L, 0.42, 8.0, 0.28, KICKER, S["caption"], F["head"], C["muted"], bold=True
+        slide, G.MARGIN_L, 0.42, 8.0, 0.28, kicker, S["caption"], F["head"], C["muted"], bold=True
     )
     add_text(
         slide,
@@ -67,7 +67,7 @@ def _arrow(slide, x1, y1, x2, y2):
     ln.append(ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "med", "len": "med"}))
 
 
-def bar_and_source(slide, text, right=None):
+def bar_and_source(slide, text, right=None, source=SOURCE):
     r = right or G.RIGHT_EDGE
     bar = add_box(slide, G.MARGIN_L, G.BAR_Y, r - G.MARGIN_L, G.BAR_H, fill=C["primary"])
     tf = bar.text_frame
@@ -80,7 +80,7 @@ def bar_and_source(slide, text, right=None):
     run.font.size = Pt(S["body"])
     run.font.color.rgb = C["bg"]
     add_text(
-        slide, G.MARGIN_L, G.SOURCE_Y, r - G.MARGIN_L, 0.3, SOURCE, S["foot"], F["body"], C["muted"]
+        slide, G.MARGIN_L, G.SOURCE_Y, r - G.MARGIN_L, 0.3, source, S["foot"], F["body"], C["muted"]
     )
 
 
@@ -309,37 +309,12 @@ def variant_b(prs):
     return slide
 
 
-# 실물 엔트리 (data/ontology/aliases.json에서 발췌 — 축약만, 창작 0)
-TABLE_ROWS = [
-    ("용어", "원천", "등급", "연결 개념 (어디로 진입하나)"),
-    ("리베이트", "질의 매핑", "자동", "고객에게 지급할 대가"),
-    ("밀어내기", "질의 매핑", "자동", "위탁약정"),
-    ("볼륨디스카운트", "질의 매핑", "자동", "변동대가 · 변동대가 추정치를 제약함"),
-    ("상품권", "질의 매핑", "위임판단", "고객에게 지급할 대가 · 고객이 행사하지 아니한 권리"),
-    ("반품의 회계처리", "QNA 제목", "자동", "반품권이 있는 판매 · 본인 대 대리인 (QNA-SSI-38695)"),
-]
-JSON_LINES = [  # 상품권 엔트리 실물 축약
-    '{ "term": "상품권",',
-    '  "sources": ["query-mapping"],',
-    '  "grade": "자동(위임판단)",',
-    '  "concepts": [',
-    '    "고객에게 지급할 대가",',
-    '    "고객이 행사하지 아니한 권리" ],',
-    '  "decision": {',
-    '    "by": "AI 위임 판단",',
-    '    "reason": "미행사 상품권 =',
-    '        B44~47 정면 조항" } }',
-]
-
-
-def variant_c(prs):
-    """C3 — 서사 3칼럼(왜/역할/구축) + 실물 증거(네이티브 표 + JSON 카드). 신규 어휘."""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "용어사전 — 실무 언어를 기준서 개념에 잇는 진입 색인")
-    # ── 상단: 왜 / 역할 / 구축 3칼럼 (두괄식 볼드 헤드 + 완전 문장) ──
-    nar_w = (G.RIGHT_EDGE - G.MARGIN_L - 2 * 0.4) / 3
-    narratives = [
+# 콘텐츠 기본값(골든 내용) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색·폰트·도형 고정)
+DEFAULT_C = {
+    "headline": "용어사전 — 실무 언어를 기준서 개념에 잇는 진입 색인",
+    "kicker": KICKER,
+    # 상단 3칼럼 서사 (head, body) — 번호 접두는 코드에서 위치로 생성
+    "narratives": [
         (
             "왜 필요한가",
             "실무는 '리베이트'라 말하고 기준서는 '고객에게 지급할 대가'라 쓴다. 이 언어 간극을 잇지 않으면 검색이 시작조차 되지 않는다.",
@@ -352,8 +327,50 @@ def variant_c(prs):
             "어떻게 만들었나",
             "사람 1차 자료 3종(질의 매핑 288 · 사례 제목 123 · 부록A 정의 9)에서 AI가 초안을 내고 사람이 전수 검수해 423개 등재 — 신규 창작 0건.",
         ),
-    ]
-    for i, (head, body) in enumerate(narratives):
+    ],
+    # 실물 엔트리 (data/ontology/aliases.json에서 발췌 — 축약만, 창작 0)
+    "table_rows": [
+        ("용어", "원천", "등급", "연결 개념 (어디로 진입하나)"),
+        ("리베이트", "질의 매핑", "자동", "고객에게 지급할 대가"),
+        ("밀어내기", "질의 매핑", "자동", "위탁약정"),
+        ("볼륨디스카운트", "질의 매핑", "자동", "변동대가 · 변동대가 추정치를 제약함"),
+        ("상품권", "질의 매핑", "위임판단", "고객에게 지급할 대가 · 고객이 행사하지 아니한 권리"),
+        (
+            "반품의 회계처리",
+            "QNA 제목",
+            "자동",
+            "반품권이 있는 판매 · 본인 대 대리인 (QNA-SSI-38695)",
+        ),
+    ],
+    "table_caption": "등재 423 중 발췌 5건 — 자동 316 · 위임판단 86 · 검토 18 · 확정 1 · 제외 2",
+    "json_title": "aliases.json — 실제 엔트리",
+    "json_lines": [  # 상품권 엔트리 실물 축약
+        '{ "term": "상품권",',
+        '  "sources": ["query-mapping"],',
+        '  "grade": "자동(위임판단)",',
+        '  "concepts": [',
+        '    "고객에게 지급할 대가",',
+        '    "고객이 행사하지 아니한 권리" ],',
+        '  "decision": {',
+        '    "by": "AI 위임 판단",',
+        '    "reason": "미행사 상품권 =',
+        '        B44~47 정면 조항" } }',
+    ],
+    "json_caption": "모든 엔트리가 결정 로그(누가·왜)를 갖는다 — 전건 추적.",
+    "bar": "AI가 만드는 것은 색인 하나 — 틀려도 1종(놓침)으로 드러나는 자리에만 둔다",
+    "source": SOURCE,
+}
+
+
+def variant_c(prs, c=None):
+    """C3 — 서사 3칼럼(왜/역할/구축) + 실물 증거(네이티브 표 + JSON 카드). c: 텍스트 override(None=골든 기본값). 좌표·색·폰트 고정."""
+    c = {**DEFAULT_C, **(c or {})}
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
+    header(slide, c["headline"], c["kicker"])
+    # ── 상단: 왜 / 역할 / 구축 3칼럼 (두괄식 볼드 헤드 + 완전 문장) ──
+    nar_w = (G.RIGHT_EDGE - G.MARGIN_L - 2 * 0.4) / 3
+    for i, (head, body) in enumerate(c["narratives"]):
         nx = G.MARGIN_L + i * (nar_w + 0.4)
         add_text(
             slide,
@@ -361,7 +378,7 @@ def variant_c(prs):
             G.CONTENT_TOP,
             nar_w,
             0.28,
-            f"0{i + 1}  {head}",
+            [(f"0{i + 1}", {"color": C["accent"]}), (f"  {head}", {})],
             S["head"],
             F["head"],
             C["primary"],
@@ -383,20 +400,20 @@ def variant_c(prs):
             add_box(slide, nx + nar_w + 0.2, G.CONTENT_TOP, 0.012, 1.2, fill=C["bg_alt"])
     # ── 하단 좌: 네이티브 표 (실물 5행) ──
     tbl_x, tbl_y, tbl_w = G.MARGIN_L, 3.35, 7.7
-    n_rows = len(TABLE_ROWS)
+    n_rows = len(c["table_rows"])
     gf = slide.shapes.add_table(
         n_rows, 4, Inches(tbl_x), Inches(tbl_y), Inches(tbl_w), Inches(0.5 * n_rows)
     )
     tbl = gf.table
     for ci, cw in enumerate((1.65, 1.15, 1.15, 3.75)):
         tbl.columns[ci].width = Inches(cw)
-    for ri, row in enumerate(TABLE_ROWS):
+    for ri, row in enumerate(c["table_rows"]):
         tbl.rows[ri].height = Inches(0.42 if ri else 0.38)
         for ci, val in enumerate(row):
             cell = tbl.cell(ri, ci)
             cell.fill.solid()
             cell.fill.fore_color.rgb = (
-                C["primary"] if ri == 0 else (C["bg_alt"] if ri % 2 == 0 else C["bg"])
+                C["accent"] if ri == 0 else (C["bg_alt"] if ri % 2 == 0 else C["bg"])
             )
             cell.margin_left = cell.margin_right = Inches(0.08)
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
@@ -414,7 +431,7 @@ def variant_c(prs):
         6.0,
         tbl_w,
         0.26,
-        "등재 423 중 발췌 5건 — 자동 316 · 위임판단 86 · 검토 18 · 확정 1 · 제외 2",
+        c["table_caption"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -432,7 +449,7 @@ def variant_c(prs):
         jy + 0.15,
         jw - 0.5,
         0.24,
-        "aliases.json — 실제 엔트리",
+        c["json_title"],
         S["caption"],
         F["head"],
         C["bg_alt"],
@@ -444,7 +461,7 @@ def variant_c(prs):
         jy + 0.5,
         jw - 0.5,
         jh - 0.7,
-        [[(ln, {})] for ln in JSON_LINES],
+        [[(ln, {})] for ln in c["json_lines"]],
         S["foot"],
         "Consolas",
         C["bg"],
@@ -456,14 +473,12 @@ def variant_c(prs):
         6.0,
         jw,
         0.26,
-        "모든 엔트리가 결정 로그(누가·왜)를 갖는다 — 전건 추적.",
+        c["json_caption"],
         S["caption"],
         F["body"],
         C["muted"],
     )
-    bar_and_source(
-        slide, "AI가 만드는 것은 색인 하나 — 틀려도 1종(놓침)으로 드러나는 자리에만 둔다"
-    )
+    bar_and_source(slide, c["bar"], source=c["source"])
     return slide
 
 

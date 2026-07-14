@@ -50,9 +50,9 @@ FIELDS = [  # app/agents.py ClarifyOutput 실물 필드 7개 (설명은 Field de
 ]
 
 
-def header(slide, headline):
+def header(slide, headline, kicker=KICKER):
     add_text(
-        slide, G.MARGIN_L, 0.42, 8.0, 0.28, KICKER, S["caption"], F["head"], C["muted"], bold=True
+        slide, G.MARGIN_L, 0.42, 8.0, 0.28, kicker, S["caption"], F["head"], C["muted"], bold=True
     )
     add_text(
         slide,
@@ -88,7 +88,7 @@ def _arrow(slide, x1, y1, x2, y2, head=True):
     return conn
 
 
-def bar_and_source(slide, text):
+def bar_and_source(slide, text, source=SOURCE):
     bar = add_box(slide, G.MARGIN_L, G.BAR_Y, G.RIGHT_EDGE - G.MARGIN_L, G.BAR_H, fill=C["primary"])
     tf = bar.text_frame
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
@@ -105,7 +105,7 @@ def bar_and_source(slide, text):
         G.SOURCE_Y,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
-        SOURCE,
+        source,
         S["foot"],
         F["body"],
         C["muted"],
@@ -273,20 +273,52 @@ def variant_a(prs):
     return slide
 
 
-IMG_ANSWER = str(Path(__file__).resolve().parents[5] / "golden" / "ref" / "s12_answer.png")  # 508×721 실물 답변 캡처
-IMG_CROP = str(Path(__file__).resolve().parents[5] / "golden" / "ref" / "s12_answer_crop.png")  # 508×382 발췌
+IMG_ANSWER = str(
+    Path(__file__).resolve().parents[5] / "golden" / "ref" / "s12_answer.png"
+)  # 508×721 실물 답변 캡처
+IMG_CROP = str(
+    Path(__file__).resolve().parents[5] / "golden" / "ref" / "s12_answer_crop.png"
+)  # 508×382 발췌
+
+# variant_b 콘텐츠 기본값(골든 텍스트) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색·폰트 고정).
+# kicker·source도 c로 override 가능 — 공유 헬퍼(header·bar_and_source)가 기본값 KICKER·SOURCE를 받되 c["kicker"]·c["source"]로 교체.
+VARIANT_B_DEFAULTS = {
+    "kicker": KICKER,
+    "headline": "구조화 출력 — 답변의 형식을 코드가 강제한다",
+    "narratives": NARRATIVES,
+    "mid_subhead": "실물 답변 화면 — 발췌",
+    "caption": "전체 답변 중 [확인 질문]·[조건부 결론 Case 1·2] 발췌 — 본인 vs 대리인 질의",
+    "schema_subhead": "출력 스키마 — ClarifyOutput",
+    "glosses": [
+        ("selected_branches", "고른 결론 분기"),
+        ("answer", "답변 본문 (마크다운)"),
+        ("cited_paragraphs", "인용 문단 — 비면 거부"),
+        ("cited_cases", "인용 질의회신·감리 ID"),
+        ("cited_ie", "인용 적용사례 번호"),
+        ("follow_up_questions", "확인 질문 3개"),
+        ("is_conclusion", "결론 포함 — 항상 True"),
+    ],
+    "validate_subhead": "형식 검증 — 거부와 자동 재시도",
+    "flow_generate": "답변 생성",
+    "diamond": "스키마\n검사",
+    "flow_display": "화면 표시",
+    "reject_note": "거부 — 자동 재시도: 인용 0개 · 분기 0개 · 결론 없는 단정",
+    "bar": "형식을 지키지 못한 답변은 화면에 도달하지 못한다 — 스키마 선언 + 검증기 자동 재시도",
+    "source": SOURCE,
+}
 
 
-def variant_b(prs):
-    """B — 좌 서사 스택 / 중 실물 답변 발췌(대형) / 우 스키마 카드 + 검증 루프."""
+def variant_b(prs, c=None):
+    """B — 좌 서사 스택 / 중 실물 답변 발췌(대형) / 우 스키마 카드 + 검증 루프. c: 텍스트 override(None=골든). 좌표·색·폰트 고정."""
+    c = {**VARIANT_B_DEFAULTS, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "구조화 출력 — 답변의 형식을 코드가 강제한다")
+    header(slide, c["headline"], c["kicker"])
     from pptx.enum.lang import MSO_LANGUAGE_ID
 
     # ── 좌: 서사 3단 세로 스택 ──
     nx, nw = G.MARGIN_L, 2.55
-    for i, (head, body) in enumerate(NARRATIVES):
+    for i, (head, body) in enumerate(c["narratives"]):
         ny = G.CONTENT_TOP + i * 1.55
         add_text(
             slide,
@@ -294,7 +326,7 @@ def variant_b(prs):
             ny,
             nw,
             0.28,
-            f"0{i + 1}  {head}",
+            [(f"0{i + 1}", {"color": C["accent"]}), (f"  {head}", {})],
             S["head"],
             F["head"],
             C["primary"],
@@ -315,7 +347,7 @@ def variant_b(prs):
     add_box(slide, 3.35, G.CONTENT_TOP, 0.012, G.CONTENT_BOTTOM - G.CONTENT_TOP, fill=C["bg_alt"])
     # ── 중: 실물 답변 발췌 (주인공, w 4.8) ──
     mx, mw = 3.5, 4.8
-    _subhead(slide, mx, G.CONTENT_TOP, mw, "실물 답변 화면 — 발췌")
+    _subhead(slide, mx, G.CONTENT_TOP, mw, c["mid_subhead"])
     img_w = 4.8
     img_h = img_w * 382 / 508  # 3.61
     pic = slide.shapes.add_picture(IMG_CROP, Inches(mx), Inches(2.25), width=Inches(img_w))
@@ -328,7 +360,7 @@ def variant_b(prs):
         5.94,
         mw - 0.55,
         0.4,
-        "전체 답변 중 [확인 질문]·[조건부 결론 Case 1·2] 발췌 — 본인 vs 대리인 질의",
+        c["caption"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -338,23 +370,14 @@ def variant_b(prs):
     add_box(slide, 8.45, G.CONTENT_TOP, 0.012, G.CONTENT_BOTTOM - G.CONTENT_TOP, fill=C["bg_alt"])
     tx = 8.6
     tw = G.RIGHT_EDGE - tx  # 4.13
-    _subhead(slide, tx, G.CONTENT_TOP, tw, "출력 스키마 — ClarifyOutput")
+    _subhead(slide, tx, G.CONTENT_TOP, tw, c["schema_subhead"])
     card = add_box(slide, tx, 2.22, tw, 2.0, fill=C["primary"], shape="round")
     card.adjustments[0] = 0.05
     tf = card.text_frame
     tf.word_wrap = False
     tf.margin_left = tf.margin_right = Inches(0.18)
     tf.margin_top = Inches(0.1)
-    glosses = [
-        ("selected_branches", "고른 결론 분기"),
-        ("answer", "답변 본문 (마크다운)"),
-        ("cited_paragraphs", "인용 문단 — 비면 거부"),
-        ("cited_cases", "인용 질의회신·감리 ID"),
-        ("cited_ie", "인용 적용사례 번호"),
-        ("follow_up_questions", "확인 질문 3개"),
-        ("is_conclusion", "결론 포함 — 항상 True"),
-    ]
-    for i, (name, gloss) in enumerate(glosses):
+    for i, (name, gloss) in enumerate(c["glosses"]):
         p = tf.paragraphs[0] if i == 0 else tf.add_paragraph()
         p.alignment = PP_ALIGN.LEFT
         p._p.get_or_add_pPr().set("eaLnBrk", "0")
@@ -371,8 +394,8 @@ def variant_b(prs):
         r2.font.size = Pt(S["caption"])
         r2.font.color.rgb = C["bg_alt"]
         r2.font.language_id = MSO_LANGUAGE_ID.KOREAN
-    _subhead(slide, tx, 4.5, tw, "형식 검증 — 거부와 자동 재시도")
-    _flow_box(slide, tx, 5.0, 1.15, 0.58, "답변 생성")
+    _subhead(slide, tx, 4.5, tw, c["validate_subhead"])
+    _flow_box(slide, tx, 5.0, 1.15, 0.58, c["flow_generate"])
     _arrow(slide, tx + 1.15, 5.29, tx + 1.35, 5.29)
     dia = add_box(
         slide,
@@ -385,9 +408,11 @@ def variant_b(prs):
         line_w=1.75,
         shape="diamond",
     )
-    set_shape_text(dia, "스키마\n검사", S["caption"], F["head"], C["primary"], bold=True)
+    set_shape_text(dia, c["diamond"], S["caption"], F["head"], C["primary"], bold=True)
     _arrow(slide, tx + 2.5, 5.29, tx + 2.7, 5.29)
-    _flow_box(slide, tx + 2.7, 5.0, tw - 2.7, 0.58, "화면 표시", line=C["accent"], line_w=1.75)
+    _flow_box(
+        slide, tx + 2.7, 5.0, tw - 2.7, 0.58, c["flow_display"], line=C["accent"], line_w=1.75
+    )
     dcx = tx + 1.925
     _arrow(slide, dcx, 5.62, dcx, 5.88, head=False)
     _arrow(slide, dcx, 5.88, tx + 0.55, 5.88, head=False)
@@ -398,15 +423,13 @@ def variant_b(prs):
         5.98,
         tw,
         0.3,
-        "거부 — 자동 재시도: 인용 0개 · 분기 0개 · 결론 없는 단정",
+        c["reject_note"],
         S["caption"],
         F["body"],
         C["muted"],
         line_spacing=1.2,
     )
-    bar_and_source(
-        slide, "형식을 지키지 못한 답변은 화면에 도달하지 못한다 — 스키마 선언 + 검증기 자동 재시도"
-    )
+    bar_and_source(slide, c["bar"], source=c["source"])
     return slide
 
 

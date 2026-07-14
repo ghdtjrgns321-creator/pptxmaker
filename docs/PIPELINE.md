@@ -1,28 +1,31 @@
-# pptmaker v3 파이프라인 — Claude 직접 추출(메인) + NotebookLM(보조) → 일관 서식 공장
+# pptmaker v5 파이프라인 — FINAL-REPORT(사용자 정리) → 목차 인터뷰 → 일관 서식 공장
 
-재료 추출부터 서식까지 Claude Code가 메인으로 수행하고, NotebookLM은 보조(관점 변주·
-비로컬 소스)로 쓴다. 2026-07-08 같은 소스 A/B 실측: **직접 추출이 밀도 1.3배·출처 인용
-16배 우위 + NotebookLM 재료에서 고유명사 환각 2건 검출**(_workspace/08_material-comparison.md).
-재료 형식은 **보고서형 8요소**(슬라이드 요약형 금지 — 재료가 마름). 서식은 변함없이
+콘텐츠는 사용자가 프로젝트별 `FINAL-REPORT/`(보고서형 md 묶음)로 미리 정리해둔다. 이 하네스는
+그 FINAL-REPORT를 목차·강조점 인터뷰(GRILL)로 셀링 골격에 앉히고 **일관된 골격·브랜드의
+네이티브 .pptx로 빌드**한다. 추출·NotebookLM 단계는 없다 — FINAL-REPORT가 이미 사람이
+작성·검증한 as-built 단일 재료 원천이라, 밀도·출처·검증이 확보돼 있다(같은 소스 A/B 실측:
+직접 추출 재료 6,246단어 ≈ k-ifrs FINAL-REPORT 6,098단어로 동급). 서식은 변함없이
 코드(`build_pptx.py` + `brand-kit.yaml`)만이 보장한다.
 
 ## 데이터 흐름 (전체)
 
 ```
 [사용자]                         [Claude Code — pptmaker 오케스트레이터]
-NotebookLM에                ┌──────────────────────────────────────────────────┐
-프롬프트 템플릿 투입          │ ① content-extractor                              │
-  │                         │    pptx 3~5개 파싱 → 01_extracted.md              │
-  ▼                         │    + charts/*.json + images/                      │
-pptx 초안 3~5개 다운로드      │            ▼                                     │
-  │                         │ ② deck-composer                                   │
-  ▼                         │    통합·중복제거·골격 배치 → 02_deck-spec.json     │
-input/<프로젝트명>/ 에 저장 ──▶│            ▼                                     │
-                            │ ③ pptx-builder                                    │
-                            │    build_pptx.py + brand-kit → deck.pptx          │
-                            │            ▼                                      │
-                            │ ④ consistency-qa                                  │
-                            │    audit_pptx.py → PASS / FAIL(되돌림 1회)         │
+프로젝트별 FINAL-REPORT/     ┌──────────────────────────────────────────────────┐
+(보고서형 md 묶음)           │ ① deck-outline-grill (목차·콘텐츠 인터뷰 게이트)   │
+  │                         │    FINAL-REPORT 기반 목차 1안 → 장별 강조 채록      │
+  ▼                         │    → 01.5_outline.md (아웃라인 계약)                │
+<프로젝트>/FINAL-REPORT/ ──▶ │            ▼                                       │
+  *.md 를 재료로 지정         │ ② deck-composer                                    │
+                            │    FINAL-REPORT + 계약 → 골격 배치 → 02_deck-spec   │
+                            │            ▼                                       │
+                            │ ②.5 익스히빗 승인 게이트 (gallery.html)            │
+                            │            ▼                                       │
+                            │ ③ pptx-builder                                     │
+                            │    build_pptx.py + brand-kit → deck.pptx           │
+                            │            ▼                                       │
+                            │ ④ consistency-qa                                   │
+                            │    audit_pptx.py → PASS / FAIL(되돌림 1회)          │
                             └──────────────────────────────────────────────────┘
                                           ▼
                             results/<프로젝트명>-소개.pptx (최종 산출물)
@@ -30,29 +33,29 @@ input/<프로젝트명>/ 에 저장 ──▶│            ▼                 
 
 ## 단계별 역할
 
-| 단계 | 에이전트           | 스킬            | 입력                         | 출력                                            |
-| ---- | ------------------ | --------------- | ---------------------------- | ----------------------------------------------- |
-| ①    | content-extractor  | content-extract | 로컬 소스(기본)·input/(보조) | 01_extracted.md, charts, images                 |
-| ②    | deck-composer      | deck-compose    | 01_extracted.md              | 03_exhibit-candidates.json(시각 후보)           |
-| ②.5  | 사용자 승인 게이트 | pptx-visuals    | 후보 JSON → make_mockups.py  | mockups/gallery.html → 회신 → 02_deck-spec.json |
-| ③    | pptx-builder       | pptx-build      | 02_deck-spec.json            | deck.pptx (하이브리드: 네이티브+mpl PNG)        |
-| ④    | consistency-qa     | consistency-qa  | deck.pptx + 02_deck-spec     | 03_qa-report.md (+다양성 게이트 3종)            |
+| 단계 | 에이전트/주체        | 스킬               | 입력                                    | 출력                                            |
+| ---- | -------------------- | ------------------ | --------------------------------------- | ----------------------------------------------- |
+| ①    | 오케스트레이터(대화) | deck-outline-grill | FINAL-REPORT/\*.md                      | 01.5_outline.md (아웃라인 계약)                 |
+| ②    | deck-composer        | deck-compose       | FINAL-REPORT + 01.5_outline.md          | 03_exhibit-candidates.json(시각 후보)           |
+| ②.5  | 사용자 승인 게이트   | pptx-visuals       | 후보 JSON → 갤러리                      | mockups/gallery.html → 회신 → 02_deck-spec.json |
+| ③    | pptx-builder         | pptx-build         | 02_deck-spec.json                       | deck.pptx (하이브리드: 네이티브+mpl PNG)        |
+| ④    | consistency-qa       | consistency-qa     | deck.pptx + 02_deck-spec + FINAL-REPORT | 03_qa-report.md (+다양성 게이트 4종)            |
 
 ## 원칙 (박제)
 
-1. **재료는 직접 추출이 기본.** 로컬 소스가 있으면 content-extract 모드 A(보고서형 8요소
-   직접 작성 + 수치·고유명사 grep 검증)로 뽑는다. NotebookLM은 모드 B(보조) — 보고서형
-   텍스트만 받고(pptx 금지), 수입 재료는 고유명사까지 검증한다.
-   프롬프트 템플릿: `docs/notebooklm-prompt.md` (보조 경로용)
-2. **차트는 데이터 추출 → 네이티브 재생성(A안).** 단, NotebookLM pptx는 **슬라이드당
-   래스터(PNG) 1장**으로 구워져 나온다(2026-07-08 실측: 15/15 슬라이드 텍스트 상자 0개) —
-   본문·수치 추출은 에이전트의 **이미지 판독**(멀티모달 Read)이 기본 경로다. 폴백:
-   네이티브 차트 수치 직접 추출 → 이미지 판독 복원 → 실패 시 이미지 크롭 + "폴백" 표기.
-   텍스트 보고서(md)를 함께 받으면 그것을 주 재료로, pptx 이미지는 보조로 쓴다.
+1. **재료는 FINAL-REPORT 단일 원천.** 사용자가 프로젝트별로 정리해둔 보고서형 md가 재료다.
+   추출·NotebookLM 단계 없음 — FINAL-REPORT가 사람이 작성·검증한 as-built라 밀도·출처·검증이
+   이미 확보돼 있다. FINAL-REPORT가 얇으면 ① GRILL 인터뷰에서 사용자에게 보강 재료(추가
+   문서·스크린샷)를 요청한다(억지 창작 금지).
+2. **구성은 빌드 전 인터뷰에서 확정.** GRILL이 FINAL-REPORT 기반 목차 1안을 던지고, 장별
+   "가장 전하고 싶은 것"을 채록해 `01.5_outline.md`(계약)를 만든다. deck-composer는 이 계약을
+   지킨다 — 장 추가·삭제·채록 메시지 변경 금지.
 3. **수정은 항상 deck-spec 경유 재빌드.** 완성 pptx를 직접 뜯지 않는다 — deck-spec이 단일
    출처여야 "브랜드 바꿔 재빌드" 재현성이 유지된다. 차트·다이어그램 레시피는 `pptx-visuals`
    스킬이 단일 출처(`scripts/visuals.py`).
 4. **브랜드 단일 출처는 `brand-kit.yaml`.** 색·폰트·크기·여백은 이 파일만 고친다.
+5. **근거는 FINAL-REPORT에 대응.** 추출 단계가 없으므로 수치·고유명사의 진위는 ④
+   consistency-qa가 "덱이 FINAL-REPORT와 일치하나"로 대조한다(창작 0 원칙).
 
 ## 다이어그램 DSL (deck-spec `diagram` 타입)
 
@@ -75,10 +78,14 @@ python-pptx에는 다이어그램 객체가 없으므로 도형+커넥터 조합
   첫 실전에서 "쓸만한 내용 추출·문서화·시각화" 품질이 부족해 폐기.
 - v2 (2026-07-08): 콘텐츠 생산을 NotebookLM으로 이관. project-analysis/project-analyst 폐기,
   selling-curation → deck-compose(통합·선별로 역할 축소), content-extract·pptx-visuals 신설.
-- 샘플 NotebookLM pptx 미확보 상태로 설계 — 첫 실전 투입 때 추출 로직(특히 차트 형태)을 보정한다.
+- v3 (2026-07-08): Claude 직접 추출을 메인으로 회귀(A/B 실측 밀도·출처 우위), NotebookLM은 보조.
+  PART 탭·간지·계층번호·시각 어휘·QA 게이트 도입.
 - v4 (2026-07-08): 시각 다양성 파이프라인. 첫 실전 덱이 "막대 1·표 3·박스플로우" 3어휘로
-  수렴한 문제를 4방법론 조합으로 해결 — ①익스히빗 사양서 선행 패스(②.5 사용자 승인 게이트,
-  make_mockups.py 갤러리) ②확장 매핑·다양성 강제 3조항(visual-selection C-2, audit 게이트)
-  ③mpl 하이브리드 7종(mpl_exhibits.py — 네이티브 편집성은 기본 6종 유지, 확장만 이미지)
-  ④레퍼런스 앵커링(ref/catalog.md, Dallas 6페이지). 스타일 지렛대 박제: 전부 회색 + 강조만
-  accent 1색 + 콜아웃 + 출처 각주. 롤백 지점: git tag `v3-pre-visual-diversity`.
+  수렴한 문제를 ②.5 사용자 승인 게이트·mpl 하이브리드·다양성 게이트로 해결. 롤백 지점:
+  git tag `v3-pre-visual-diversity`.
+- v5 (2026-07-12): **전반부 완전제거.** content-extract 스킬·content-extractor 에이전트·NotebookLM
+  경로(모드 B·notebooklm-prompt)를 폐기하고, 사용자가 프로젝트별로 정리해둔 `FINAL-REPORT/`를
+  단일 재료 원천으로 채택. GRILL(deck-outline-grill)이 ① 첫 단계가 되고, deck-compose의 초안
+  통합·중복제거·상충병기 기계는 단일 소스라 제거. 사라진 grep 수치검증은 ④ QA의 FINAL-REPORT
+  대조로 흡수. 근거: FINAL-REPORT(k-ifrs 6,098단어)가 이미 추출 재료(6,246단어)와 동급 밀도라
+  "보고서에서 보고서를 다시 뽑던" 중복 단계를 걷어냈다.

@@ -238,27 +238,50 @@ def variant_a(prs):
     return slide
 
 
-OTHER_LIMITS = [  # 6_TEST §6.2·§6.3·L52 실물 — 경계 밖 잔여 한계 3종
-    (
-        "결론을 확정하지 못한 케이스",
-        "헤지 2건 — 근거 문단을 다 찾고도 결론을 유보했다. 검색이 아니라 생성 계층의 남은 과제.",
+# 콘텐츠 기본값(골든 내용) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색·크기 고정)
+DEFAULT = {
+    "headline": "정직한 한계 — 이 시스템이 서 있는 경계",
+    "outside_label": "경계 밖",
+    "inside_title": "K-IFRS 1115 — 경계 안",
+    "inside_policy_head": "답하는 범위를 계약한다",
+    "inside_policy_body": (
+        "경계 안 질문에만 결정적으로 답하고, 밖이면 거절, 모르면 유보 — "
+        "아는 척이 구조적으로 불가능하게 만든 설계다."
     ),
-    (
-        "인용 완전성",
-        "하드 인용 재현율 59.1% — 결론이 맞아도 근거 인용을 전부 담지는 못한다. 별도 지표로 추적.",
-    ),
-    (
-        "검증 자체의 한계",
-        "92건은 개발 중 전수 열람돼 순수 홀드아웃이 아니다 — 최종 성능은 안 본 질문으로 검증해야 한다.",
-    ),
-]
+    "out_left_chip_head": "타 기준서 질문",
+    "out_left_chip_sub": "IAS38 · 1002 · 1008 · 1037",
+    "out_left_desc": "라우팅이 코드 레벨 강제 OUT — 추측 대신 거절. 실측 4건 (예: 1116호 '증분차입이자율' 감지)",
+    "out_right_chip_head": "등재되지 않은 표현",
+    "out_right_chip_sub": "임베딩식 유사 확장 없음",
+    "out_right_desc": "색인에 없으면 진입 실패 → '못 찾음' 유보 응답. 홀드아웃 실측 진입 누락 2건",
+    "bottom_head": "경계 그 밖의 한계 — 실측으로 아는 것",
+    "limits": [  # 6_TEST §6.2·§6.3·L52 실물 — 경계 밖 잔여 한계 3종
+        (
+            "결론을 확정하지 못한 케이스",
+            "헤지 2건 — 근거 문단을 다 찾고도 결론을 유보했다. 검색이 아니라 생성 계층의 남은 과제.",
+        ),
+        (
+            "인용 완전성",
+            "하드 인용 재현율 59.1% — 결론이 맞아도 근거 인용을 전부 담지는 못한다. 별도 지표로 추적.",
+        ),
+        (
+            "검증 자체의 한계",
+            "92건은 개발 중 전수 열람돼 순수 홀드아웃이 아니다 — 최종 성능은 안 본 질문으로 검증해야 한다.",
+        ),
+    ],
+    "bar": "경계를 넓히는 대신 경계 안을 결정적으로 — 못 하는 것까지 실측으로 세어 두었다",
+}
 
 
-def variant_b(prs):
-    """B — 상단 경계 도해(안=정책, 밖=차단·유보) + 하단 잔여 한계 3섹션."""
+def variant_b(prs, c=None):
+    """B — 상단 경계 도해(안=정책, 밖=차단·유보) + 하단 잔여 한계 3섹션.
+
+    c: 텍스트 내용 override(None=골든 기본값). 좌표·색·크기는 고정.
+    """
+    c = {**DEFAULT, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "정직한 한계 — 이 시스템이 서 있는 경계")
+    header(slide, c["headline"])
     from pptx.enum.lang import MSO_LANGUAGE_ID
 
     # ── 상단: 경계 캔버스 ──
@@ -269,7 +292,7 @@ def variant_b(prs):
         2.05,
         3.0,
         0.24,
-        "경계 밖",
+        c["outside_label"],
         S["caption"],
         F["head"],
         C["muted"],
@@ -286,7 +309,7 @@ def variant_b(prs):
         in_y + 0.2,
         in_w,
         0.32,
-        "K-IFRS 1115 — 경계 안",
+        c["inside_title"],
         S["head"],
         F["head"],
         C["primary"],
@@ -300,14 +323,8 @@ def variant_b(prs):
         in_w - 0.7,
         1.4,
         [
-            [("답하는 범위를 계약한다", {"bold": True, "color": C["primary"]})],
-            [
-                (
-                    "경계 안 질문에만 결정적으로 답하고, 밖이면 거절, 모르면 유보 — "
-                    "아는 척이 구조적으로 불가능하게 만든 설계다.",
-                    {},
-                )
-            ],
+            [(c["inside_policy_head"], {"bold": True, "color": C["primary"]})],
+            [(c["inside_policy_body"], {})],
         ],
         S["caption"],
         F["body"],
@@ -315,7 +332,7 @@ def variant_b(prs):
         line_spacing=1.35,
     )
     # 밖 좌: 타 기준서 — 강제 OUT
-    _outside_chip(slide, 0.85, 2.5, 2.5, "타 기준서 질문", "IAS38 · 1002 · 1008 · 1037")
+    _outside_chip(slide, 0.85, 2.5, 2.5, c["out_left_chip_head"], c["out_left_chip_sub"])
     _dash_arrow(slide, 3.45, 2.9, 4.58, 2.9)
     add_box(slide, 4.55, 2.68, 0.05, 0.44, fill=C["primary"])
     add_text(slide, 4.18, 2.96, 0.3, 0.26, "✕", S["body"], F["head"], C["primary"], bold=True)
@@ -325,14 +342,14 @@ def variant_b(prs):
         3.45,
         3.2,
         0.55,
-        "라우팅이 코드 레벨 강제 OUT — 추측 대신 거절. 실측 4건 (예: 1116호 '증분차입이자율' 감지)",
+        c["out_left_desc"],
         S["caption"],
         F["body"],
         C["muted"],
         line_spacing=1.2,
     )
     # 밖 우: 미등재 표현 — 유보
-    _outside_chip(slide, 9.95, 2.5, 2.5, "등재되지 않은 표현", "임베딩식 유사 확장 없음")
+    _outside_chip(slide, 9.95, 2.5, 2.5, c["out_right_chip_head"], c["out_right_chip_sub"])
     _dash_arrow(slide, 9.95, 2.9, 8.72, 2.9)
     add_box(slide, 8.7, 2.68, 0.05, 0.44, fill=C["primary"])
     add_text(slide, 9.07, 2.96, 0.3, 0.26, "✕", S["body"], F["head"], C["primary"], bold=True)
@@ -342,7 +359,7 @@ def variant_b(prs):
         3.45,
         3.1,
         0.55,
-        "색인에 없으면 진입 실패 → '못 찾음' 유보 응답. 홀드아웃 실측 진입 누락 2건",
+        c["out_right_desc"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -355,7 +372,7 @@ def variant_b(prs):
         4.78,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
-        "경계 그 밖의 한계 — 실측으로 아는 것",
+        c["bottom_head"],
         S["head"],
         F["head"],
         C["primary"],
@@ -363,7 +380,7 @@ def variant_b(prs):
     )
     add_box(slide, G.MARGIN_L, 5.12, G.RIGHT_EDGE - G.MARGIN_L, 0.012, fill=C["muted"])
     sec_w, gap = 3.86, 0.27
-    for i, (head, body) in enumerate(OTHER_LIMITS):
+    for i, (head, body) in enumerate(c["limits"]):
         sx = G.MARGIN_L + i * (sec_w + gap)
         card = add_box(slide, sx, 5.28, sec_w, 1.06, fill=C["bg_alt"], shape="round")
         tf = card.text_frame
@@ -394,9 +411,7 @@ def variant_b(prs):
         rb.font.color.rgb = C["muted"]
         for r in (rn, rh, rb):
             r.font.language_id = MSO_LANGUAGE_ID.KOREAN
-    bar_and_source(
-        slide, "경계를 넓히는 대신 경계 안을 결정적으로 — 못 하는 것까지 실측으로 세어 두었다"
-    )
+    bar_and_source(slide, c["bar"])
     return slide
 
 

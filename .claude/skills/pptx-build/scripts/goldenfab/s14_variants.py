@@ -53,9 +53,9 @@ STRUCTURES = [  # 전환 후 — 기준서의 명시적 구조 (§D 실측 수)
 ]
 
 
-def header(slide, headline):
+def header(slide, headline, kicker=KICKER):
     add_text(
-        slide, G.MARGIN_L, 0.42, 8.0, 0.28, KICKER, S["caption"], F["head"], C["muted"], bold=True
+        slide, G.MARGIN_L, 0.42, 8.0, 0.28, kicker, S["caption"], F["head"], C["muted"], bold=True
     )
     add_text(
         slide,
@@ -72,7 +72,7 @@ def header(slide, headline):
     add_box(slide, G.MARGIN_L, G.RULE_Y, G.RIGHT_EDGE - G.MARGIN_L, 0.014, fill=C["muted"])
 
 
-def bar_and_source(slide, text):
+def bar_and_source(slide, text, source=SOURCE):
     bar = add_box(slide, G.MARGIN_L, G.BAR_Y, G.RIGHT_EDGE - G.MARGIN_L, G.BAR_H, fill=C["primary"])
     tf = bar.text_frame
     tf.vertical_anchor = MSO_ANCHOR.MIDDLE
@@ -89,7 +89,7 @@ def bar_and_source(slide, text):
         G.SOURCE_Y,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
-        SOURCE,
+        source,
         S["foot"],
         F["body"],
         C["muted"],
@@ -387,11 +387,39 @@ def _chip(slide, x, y, w, h, text, fill, color, border=None, bold=True, size=Non
     return box
 
 
-def variant_c(prs):
-    """C — 동일 질문 A/B 시뮬레이션: 좌 점수 산탄·컷라인 탈락 vs 우 결정 경로 도달."""
+# 콘텐츠 기본값(골든 내용) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색·도형 고정)
+DEFAULT = {
+    "headline": "같은 질문, 두 시스템 — 점수는 떨어뜨리고, 경로는 도달한다",
+    "kicker": KICKER,
+    "left_title": "리랭커 — 점수가 근거다, 그런데 점수엔 근거가 없다",
+    "question": "“볼륨디스카운트 조항이 있는 계약은…”",
+    "rank_labels": ["1위", "2위", "3위"],
+    "surface_card": "표면 단어가\n비슷한 문단",
+    "cut_label": "상위 컷 — 아래는 버려진다",
+    "reject_mark": "✕",
+    "reject_card": "전문가 큐레이션 문단 — 정답인데 표면 유사도가 낮다",
+    "left_note": "실측 — 전문가 배정 큐레이션 문서가 표면 유사도가 낮아 105건 중 103건 탈락(98%). 이미 bypass로 우회 중이었다 — 유사도 필터가 정답을 거른다는 신호.",
+    "right_title": "지식그래프 — 경로가 근거다",
+    "steps": [
+        ("용어사전 매칭 — 볼륨디스카운트 → 변동대가", "사람이 전수 검수한 색인 (등재 423)"),
+        ("개념 노드 — 변동대가", "목차 위계의 그 자리 — 측정 > 거래가격 산정 > 변동대가"),
+        ("관할 문단 50~54 — 변동대가 추정", "개념에 배정된 문단으로 — 간선 자체가 근거 ✓"),
+    ],
+    "right_note": "탈락시킬 점수가 없다 — 연결이 있으면 도달하고, 어떤 간선을 지났는지가 그대로 답변의 근거가 된다.",
+    "bar": "확률 신호 전량 폐기 — 임베딩·가중치·리랭커 없이 온톨로지 그래프로 동작한다",
+    "source": SOURCE,
+}
+
+
+def variant_c(prs, c=None):
+    """C — 동일 질문 A/B 시뮬레이션: 좌 점수 산탄·컷라인 탈락 vs 우 결정 경로 도달.
+
+    c: 텍스트 내용 override(None=골든 기본값). 좌표·색·도형은 고정.
+    """
+    c = {**DEFAULT, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "같은 질문, 두 시스템 — 점수는 떨어뜨리고, 경로는 도달한다")
+    header(slide, c["headline"], c["kicker"])
     # ── 좌 판: 리랭커 (bg_alt) ──
     lx, lw = G.MARGIN_L, 5.75
     add_box(slide, lx, 1.85, lw, 4.5, fill=C["bg_alt"])
@@ -402,7 +430,7 @@ def variant_c(prs):
         2.0,
         lw - 0.5,
         0.28,
-        "리랭커 — 점수가 근거다, 그런데 점수엔 근거가 없다",
+        c["left_title"],
         S["head"],
         F["head"],
         C["primary"],
@@ -416,7 +444,7 @@ def variant_c(prs):
         2.42,
         q_w,
         0.42,
-        "“볼륨디스카운트 조항이 있는 계약은…”",
+        c["question"],
         C["bg"],
         C["primary"],
         border=C["muted"],
@@ -426,7 +454,7 @@ def variant_c(prs):
     cards_y = 3.75
     card_w = 1.62
     card_xs = [px, px + 1.82, px + 3.64]
-    labels = ["1위", "2위", "3위"]
+    labels = c["rank_labels"]
     qcx = lx + lw / 2
     for cx, lab in zip(card_xs, labels):
         ccx = cx + card_w / 2
@@ -450,7 +478,7 @@ def variant_c(prs):
             cards_y,
             card_w,
             0.5,
-            "표면 단어가\n비슷한 문단",
+            c["surface_card"],
             C["bg"],
             C["muted"],
             border=C["muted"],
@@ -475,20 +503,31 @@ def variant_c(prs):
         cut_y - 0.26,
         2.05,
         0.22,
-        "상위 컷 — 아래는 버려진다",
+        c["cut_label"],
         S["caption"],
         F["body"],
         C["muted"],
         align=PP_ALIGN.RIGHT,
     )
-    add_text(slide, px + 0.35, 4.86, 0.4, 0.34, "✕", S["title"], F["head"], C["primary"], bold=True)
+    add_text(
+        slide,
+        px + 0.35,
+        4.86,
+        0.4,
+        0.34,
+        c["reject_mark"],
+        S["title"],
+        F["head"],
+        C["primary"],
+        bold=True,
+    )
     _chip(
         slide,
         px + 0.85,
         4.82,
         3.4,
         0.5,
-        "전문가 큐레이션 문단 — 정답인데 표면 유사도가 낮다",
+        c["reject_card"],
         mix(C["bg_alt"], C["muted"], 0.25),
         C["primary"],
         bold=False,
@@ -499,7 +538,7 @@ def variant_c(prs):
         5.5,
         lw - 0.5,
         0.6,
-        "실측 — 전문가 배정 큐레이션 문서가 표면 유사도가 낮아 105건 중 103건 탈락(98%). 이미 bypass로 우회 중이었다 — 유사도 필터가 정답을 거른다는 신호.",
+        c["left_note"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -517,7 +556,7 @@ def variant_c(prs):
         2.0,
         rw - 0.5,
         0.28,
-        "지식그래프 — 경로가 근거다",
+        c["right_title"],
         S["head"],
         F["head"],
         C["primary"],
@@ -531,38 +570,21 @@ def variant_c(prs):
         2.42,
         chain_w,
         0.42,
-        "“볼륨디스카운트 조항이 있는 계약은…”",
+        c["question"],
         C["bg"],
         C["primary"],
         border=C["muted"],
         bold=False,
     )
-    steps = [
-        (
-            "용어사전 매칭 — 볼륨디스카운트 → 변동대가",
-            "사람이 전수 검수한 색인 (등재 423)",
-            C["bg"],
-            C["primary"],
-            C["muted"],
-        ),
-        (
-            "개념 노드 — 변동대가",
-            "목차 위계의 그 자리 — 측정 > 거래가격 산정 > 변동대가",
-            C["primary"],
-            C["bg"],
-            None,
-        ),
-        (
-            "관할 문단 50~54 — 변동대가 추정",
-            "개념에 배정된 문단으로 — 간선 자체가 근거 ✓",
-            C["bg"],
-            C["primary"],
-            C["accent"],
-        ),
+    # 스텝 스타일(구조·색 고정: fill, color, border), 텍스트는 c["steps"]에서
+    step_style = [
+        (C["bg"], C["primary"], C["muted"]),
+        (C["primary"], C["bg"], None),
+        (C["bg"], C["primary"], C["accent"]),
     ]
     step_y = [3.2, 3.98, 4.76]
     prev_bottom = 2.84
-    for (text, note, fill, color, border), sy in zip(steps, step_y):
+    for (text, note), (fill, color, border), sy in zip(c["steps"], step_style, step_y):
         _solid_arrow(slide, ccx, prev_bottom, ccx, sy)
         _chip(slide, rx + 0.35, sy, chain_w, 0.46, text, fill, color, border=border)
         add_text(
@@ -584,15 +606,13 @@ def variant_c(prs):
         5.5,
         rw - 0.5,
         0.6,
-        "탈락시킬 점수가 없다 — 연결이 있으면 도달하고, 어떤 간선을 지났는지가 그대로 답변의 근거가 된다.",
+        c["right_note"],
         S["caption"],
         F["body"],
         C["text"],
         line_spacing=1.25,
     )
-    bar_and_source(
-        slide, "확률 신호 전량 폐기 — 임베딩·가중치·리랭커 없이 온톨로지 그래프로 동작한다"
-    )
+    bar_and_source(slide, c["bar"], source=c["source"])
     return slide
 
 

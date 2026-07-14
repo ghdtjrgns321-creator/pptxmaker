@@ -371,115 +371,18 @@ def _arrow(slide, x1, y1, x2, y2, elbow=False):
     return conn
 
 
-def variant_c(prs):
-    """C — 원문(4_SEARCH-PIPELINE.md L8~19) 아스키 구조의 도형화: 분기 포함 실행 그래프."""
-    slide = prs.slides.add_slide(prs.slide_layouts[6])
-    add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    header(slide, "질문에서 응답까지 — 분기까지 전부 결정적인 실행 그래프", G.RIGHT_EDGE)
-    add_text(
-        slide,
-        G.MARGIN_L,
-        G.CONTENT_TOP,
-        G.RIGHT_EDGE - G.MARGIN_L,
-        0.3,
-        "진입부 임베딩 유사도 0 — LLM이 고르는 것은 35토픽 목록뿐, 경로는 그래프가 결정한다.",
-        S["sub"],
-        F["body"],
-        C["text"],
-    )
-    # ── 메인 레인 — 질문 ▶ Analyze ▶ ◇판정 ▶ Retrieve ▶ Generate ▶ Format ▶ 응답 ──
-    LANE_Y, NODE_H = 2.35, 0.6
-    mid = LANE_Y + NODE_H / 2
-    widths = [1.0, 1.45, 1.15, 1.45, 1.45, 1.45, 1.0]
-    gap = (G.RIGHT_EDGE - G.MARGIN_L - sum(widths)) / 6
-    xs, x = [], G.MARGIN_L
-    for w in widths:
-        xs.append(x)
-        x += w + gap
-    specs = [
-        ("질문", "round", C["bg"], C["muted"], C["primary"]),
-        ("Analyze", "round", C["bg_alt"], None, C["primary"]),
-        ("판정", "diamond", C["bg"], C["accent"], C["primary"]),
-        ("Retrieve", "round", C["bg_alt"], None, C["primary"]),
-        ("Generate", "round", C["bg_alt"], None, C["primary"]),
-        ("Format", "round", C["bg_alt"], None, C["primary"]),
-        ("응답", "round", C["primary"], None, C["bg"]),
-    ]
-    for (name, kind, fill, line, ink), nx, w in zip(specs, xs, widths):
-        h = NODE_H + 0.25 if kind == "diamond" else NODE_H
-        y = mid - h / 2
-        shp = add_box(
-            slide, nx, y, w, h, fill=fill, line=line, line_w=1.25 if line else None, shape=kind
-        )
-        set_shape_text(
-            shp, name, S["caption" if kind == "diamond" else "body"], F["head"], ink, bold=True
-        )
-    for i in range(6):
-        _arrow(slide, xs[i] + widths[i], mid, xs[i + 1], mid)
-    node_tags = {1: "용어사전 매칭", 3: "그래프 1홉 탐색", 4: "판단트리 주입", 5: "경고·꼬리질문"}
-    for i, tag in node_tags.items():
-        add_text(
-            slide,
-            xs[i] - 0.35,
-            LANE_Y + NODE_H + 0.1,
-            widths[i] + 0.7,
-            0.24,
-            tag,
-            S["caption"],
-            F["head"],
-            C["primary"],
-            bold=True,
-            align=PP_ALIGN.CENTER,
-        )
-    add_text(
-        slide,
-        xs[2] + widths[2] + 0.03,
-        mid - 0.32,
-        0.5,
-        0.22,
-        "IN",
-        S["caption"],
-        F["head"],
-        C["accent"],
-        bold=True,
-    )
-    # ── OUT 분기 — 다이아 아래 수직 낙하, 거절 박스 + 설명은 박스 우측 인라인 ──
-    dia_cx = xs[2] + widths[2] / 2
-    rej_w, rej_h = 2.0, 0.45
-    rej_x, rej_y = dia_cx - rej_w / 2, 3.55
-    rej = add_box(slide, rej_x, rej_y, rej_w, rej_h, fill=C["bg_alt"], shape="round")
-    set_shape_text(rej, "거절 메시지", S["caption"], F["head"], C["primary"], bold=True)
-    dia_bot = mid + (NODE_H + 0.25) / 2
-    _arrow(slide, dia_cx, dia_bot, dia_cx, rej_y)
-    add_text(
-        slide,
-        dia_cx + 0.12,
-        dia_bot + 0.12,
-        0.6,
-        0.22,
-        "OUT",
-        S["caption"],
-        F["head"],
-        C["accent"],
-        bold=True,
-    )
-    add_text(
-        slide,
-        rej_x + rej_w + 0.2,
-        rej_y + 0.1,
-        4.2,
-        0.26,
-        "범위 밖 질문은 본선에 진입하지 못하고 즉시 거절된다",
-        S["caption"],
-        F["body"],
-        C["muted"],
-    )
-    # ── 하단: 노드별 핵심 기술 — 평어 상세 4칼럼 (원문 §C·L47·L53·L63~65) ──
-    _subhead(
-        slide, G.MARGIN_L, 4.35, G.RIGHT_EDGE - G.MARGIN_L, "핵심 기술 — 결정성을 어떻게 만들었나"
-    )
-    det_w = (G.RIGHT_EDGE - G.MARGIN_L - 3 * 0.35) / 4  # 2.771
-    details = [  # 두괄식 — 구축 방법 중심 (§C 구축·작동 상세 + §D). 경고·꼬리질문은 격하.
+DEFAULT_C = {
+    "kicker": "2. 파이프라인",
+    "headline": "질문에서 응답까지 — 분기까지 전부 결정적인 실행 그래프",
+    "subtitle": "진입부 임베딩 유사도 0 — LLM이 고르는 것은 35토픽 목록뿐, 경로는 그래프가 결정한다.",
+    "node_names": ["질문", "Analyze", "판정", "Retrieve", "Generate", "Format", "응답"],
+    "node_tags": ["용어사전 매칭", "그래프 1홉 탐색", "판단트리 주입", "경고·꼬리질문"],
+    "in_label": "IN",
+    "reject_box": "거절 메시지",
+    "out_label": "OUT",
+    "reject_desc": "범위 밖 질문은 본선에 진입하지 못하고 즉시 거절된다",
+    "detail_head": "핵심 기술 — 결정성을 어떻게 만들었나",
+    "details": [
         (
             "01  용어사전 — 후보 진입점",
             "등재 423 · AI 신규 창작 0.",
@@ -500,8 +403,149 @@ def variant_c(prs):
             "PydanticAI 스키마 강제.",
             " 답변 형식을 코드로 강제하고, 위반하면 result_validator가 자동 재시도한다. 감리 경고·꼬리질문은 마지막에 부가되는 보조 장치다.",
         ),
+    ],
+    "rerank_note": "초기 설계에 있던 유사도 재정렬(rerank) 단계는 제거 — 그래프가 이미 결정적으로 선별하므로 재정렬할 것이 없다",
+    "bar": "질문에서 답까지 4개 노드 전부가 결정적으로 동작한다",
+    "source": "출처: 4_SEARCH-PIPELINE.md (00_factsheet.md §C)",
+}
+
+
+def variant_c(prs, c=None):
+    """C — 원문(4_SEARCH-PIPELINE.md L8~19) 아스키 구조의 도형화: 분기 포함 실행 그래프.
+
+    c: 텍스트 내용 override(None=골든 기본값). 좌표·색·도형 종류는 고정."""
+    c = {**DEFAULT_C, **(c or {})}
+    slide = prs.slides.add_slide(prs.slide_layouts[6])
+    add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
+    # 헤더 — header() 인라인(kicker·headline만 c에서, 출력은 header 호출과 동일)
+    add_text(
+        slide,
+        G.MARGIN_L,
+        0.42,
+        6.0,
+        0.28,
+        c["kicker"],
+        S["caption"],
+        F["head"],
+        C["muted"],
+        bold=True,
+    )
+    add_text(
+        slide,
+        G.MARGIN_L,
+        0.72,
+        G.RIGHT_EDGE - G.MARGIN_L,
+        0.55,
+        c["headline"],
+        S["section"],
+        F["head"],
+        C["primary"],
+        bold=True,
+    )
+    add_box(slide, G.MARGIN_L, G.RULE_Y, G.RIGHT_EDGE - G.MARGIN_L, 0.014, fill=C["muted"])
+    add_text(
+        slide,
+        G.MARGIN_L,
+        G.CONTENT_TOP,
+        G.RIGHT_EDGE - G.MARGIN_L,
+        0.3,
+        c["subtitle"],
+        S["sub"],
+        F["body"],
+        C["text"],
+    )
+    # ── 메인 레인 — 질문 ▶ Analyze ▶ ◇판정 ▶ Retrieve ▶ Generate ▶ Format ▶ 응답 ──
+    LANE_Y, NODE_H = 2.35, 0.6
+    mid = LANE_Y + NODE_H / 2
+    widths = [1.0, 1.45, 1.15, 1.45, 1.45, 1.45, 1.0]
+    gap = (G.RIGHT_EDGE - G.MARGIN_L - sum(widths)) / 6
+    xs, x = [], G.MARGIN_L
+    for w in widths:
+        xs.append(x)
+        x += w + gap
+    # 노드 스타일(도형 종류·색 고정), 이름만 c["node_names"]에서
+    node_style = [
+        ("round", C["bg"], C["muted"], C["primary"]),
+        ("round", C["bg_alt"], None, C["primary"]),
+        ("diamond", C["bg"], C["accent"], C["primary"]),
+        ("round", C["bg_alt"], None, C["primary"]),
+        ("round", C["bg_alt"], None, C["primary"]),
+        ("round", C["bg_alt"], None, C["primary"]),
+        ("round", C["primary"], None, C["bg"]),
     ]
-    for i, (head, lead, body) in enumerate(details):
+    for (kind, fill, line, ink), name, nx, w in zip(node_style, c["node_names"], xs, widths):
+        h = NODE_H + 0.25 if kind == "diamond" else NODE_H
+        y = mid - h / 2
+        shp = add_box(
+            slide, nx, y, w, h, fill=fill, line=line, line_w=1.25 if line else None, shape=kind
+        )
+        set_shape_text(
+            shp, name, S["caption" if kind == "diamond" else "body"], F["head"], ink, bold=True
+        )
+    for i in range(6):
+        _arrow(slide, xs[i] + widths[i], mid, xs[i + 1], mid)
+    tag_indices = [1, 3, 4, 5]
+    for i, tag in zip(tag_indices, c["node_tags"]):
+        add_text(
+            slide,
+            xs[i] - 0.35,
+            LANE_Y + NODE_H + 0.1,
+            widths[i] + 0.7,
+            0.24,
+            tag,
+            S["caption"],
+            F["head"],
+            C["primary"],
+            bold=True,
+            align=PP_ALIGN.CENTER,
+        )
+    add_text(
+        slide,
+        xs[2] + widths[2] + 0.03,
+        mid - 0.32,
+        0.5,
+        0.22,
+        c["in_label"],
+        S["caption"],
+        F["head"],
+        C["accent"],
+        bold=True,
+    )
+    # ── OUT 분기 — 다이아 아래 수직 낙하, 거절 박스 + 설명은 박스 우측 인라인 ──
+    dia_cx = xs[2] + widths[2] / 2
+    rej_w, rej_h = 2.0, 0.45
+    rej_x, rej_y = dia_cx - rej_w / 2, 3.55
+    rej = add_box(slide, rej_x, rej_y, rej_w, rej_h, fill=C["bg_alt"], shape="round")
+    set_shape_text(rej, c["reject_box"], S["caption"], F["head"], C["primary"], bold=True)
+    dia_bot = mid + (NODE_H + 0.25) / 2
+    _arrow(slide, dia_cx, dia_bot, dia_cx, rej_y)
+    add_text(
+        slide,
+        dia_cx + 0.12,
+        dia_bot + 0.12,
+        0.6,
+        0.22,
+        c["out_label"],
+        S["caption"],
+        F["head"],
+        C["accent"],
+        bold=True,
+    )
+    add_text(
+        slide,
+        rej_x + rej_w + 0.2,
+        rej_y + 0.1,
+        4.2,
+        0.26,
+        c["reject_desc"],
+        S["caption"],
+        F["body"],
+        C["muted"],
+    )
+    # ── 하단: 노드별 핵심 기술 — 평어 상세 4칼럼 (원문 §C·L47·L53·L63~65) ──
+    _subhead(slide, G.MARGIN_L, 4.35, G.RIGHT_EDGE - G.MARGIN_L, c["detail_head"])
+    det_w = (G.RIGHT_EDGE - G.MARGIN_L - 3 * 0.35) / 4  # 2.771
+    for i, (head, lead, body) in enumerate(c["details"]):
         dx = G.MARGIN_L + i * (det_w + 0.35)
         add_text(
             slide, dx, 4.85, det_w, 0.28, head, S["caption"], F["head"], C["primary"], bold=True
@@ -526,7 +570,7 @@ def variant_c(prs):
         6.05,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
-        "초기 설계에 있던 유사도 재정렬(rerank) 단계는 제거 — 그래프가 이미 결정적으로 선별하므로 재정렬할 것이 없다",
+        c["rerank_note"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -537,7 +581,7 @@ def variant_c(prs):
     p = tf.paragraphs[0]
     p.alignment = PP_ALIGN.CENTER
     r = p.add_run()
-    r.text = "질문에서 답까지 4개 노드 전부가 결정적으로 동작한다"
+    r.text = c["bar"]
     r.font.name, r.font.bold = F["head"], True
     r.font.size = Pt(S["body"])
     r.font.color.rgb = C["bg"]
@@ -547,7 +591,7 @@ def variant_c(prs):
         G.SOURCE_Y,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
-        SOURCE,
+        c["source"],
         S["foot"],
         F["body"],
         C["muted"],
