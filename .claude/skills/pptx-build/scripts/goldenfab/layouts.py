@@ -1,7 +1,9 @@
-"""goldenfab.layouts — 골든 확정 레이아웃의 파라미터화 이식 (슬라이스 1: cover·toc·part).
+"""goldenfab.layouts — 골든 확정 레이아웃 cover·toc·part.
 
-좌표·서식은 golden/build_golden.py 확정 구현을 그대로 옮겼다(임의 변경 금지 — design-rules).
-콘텐츠만 인자(dict)로 받는다. 회귀 검증: scripts/compare_golden.py.
+**여기가 이 3종의 확정 구현이자 유일 소스다**(2026-07-15 단일화. 전에는 golden/build_golden.py에
+같은 코드가 한 벌 더 있었고 그쪽이 "기준"이었다 — 사본 삭제로 해소).
+좌표·서식 임의 변경 금지(design-rules). 콘텐츠만 인자(dict)로 받는다.
+회귀 검증: scripts/compare_golden.py(기준선 스냅샷 대조).
 """
 
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
@@ -13,7 +15,7 @@ K = load_kit()
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 MARGIN = K["layout"]["margin"]
 
-# ── 표지 GRID (golden/build_golden.py 확정값) ──
+# ── 표지 GRID (사용자 확정값 2026-07-10 — 임의 좌표 금지) ──
 COVER_L = 0.65
 COVER_R = SLIDE_W - COVER_L
 COVER_RULE_Y = 0.92

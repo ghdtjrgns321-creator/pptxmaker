@@ -1,10 +1,25 @@
-"""compare_golden — 골든 원본 vs goldenfab 공장 출력의 도형 전수 비교 (Phase 2 회귀 게이트).
+"""compare_golden — 골든 레퍼런스 덱의 도형 전수 회귀 게이트 (스냅샷 대조).
 
 비교 속성: 도형 수 / shape_type / left·top·width·height(±0.005") / 전체 텍스트 /
-솔리드 채움색 / 첫 텍스트 런의 폰트 크기·볼드.
-사용: uv run python .claude/skills/pptx-build/scripts/compare_golden.py [리포트경로]
+솔리드 채움색 / 런 색 / 표 셀 / 첫 텍스트 런의 폰트 크기·볼드.
+
+## 2026-07-15 단일화 — 무엇이 바뀌었나
+
+전에는 `golden/`(동결 원본)과 `goldenfab/`(공장)을 **각각 빌드해서 서로 비교**했다. 두 트리에
+같은 레이아웃 코드가 두 벌 있었기 때문이다(Phase 2 이식 비계). 그래서 장 하나 고치려면 두
+파일을 똑같이 고쳐야 했고, 한쪽만 고치면 이 게이트가 깨졌다 — 사본끼리의 비교라 독립 검증력은
+없으면서 동기화 비용만 들었다.
+
+지금은 goldenfab이 유일 소스이고, **결과물(도형 서명)을 스냅샷으로 박아** 대조한다(골든 파일
+테스트의 정석). 레퍼런스 덱 정의는 `goldenfab/reference.py`.
+
+사용:
+    uv run python .../compare_golden.py [리포트경로]      # 검사 (종료코드 0 = PASS)
+    uv run python .../compare_golden.py --update-snapshot  # 의도적 변경 후 기준선 재생성
+                                                          # → git diff로 반드시 리뷰할 것
 """
 
+import json
 import sys
 from pathlib import Path
 
@@ -15,7 +30,8 @@ from pptx.util import Inches
 HERE = Path(__file__).resolve().parent
 ROOT = HERE.parents[3]  # scripts -> pptx-build -> skills -> .claude -> pptmaker
 sys.path.insert(0, str(HERE))
-sys.path.insert(0, str(ROOT / "golden"))
+
+SNAPSHOT = HERE.parent / "assets" / "golden-snapshot.json"
 
 EMU = 914400
 TOL = 0.005
@@ -106,9 +122,20 @@ def diff_shapes(a, b):
     return bad
 
 
-def compare_slide(golden_slide, fab_slide, name):
-    gs = [shape_sig(s) for s in golden_slide.shapes]
-    fs = [shape_sig(s) for s in fab_slide.shapes]
+def jsonable(sig):
+    """JSON 왕복 정규화 — 스냅샷은 tuple을 list로 저장하므로 살아있는 쪽도 맞춰야 비교가 성립한다."""
+    return json.loads(json.dumps(sig))
+
+
+def deck_signature(prs):
+    """덱 전체 도형 서명 — 스냅샷 저장/대조의 단일 형식."""
+    return [[jsonable(shape_sig(sh)) for sh in sl.shapes] for sl in prs.slides]
+
+
+def compare_slide(golden_sigs, fab_slide, name):
+    """기준(스냅샷) 서명 vs 지금 빌드한 슬라이드."""
+    gs = golden_sigs
+    fs = [jsonable(shape_sig(s)) for s in fab_slide.shapes]
     rows, mism = [], 0
     if len(gs) != len(fs):
         rows.append(f"| {name} | 도형 수 | {len(gs)} != {len(fs)} | FAIL |")
@@ -126,108 +153,44 @@ def compare_slide(golden_slide, fab_slide, name):
     return rows, mism, ok, len(gs)
 
 
-def build_full():
-    """골든 19장 조립 vs 공장(registry) 19장 조립."""
-    import build_golden as BG
-    from _variant_k import variant_k as g_s04
-    from s06_variants import variant_c as g_s06
-    from s08_variants import variant_c as g_s08
-    from s09_variants import variant_a as g_s09
-    from s10_screenshot import variant_a as g_s10
-    from s11_variants import variant_d as g_s11
-    from s12_variants import variant_b as g_s12
-    from s14_variants import variant_c as g_s14
-    from s15_variants import variant_c as g_s15
-    from s17_variants import variant_c as g_s17
-    from s18_variants import variant_b as g_s18
-    from s21_closing import variant_a as g_s21
+def build_current():
+    """지금 코드(goldenfab)로 레퍼런스 덱을 조립. 기준선은 스냅샷 파일이지 다른 코드 트리가 아니다."""
+    from goldenfab.reference import build_reference, slide_names
 
-    from goldenfab.registry import LAYOUTS as FAB
-    from goldenfab import layouts as FL
+    return build_reference(), slide_names()
 
-    g = Presentation()
-    g.slide_width, g.slide_height = Inches(13.333), Inches(7.5)
-    BG.build_s01_cover(g)
-    BG.build_s02_toc(g)
-    BG.build_part(g, 1)
-    g_s04(g)
-    BG.build_part(g, 2)
-    g_s06(g)
-    BG.build_part(g, 3)
-    g_s08(g)
-    g_s09(g)
-    g_s10(g)
-    g_s11(g)
-    g_s12(g)
-    BG.build_part(g, 4)
-    g_s14(g)
-    g_s15(g)
-    BG.build_part(g, 5)
-    g_s17(g)
-    g_s18(g)
-    g_s21(g)
 
-    f = Presentation()
-    f.slide_width, f.slide_height = Inches(13.333), Inches(7.5)
-    cover_c = {
-        "kicker": BG.KICKER,
-        "title": BG.TITLE,
-        "value_prop": BG.VALUE_PROP,
-        "year": BG.YEAR,
-        "brand_name": FL.K["brand"]["name"],
-    }
-    toc_c = {
-        "title": "목차",
-        "items": BG.TOC,
-        "deck_title": BG.TITLE,
-        "deck_sub": "기술 제안서 · 2026",
-    }
+def load_snapshot():
+    if not SNAPSHOT.exists():
+        raise SystemExit(
+            f"기준선 스냅샷이 없다: {SNAPSHOT}\n"
+            "  최초 생성: uv run python .../compare_golden.py --update-snapshot"
+        )
+    data = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    return data["slides"], data.get("names", [])
 
-    def part_c(no):
-        return {"no": no, "title": BG.TOC[no - 1][0], "lead": BG.PART_LEADS[no - 1]}
 
-    FAB["cover"](f, cover_c)
-    FAB["toc"](f, toc_c)
-    FAB["part"](f, part_c(1))
-    FAB["problem_grid"](f)
-    FAB["part"](f, part_c(2))
-    FAB["exec_graph"](f)
-    FAB["part"](f, part_c(3))
-    FAB["tech_evidence"](f)
-    FAB["tech_tree"](f)
-    FAB["screenshot"](f)
-    FAB["tech_mechanism"](f)
-    FAB["tech_capture"](f)
-    FAB["part"](f, part_c(4))
-    FAB["ab_simulation"](f)
-    FAB["validation"](f)
-    FAB["part"](f, part_c(5))
-    FAB["mirror_matrix"](f)
-    FAB["boundary"](f)
-    FAB["closing"](f)
-
-    names = [
-        "S1 표지",
-        "S2 목차",
-        "S3 간지1",
-        "S4 문제정의",
-        "S5 간지2",
-        "S6 실행그래프",
-        "S7 간지3",
-        "S8 용어사전",
-        "S9 지식그래프",
-        "S10 스크린샷",
-        "S11 판단트리",
-        "S12 구조화출력",
-        "S13 간지4",
-        "S14 트러블슈팅",
-        "S15 골든테스트",
-        "S16 간지5",
-        "S17 미러매트릭스",
-        "S18 경계",
-        "S19 클로징",
-    ]
-    return g, f, names
+def save_snapshot(prs, names):
+    sigs = deck_signature(prs)
+    SNAPSHOT.parent.mkdir(parents=True, exist_ok=True)
+    SNAPSHOT.write_text(
+        json.dumps(
+            {
+                "_comment": (
+                    "골든 레퍼런스 덱 도형 서명 기준선 — compare_golden 회귀 게이트의 정답지. "
+                    "goldenfab/reference.py가 만드는 19장을 박제한 것. 손으로 고치지 말 것 — "
+                    "의도적 레이아웃 변경 후 `compare_golden.py --update-snapshot`으로 재생성하고 "
+                    "git diff로 무엇이 바뀌었는지 리뷰한다."
+                ),
+                "slides": sigs,
+                "names": names,
+            },
+            ensure_ascii=False,
+            indent=1,
+        ),
+        encoding="utf-8",
+    )
+    return sum(len(s) for s in sigs)
 
 
 def param_efficacy():
@@ -280,20 +243,37 @@ def param_efficacy():
 
 
 def main():
-    out_path = (
-        Path(sys.argv[1]) if len(sys.argv) > 1 else ROOT / "golden" / "variants" / "compare_full.md"
-    )
-    g, f, names = build_full()
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    prs, names = build_current()
+
+    if "--update-snapshot" in sys.argv:
+        n = save_snapshot(prs, names)
+        print(f"기준선 재생성: {SNAPSHOT}\n  슬라이드 {len(names)} · 도형 {n}")
+        print("  git diff로 무엇이 바뀌었는지 반드시 리뷰할 것.")
+        return
+
+    out_path = Path(args[0]) if args else ROOT / "golden" / "variants" / "compare_full.md"
+    snap_slides, snap_names = load_snapshot()
     lines = [
-        "# compare_golden — 골든 19장 vs goldenfab 도형 전수 대조",
+        "# compare_golden — 골든 레퍼런스 덱 vs 기준선 스냅샷 대조",
         "",
-        f'허용오차 ±{TOL}" · 비교 속성: 수/type/text/fill/run(pt·bold)/l·t·w·h',
+        f'허용오차 ±{TOL}" · 비교 속성: 수/type/text/fill/run(pt·bold)/run_colors/cells/l·t·w·h',
+        f"기준선: `{SNAPSHOT.relative_to(ROOT)}` · 소스: `goldenfab/reference.py`",
         "",
         "| 슬라이드 | 대상 | 내용 | 판정 |",
         "|---|---|---|---|",
     ]
     total_mism = total_ok = total_n = 0
-    for gs, fs2, name in zip(g.slides, f.slides, names):
+    if len(snap_slides) != len(names):
+        lines.append(
+            f"| 전체 | 슬라이드 수 | 기준선 {len(snap_slides)} != 현재 {len(names)} | FAIL |"
+        )
+        total_mism += 1
+    if snap_names and snap_names != names:
+        # 장 순서·구성이 바뀌었는데 도형 수가 우연히 맞으면 도형 대조만으론 못 잡는다
+        lines.append("| 전체 | 장 구성 | 기준선 != 현재 (SLIDE_ORDER 변경) | FAIL |")
+        total_mism += 1
+    for gs, fs2, name in zip(snap_slides, prs.slides, names):
         rows, mism, ok, n = compare_slide(gs, fs2, name)
         lines.extend(rows)
         total_mism += mism
@@ -301,7 +281,8 @@ def main():
         total_n += n
     lines.append("")
     lines.append(
-        f"총계: 슬라이드 {len(names)}/19, 도형 일치 {total_ok}/{total_n}, 불일치 {total_mism}건"
+        f"총계: 슬라이드 {len(names)}/{len(snap_slides)}, 도형 일치 {total_ok}/{total_n}, "
+        f"불일치 {total_mism}건"
     )
     lines.append("")
     lines.append("## 파라미터 유효성 (상이 입력 반영)")

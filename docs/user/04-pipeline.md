@@ -65,7 +65,7 @@
 [03-golden-deck.md](03-golden-deck.md) 결정 중 ③은 반영 완료, ④와 ②.5는 Phase 4 대기:
 
 - ③ **반영 완료** — build_pptx가 `golden.*` 타입을 goldenfab registry(15타입)로 디스패치하고,
-  성공 기준은 compare_golden.py의 골든 덱 도형 전수 일치(501/501)다 → [07-factory-port.md](07-factory-port.md).
+  성공 기준은 compare_golden.py의 골든 덱 도형 전수 일치(490/490)다 → [07-factory-port.md](07-factory-port.md).
 - ④ QA 게이트의 마감 결함 전담 강등, ②.5 목업 갤러리 제거·다양성 게이트의 골든 어휘 검사 교체는
   Phase 4에서 진행한다(그 전까지 본문 그림이 현행).
 - ①(GRILL)·②(콘텐츠 트랙)는 유지하되, 내용 고도 상향(임원 언어 큐레이션)이 ②에 추가될 예정이다.

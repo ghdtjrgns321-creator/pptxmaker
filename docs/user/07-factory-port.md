@@ -1,8 +1,17 @@
 # 07. Phase 2 — 공장 역설계 진행표 (완료)
 
-골든 덱(19장, 동결 기준 원본)을 공장 레이아웃 엔진(`pptx-build/scripts/goldenfab/`)으로 이식한다.
-검증은 `scripts/compare_golden.py` — 골든 원본과 도형 전수 비교(±0.005", 텍스트·채움색·폰트 포함),
-불일치 0이어야 통과. 이식 후 수정은 goldenfab에서만 한다(05-plan 결정 #9).
+골든 덱(19장)을 공장 레이아웃 엔진(`pptx-build/scripts/goldenfab/`)으로 이식한다.
+검증은 `scripts/compare_golden.py` — 도형 전수 비교(±0.005", 텍스트·채움색·런색·표셀·폰트
+**크기/볼드**. 폰트 **이름**은 비교 안 함 — 아래 공백 참조), 불일치 0이어야 통과.
+
+> **2026-07-15 단일화 — 이 표는 이식 당시 기록이다.** 이식 검증을 위해 `golden/`에 원본 사본을
+> 두고 두 트리를 비교했으나, 이식 완료(15/15) 후에도 **비계를 안 걷어** "장 하나 = 두 파일 수정"
+> 세금이 남았다. "수정은 goldenfab에서만"(05-plan 결정 #9) 규칙도 깨져 양쪽을 다 고치게 됐다.
+> 지금은 **goldenfab이 유일 소스**이고, 회귀 게이트는 코드 트리 비교 대신 **도형 서명 스냅샷**
+> (`assets/golden-snapshot.json`, 19장·490도형)과 대조한다. 레퍼런스 덱 정의는
+> `goldenfab/reference.py`. `golden/`에 남은 것은 렌더 CLI(`build_golden.py`)·`00_factsheet.md`
+> ·시안/레퍼런스 PNG·렌더 산출 pptx다(레이아웃 코드는 0).
+> 경위: `docs/superpowers/specs/2026-07-15-gate-repair-design.md`.
 
 ## 아키타입 인벤토리 — 골든 19장 → 공장 레이아웃 타입 매핑
 
@@ -29,7 +38,7 @@
 | 19  | 클로징                 | s21_closing.variant_a        | `closing`          | 완료 (15/15·파라미터) |
 
 고유 레이아웃 타입 **15종**(part 1종이 6장 커버 — 초판의 13종은 오산, registry 실측 15).
-슬라이스 2 완료 — **15/15 타입 이식**, 전 19장 도형 501/501 일치·불일치 0(compare_slice2.md).
+슬라이스 2 완료 — **15/15 타입 이식**, 전 19장 도형 490/490 일치·불일치 0(compare_slice2.md).
 콘텐츠 파라미터화 수준: cover·toc·part·closing·screenshot = dict 인자 / 나머지 10종 = 골든 콘텐츠
 내장(심층 파라미터화는 Phase 3 실전 수요 발생 시 pull — YAGNI, 결정 #8).
 
@@ -45,4 +54,5 @@
 ## 대조 리포트
 
 - 슬라이스 1: 도형 68/68 일치, 불일치 0 (S1 8 · S2 36 · 간지 12×2) — compare_slice1.md
-- 슬라이스 2: 전 19장 도형 501/501 일치, 불일치 0 + 파라미터 유효성 2/2(closing·screenshot 상이 입력 반영) — compare_slice2.md
+- 슬라이스 2: 전 19장 도형 490/490 일치, 불일치 0 + 파라미터 유효성 **12/12**(2026-07-15 실측:
+  closing·screenshot 커스텀 + 10종 override 반영. cover·toc·part는 param_efficacy 미포함) — compare_slice2.md
