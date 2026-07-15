@@ -2,7 +2,8 @@
 
 재료: 00_factsheet.md §C·§D (원문 2_DATA-TAXONOMY·3_KNOWLEDGE-GRAPH).
 실물 증거: knowledge_graph_3d.png(V1 스냅샷 — 수치 표기는 v14만 사용) + 노드·간선 등록부 표.
-실행: uv run python golden/s09_variants.py → golden/variants/s09_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

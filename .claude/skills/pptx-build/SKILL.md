@@ -1,6 +1,6 @@
 ---
 name: pptx-build
-description: deck-spec.json과 brand-kit.yaml로 진짜 네이티브 .pptx를 빌드한다. 표는 네이티브 표, 차트는 네이티브 차트로 생성(이미지 아님, 데이터만 고치면 PPT에서 자동 반영). pptx-builder 에이전트가 슬라이드를 실제 파일로 만들 때, 또는 "PPT 빌드/다시 빌드/deck 재생성/브랜드킷 수정 후 재빌드" 요청 시 반드시 사용. **골든 레이아웃·아키타입 코드(goldenfab/·golden/의 _variant_*·s0N_variants·kit·grid)를 재설계·수정할 때, 그리고 슬라이드의 시각 구조를 바꾸는 모든 작업 — "이 장 다시 만들어 / 레이아웃 바꿔 / 시각화가 내용과 안 맞아 / 구획 나눠 / 2칸으로 / 밀도 높여 / 포인트색 넣어 / 이 슬라이드 이상해" — 에도 반드시 사용**: 디자인 단일 출처 design-rules(물성→형식, 오딧 5종, P1 물성선언, P4 셀프반려 8문항)가 이 스킬 경유로만 로드되므로, 거치지 않으면 규칙이 적용되지 않는다.
+description: deck-spec.json과 brand-kit.yaml로 진짜 네이티브 .pptx를 빌드한다. 표는 네이티브 표, 차트는 네이티브 차트로 생성(이미지 아님, 데이터만 고치면 PPT에서 자동 반영). pptx-builder 에이전트가 슬라이드를 실제 파일로 만들 때, 또는 "PPT 빌드/다시 빌드/deck 재생성/브랜드킷 수정 후 재빌드" 요청 시 반드시 사용. **골든 레이아웃·아키타입 코드(goldenfab/의 _variant_*·s0N_variants·kit·grid·reference)를 재설계·수정할 때, 그리고 슬라이드의 시각 구조를 바꾸는 모든 작업 — "이 장 다시 만들어 / 레이아웃 바꿔 / 시각화가 내용과 안 맞아 / 구획 나눠 / 2칸으로 / 밀도 높여 / 포인트색 넣어 / 이 슬라이드 이상해" — 에도 반드시 사용**: 디자인 단일 출처 design-rules(물성→형식, 오딧 5종, P1 물성선언, P4 셀프반려 8문항)가 이 스킬 경유로만 로드되므로, 거치지 않으면 규칙이 적용되지 않는다.
 ---
 
 # pptx-build — 네이티브 PPTX 빌더
@@ -61,16 +61,22 @@ for s in prs.slides:
 - deck-spec 슬라이드에 `"type": "golden.<layout>"`을 쓰면 build_pptx가
   **goldenfab registry**(`scripts/goldenfab/registry.py`, 15타입)로 디스패치한다 —
   골든 장은 헤더·결론바·출처를 자체 포함하므로 레거시 푸터 스탬프가 붙지 않는다.
-- 콘텐츠: **15타입 전부 `"content": {...}` dict 지원**(2026-07-14 파라미터화 완료 — 하드코딩 0).
-  주지 않으면 골든 기본값, 주면 **텍스트만** 교체(좌표·색·도형은 코드 고정 — override 불가).
+- 콘텐츠: **15타입 전부 `"content": {...}` dict 지원**(파라미터화 완료 — 하드코딩 0). 주면
+  **텍스트만** 교체(좌표·색·도형은 코드 고정 — override 불가).
+  **content는 선택이 아니라 필수다** — 골든 DEFAULT 키를 전부 덮지 않으면 빌드가 중단된다
+  (`goldenfab/content_contract.py`). 안 그러면 골든 글(다른 프로젝트 내용)이 조용히 나간다.
   타입별 content 키는 `deck-compose/references/golden-content-contract.md`(코드 DEFAULT 덤프) 참조.
 - 타입 배정 판정은 deck-compose의 `references/layout-matching.md` 결정표.
 - **회귀 게이트**: goldenfab 수정 후 `uv run python scripts/compare_golden.py` —
-  `golden/` 원본 19장과 `goldenfab/` 공장(content 없이)을 도형 전수 비교(현재 490개), 불일치
-  1건이라도 있으면 FAIL. 통과 없이 반영 금지. **레이아웃을 재설계하면 `golden/`도 같이 고쳐야
-  한다**(둘이 별개 파일 — 공장만 고치면 게이트가 깨진다). 단, 게이트는 **기하·텍스트만** 보고
-  텍스트 색·표 셀 채움은 비교하지 않으며, **"형태가 내용에 맞나"는 아무도 검사하지 않는다** —
-  그 자리를 P1 물성선언 + P4 셀프반려가 메운다(아래 디자인 규칙).
+  `goldenfab/reference.py`가 조립한 레퍼런스 덱 19장을 **기준선 스냅샷**
+  (`assets/golden-snapshot.json`, 현재 490도형)과 도형 전수 대조. 불일치 1건이라도 FAIL,
+  통과 없이 반영 금지.
+  - **goldenfab이 유일 소스다.** 레이아웃을 **의도적으로** 바꿨으면
+    `compare_golden.py --update-snapshot`으로 기준선을 재생성하고 **git diff로 무엇이 바뀌었는지
+    리뷰**한다. 스냅샷을 손으로 편집하지 말 것.
+  - 게이트가 보는 것: 도형 수·종류·좌표(±0.005")·텍스트·채움색·**런 색**·**표 셀**·폰트 pt/bold.
+  - 게이트가 **못** 보는 것: **"형태가 내용에 맞나"** — 그 자리를 P1 물성선언 + P4 셀프반려가
+    메운다(아래 디자인 규칙).
 
 ## 디자인 규칙 (골든 확정 — 필수)
 

@@ -1,7 +1,8 @@
 """S15 시안 — 실제 결과: 골든테스트 92건 전/후 (신규 어휘: 덤벨 차트. UI 패스).
 
 콘텐츠 실물: 00_factsheet.md §F(전/후 5지표)·§H(홀드아웃 성과) — 6_TEST-DECISIONS.md 실측.
-실행: uv run python golden/s15_variants.py → golden/variants/s15_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

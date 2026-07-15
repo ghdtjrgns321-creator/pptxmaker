@@ -3,7 +3,8 @@
 콘텐츠 실물: 6_TEST §6.3(타 기준서 4건 IAS38·1002·1008·1037, 진입 누락 2건),
 4_SEARCH L49(타 기준서 용어 감지 시 코드 레벨 강제 OUT — 예: 1116호 증분차입이자율),
 00_factsheet.md §D·§H(경계 안 실측 스탯).
-실행: uv run python golden/s18_variants.py → golden/variants/s18_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

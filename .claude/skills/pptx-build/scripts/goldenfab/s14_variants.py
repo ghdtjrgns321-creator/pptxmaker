@@ -2,7 +2,8 @@
 
 콘텐츠 실물: 7_JOURNEY.md §7.3(균열 4·공통 원인·대체표), 00_factsheet.md §A'(103/105)·§D(간선 수).
 Part Ⅳ는 전/후 서사의 합법 무대(design-rules §8d 격리 조항).
-실행: uv run python golden/s14_variants.py → golden/variants/s14_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

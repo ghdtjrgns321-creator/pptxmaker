@@ -2,7 +2,8 @@
 
 모방: golden/ref/s14_matrix.png (McKinsey p26 — 본문 매트릭스 + 우측 다크 패널).
 콘텐츠 실물: 00_factsheet.md §G — 7축 전수 + 정직 조항(1115 한정·타 기준서 4건·유연성 없음).
-실행: uv run python golden/s17_variants.py → golden/variants/s17_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

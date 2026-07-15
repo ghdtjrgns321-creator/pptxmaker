@@ -3,7 +3,8 @@
 재료: 00_factsheet.md §C 구축·작동 상세 + §D (원문 2_DATA-TAXONOMY §2.6).
 시안 A(좌앵커형): 좌측 앵커(대형 423) + 우측 3구획 세로 스택(구축 플로우·적용 예시·분해 바).
 시안 B(풀폭 플로우형): 상단 구축 셰브런 밴드 + 중단 적용 예시·다중 목적지 + 하단 분해 바.
-실행: uv run python golden/s08_variants.py → golden/variants/s08_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pptx import Presentation

@@ -2,7 +2,8 @@
 
 신규 콘텐츠 0 — 기확정 문장 재사용: 가치 제안(표지), 결론 바 3개(S14·S15·S18).
 좌측 축은 표지 GRID(COVER_L 0.65) 그대로, 진행 도트는 6개 전부 점등(완주 표시).
-실행: uv run python golden/s21_closing.py → golden/variants/s21_closing.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

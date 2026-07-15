@@ -2,7 +2,8 @@
 
 콘텐츠 실물: k-ifrs-1115/app/agents.py ClarifyOutput(필드 7)·output_validator(빈 인용/분기
 거부 → ModelRetry), 5_INTERFACE.md(Split View·답변 유형), 7_JOURNEY.md(형식 분산 문제).
-실행: uv run python golden/s12_variants.py → golden/variants/s12_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path
@@ -13,7 +14,7 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
 from . import grid as G
-from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, set_shape_text
+from .kit import SLIDE_H, SLIDE_W, add_box, add_text, fit_picture, load_kit, set_shape_text
 
 K = load_kit()
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
@@ -278,7 +279,8 @@ IMG_ANSWER = str(
 )  # 508×721 실물 답변 캡처
 IMG_CROP = str(
     Path(__file__).resolve().parents[5] / "golden" / "ref" / "s12_answer_crop.png"
-)  # 508×382 발췌
+)  # 508×382 발췌 — 비율은 fit_picture가 파일에서 읽는다(주석은 참고용, 계산에 안 씀)
+IMG_MAX_H = 3.7  # 캡처 박스 높이 상한 (2.25 + 3.7 = 5.95, 캡션 5.94 위)
 
 # variant_b 콘텐츠 기본값(골든 텍스트) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색·폰트 고정).
 # kicker·source도 c로 override 가능 — 공유 헬퍼(header·bar_and_source)가 기본값 KICKER·SOURCE를 받되 c["kicker"]·c["source"]로 교체.
@@ -348,11 +350,9 @@ def variant_b(prs, c=None):
     # ── 중: 실물 답변 발췌 (주인공, w 4.8) ──
     mx, mw = 3.5, 4.8
     _subhead(slide, mx, G.CONTENT_TOP, mw, c["mid_subhead"])
-    img_w = 4.8
-    img_h = img_w * 382 / 508  # 3.61
-    pic = slide.shapes.add_picture(IMG_CROP, Inches(mx), Inches(2.25), width=Inches(img_w))
-    pic.line.color.rgb = C["muted"]
-    pic.line.width = Inches(0.01)
+    # 박스에 맞춘다 — 비율을 리터럴로 가정하면(구: `382/508`) 이미지가 바뀔 때 조용히 침범한다.
+    # 이 자리는 가정이 우연히 맞아서 안 터졌을 뿐, s10과 같은 구조였다(s10은 실제로 1.74" 침범).
+    fit_picture(slide, IMG_CROP, mx, 2.25, mw, IMG_MAX_H, line=C["muted"])
     add_box(slide, mx, 6.02, 0.4, 0.03, fill=C["accent"])
     add_text(
         slide,

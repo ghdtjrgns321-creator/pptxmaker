@@ -2,7 +2,8 @@
 
 시안 A(사이드바형): 매크로 셰브런 밴드 + 마이크로 입출력 플로우 + 우측 다크 사이드바(왜 결정적인가).
 시안 B(풀와이드형): 풀폭 밴드 + 노드별 상세 4칼럼 + 하단 2패널(유사도 0 · 35토픽) + 결론 바.
-실행: uv run python golden/s06_variants.py → golden/variants/s06_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pptx import Presentation

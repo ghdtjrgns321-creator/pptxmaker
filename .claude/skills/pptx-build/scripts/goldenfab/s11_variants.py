@@ -3,7 +3,8 @@
 콘텐츠 실물: k-ifrs-1115/data/ontology/judgment_trees.json 트리 1번
 "기간에 걸쳐 vs 한 시점 인식" — 문단 32·35·36·37·38·B3~B5·B9·B11 (창작 0).
 선택 기준·실측 균열: 00_factsheet.md §B·§C (미주입 17/18).
-실행: uv run python golden/s11_variants.py → golden/variants/s11_variants.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

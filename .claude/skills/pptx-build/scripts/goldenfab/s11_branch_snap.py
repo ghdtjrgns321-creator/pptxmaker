@@ -3,7 +3,8 @@
 구조: [주입된 질문] ─┬─ 사실관계 부족  되물음…
                      ├─ 산술 필요     계산을…
                      └─ 그 외         확정…
-실행: uv run python golden/s11_branch_snap.py → golden/variants/s11_branch_snap.pptx
+실행: 이 타입은 goldenfab 레지스트리 경유로만 렌더된다 — 골든 19장 확인은
+      `uv run python golden/build_golden.py`(2026-07-15 단일화로 시안 개별 실행 경로 폐지).
 """
 
 from pathlib import Path

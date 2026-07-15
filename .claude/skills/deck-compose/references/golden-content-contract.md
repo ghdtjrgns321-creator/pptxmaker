@@ -5,22 +5,26 @@
 재생성: `uv run python _workspace/dump_contract.py`.
 
 ## `golden.problem_grid`  (_variant_k.variant_k)
-content 키 (14개):
+content 키 (18개):
 
 | 키 | 타입 | 골든 기본값(샘플) |
 | -- | ---- | ----------------- |
 | `kicker` | str | '1. 문제 정의' |
-| `headline` | str | '일반 LLM을 회계에 못 쓰는 이유는 틀려서가 아니라, 틀리는 방향 때문이다' |
-| `left_eyebrow` | str | '핵심 리스크' |
-| `left_big` | str | '2종 오류' |
-| `left_big2` | str | '= 허위 확정' |
-| `left_desc` | str | '근거 없는 확신은 부실감사와 재무제표 왜곡이라는 실제 손해로 이어진다.' |
-| `left_nums` | list | [('01', '검증 불가', '그럴듯한 답을 즉시 내놓지만, 근거 문단을 확인할 방법이 없어 감사 조서에 쓸 수 없다.... |
-| `right1_head` | str | '같은 질문, 두 개의 결말' |
+| `headline` | str | '일반 LLM은 틀리는 게 아니라, 틀리는 방향이 문제다' |
+| `band1_head` | str | '근거가 부족할 때 무엇을 하느냐가 갈린다' |
 | `question` | str | '"이 계약, 수익을\n지금 인식해도\n됩니까?"' |
-| `lanes` | list | [{'name': '일반 LLM', 'steps': [('즉시 답변', '근거 조문 없음'), ('확신형 어조', '판단... |
-| `right2_head` | str | '오류의 두 방향 — 왜 2종만 치명적인가' |
-| `panels` | list | [{'head': '1종 · 놓침 — 안전한 실패', 'desc': '근거가 있는데 못 찾아 "모른다"고 답하는 실패는 ... |
+| `gate` | str | '근거 충분?' |
+| `branch_ok` | str | '충분' |
+| `branch_lack` | str | '부족' |
+| `ok_chip` | str | '확정' |
+| `ok_note` | str | '근거가 충분하면 두 시스템 모두 확정한다 — 여기서는 차이가 없다. 문제는 전부 아래, 근거가 부족한 구간에서 생긴다.' |
+| `lack_chip` | str | '근거 부족' |
+| `rows` | list | [{'act': '일반 LLM · 확정 강행', 'err': '2종 · 허위 확정', 'term': '재무제표 반영', ... |
+| `back_label` | str | '↩ 근거를 보고 다시 묻는다 — 손실은 시간뿐' |
+| `band2_head` | str | '범용 LLM은 왜 이 판정을 세울 수 없나 — 한계 4가지가 한 곳에서 만난다' |
+| `limits` | list | ['근거 추적 불가', '재현성 없음', '판단 출처 창작', '환각 위험'] |
+| `converge_mark` | str | '✕ 세울 수 없다' |
+| `converge_note` | str | "판정이 서지 않으니 '부족'을 인지할 수단이 없다 — 그래서 늘 위쪽 경로로 나간다. 편향을 프롬프트가 아니라 구조로 ... |
 | `bar` | str | '확실할 때만 확정하고, 애매하면 근거를 보여주며 유보한다' |
 | `source` | str | '출처: 1_OVERVIEW.md · PROJECT_OVERVIEW.md · 5_INTERFACE.md (00_facts... |
 
