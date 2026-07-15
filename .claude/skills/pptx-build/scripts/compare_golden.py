@@ -9,6 +9,7 @@ import sys
 from pathlib import Path
 
 from pptx import Presentation
+from pptx.enum.dml import MSO_FILL_TYPE
 from pptx.util import Inches
 
 HERE = Path(__file__).resolve().parent
@@ -18,6 +19,50 @@ sys.path.insert(0, str(ROOT / "golden"))
 
 EMU = 914400
 TOL = 0.005
+
+
+def _color_str(color_fmt):
+    """ColorFormat -> 비교용 문자열. 테마색·미지정도 안전하게 처리."""
+    try:
+        if color_fmt.type is None:
+            return None
+        return str(color_fmt.rgb)
+    except Exception:
+        try:
+            return str(color_fmt.theme_color)
+        except Exception:
+            return None
+
+
+def _fill_str(fill_fmt):
+    try:
+        if fill_fmt.type == MSO_FILL_TYPE.SOLID:
+            return _color_str(fill_fmt.fore_color)
+    except Exception:
+        pass
+    return None
+
+
+def _run_colors(sh):
+    """모든 런의 색 — 런 단위 강조색(01 accent 등)을 잡는다. 첫 런만 보면 놓친다."""
+    if not sh.has_text_frame:
+        return None
+    out = []
+    for p in sh.text_frame.paragraphs:
+        for r in p.runs:
+            out.append(_color_str(r.font.color))
+    return tuple(out) if out else None
+
+
+def _cells(sh):
+    """표 셀의 (텍스트, 채움) — 표는 GraphicFrame 1덩어리라 text_frame/fill로는 안 잡힌다."""
+    if not getattr(sh, "has_table", False):
+        return None
+    out = []
+    for row in sh.table.rows:
+        for cell in row.cells:
+            out.append((cell.text, _fill_str(cell.fill)))
+    return tuple(out)
 
 
 def shape_sig(sh):
@@ -30,10 +75,13 @@ def shape_sig(sh):
         "text": sh.text_frame.text if sh.has_text_frame else "",
         "fill": None,
         "run": None,
+        "run_colors": _run_colors(sh),
+        "cells": _cells(sh),
     }
+    # str(fill.type) 비교 금지 — 실제 repr은 "<MSO_FILL_TYPE.SOLID: 1>"이라 문자열 대조는
+    # 영원히 거짓이 되고 게이트가 색을 못 본 채 통과한다(2026-07-15 실측: 225개 중 0개 비교).
     try:
-        if sh.fill.type is not None and str(sh.fill.type) == "MSO_FILL_TYPE.SOLID (1)":
-            sig["fill"] = str(sh.fill.fore_color.rgb)
+        sig["fill"] = _fill_str(sh.fill)
     except Exception:
         pass
     if sh.has_text_frame:
@@ -48,7 +96,7 @@ def shape_sig(sh):
 def diff_shapes(a, b):
     """도형 서명 비교 — 불일치 필드 목록 반환(빈 리스트 = 일치)."""
     bad = []
-    for k in ("type", "text", "fill", "run"):
+    for k in ("type", "text", "fill", "run", "run_colors", "cells"):
         if a[k] != b[k]:
             bad.append(f"{k}: {a[k]!r} != {b[k]!r}")
     for k in ("l", "t", "w", "h"):

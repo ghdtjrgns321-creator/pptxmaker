@@ -294,7 +294,7 @@ def variant_b(prs):
             ny,
             nw,
             0.28,
-            f"0{i + 1}  {head}",
+            [(f"0{i + 1}", {"color": C["accent"]}), (f"  {head}", {})],
             S["head"],
             F["head"],
             C["primary"],

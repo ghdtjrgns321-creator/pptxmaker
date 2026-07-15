@@ -361,7 +361,7 @@ def variant_c(prs):
             G.CONTENT_TOP,
             nar_w,
             0.28,
-            f"0{i + 1}  {head}",
+            [(f"0{i + 1}", {"color": C["accent"]}), (f"  {head}", {})],
             S["head"],
             F["head"],
             C["primary"],
@@ -396,7 +396,7 @@ def variant_c(prs):
             cell = tbl.cell(ri, ci)
             cell.fill.solid()
             cell.fill.fore_color.rgb = (
-                C["primary"] if ri == 0 else (C["bg_alt"] if ri % 2 == 0 else C["bg"])
+                C["accent"] if ri == 0 else (C["bg_alt"] if ri % 2 == 0 else C["bg"])
             )
             cell.margin_left = cell.margin_right = Inches(0.08)
             cell.vertical_anchor = MSO_ANCHOR.MIDDLE
