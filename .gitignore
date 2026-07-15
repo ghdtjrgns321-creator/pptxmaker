@@ -25,3 +25,8 @@ ref/
 # OS
 .DS_Store
 Thumbs.db
+
+# 렌더 중간 산출물·세션 상태·OS 잡동사니 (골든 시안 PNG는 golden/variants/*.png로 보존)
+golden/.claude/
+golden/render/
+desktop.ini

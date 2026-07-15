@@ -23,11 +23,18 @@ deck-spec의 각 장에 `"type": "golden.<layout>"`을 배정할 때 이 표로 
 | 경계 — 안(보장)과 밖(거절·유보)                 | 못 하는 것·범위 한계를 선언하는 장인가    | `golden.boundary`       | dict*  |
 | 덱을 닫는 마침 문장(수미상관)                   | 마지막 장인가                             | `golden.closing`        | dict   |
 
-\* **전 15타입이 `content` dict를 받는다**(Phase B 파라미터화 완료). `golden.problem_grid`~`boundary`
-10종은 **텍스트 override** — `content` 없으면 골든 기본값(회귀 0), 주면 텍스트만 교체(좌표·색·도형 고정).
+\* **전 15타입이 `content` dict를 받는다**(Phase B 파라미터화 완료). 텍스트만 교체되고 좌표·색·도형은 고정.
+
+> **content는 선택이 아니라 필수다.** `content`를 생략하면 골든 기본값(= 다른 프로젝트 글)이
+> 조용히 나가므로, 공장 문은 content가 골든 DEFAULT 키를 **전부** 덮지 않으면 빌드를 중단한다
+> (`goldenfab/content_contract.py`, 2026-07-15 신설). 부분 주입도 FAIL — 누락 키가 골든 글로
+> 메워지는 게 "계약 0% 이행 덱이 전 게이트 통과" 사고의 본질이었다.
+
 각 타입의 content 키는 [golden-content-contract.md](golden-content-contract.md)(코드 DEFAULT 덤프) 참조.
-새 프로젝트는 물성 매칭 후 그 타입에 자기 텍스트를 override로 넣는다 — 골든 원본(golden/)은 동결,
-공장(goldenfab/)만 확장. compare_golden.py가 회귀·override 유효성을 게이트한다.
+필수 키의 단일 출처는 `goldenfab/content_contract.required_keys()`(15/15 해석).
+새 프로젝트는 물성 매칭 후 그 타입에 자기 텍스트를 content로 넣는다 — 레이아웃(좌표·색·도형)은
+건드리지 않는다. 단일 소스는 `goldenfab/`이고, compare_golden.py가 기준선 스냅샷 대조로
+회귀·override 유효성을 게이트한다.
 
 ## 판정 절차
 

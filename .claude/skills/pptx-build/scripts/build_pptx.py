@@ -1331,10 +1331,15 @@ class Deck:
         "cta": cta,
     }
 
-    def _render_golden(self, sl):
-        """type "golden.<layout>" — goldenfab registry 호출. content dict는 지원 타입만 전달."""
+    def _render_golden(self, sl, slide_no="?"):
+        """type "golden.<layout>" — goldenfab registry 호출.
+
+        공장 문. 골든 기본값은 회귀 게이트 전용이므로 여기로는 못 나간다 —
+        content가 골든 DEFAULT를 전부 덮지 않으면 빌드 중단(content_contract).
+        """
         import inspect
 
+        from goldenfab.content_contract import assert_content
         from goldenfab.registry import LAYOUTS as GOLDEN_LAYOUTS
 
         key = sl["type"].split(".", 1)[1]
@@ -1343,6 +1348,7 @@ class Deck:
             raise ValueError(f"unknown golden layout: {key} (등록: {sorted(GOLDEN_LAYOUTS)})")
         params = inspect.signature(fn).parameters
         if len(params) >= 2:
+            assert_content(key, fn, sl.get("content"), slide_no)
             result = fn(self.prs, sl.get("content"))
         else:
             if sl.get("content"):
@@ -1391,7 +1397,7 @@ class Deck:
             if sl["type"].startswith("golden."):
                 # 골든 엔진(goldenfab) 디스패치 — 골든 장은 헤더·결론바·출처를 자체 포함하므로
                 # 레거시 푸터 스탬프·배너를 적용하지 않는다. compare_golden.py가 회귀 게이트.
-                self._render_golden(sl)
+                self._render_golden(sl, i)
                 continue
             renderer = self.RENDERERS.get(sl["type"])
             if renderer is None:

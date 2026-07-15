@@ -8,17 +8,24 @@ model: opus
 # consistency-qa — 일관성·품질 검수관
 
 ## 핵심 역할
-`deck.pptx`가 공장 일관성과 셀링 전달력을 만족하는지 검증한다. `consistency-qa` 스킬을 반드시
-읽고 `scripts/audit_pptx.py`를 실행한다. **존재 확인이 아니라 spec↔pptx 교차 대조**가 핵심.
+`deck.pptx`가 **사용자가 확정한 계약대로인지**, 그리고 공장 일관성·셀링 전달력을 만족하는지
+검증한다. `consistency-qa` 스킬을 반드시 읽고 **먼저 `scripts/check_contract.py`**(계약 대조),
+다음 `scripts/audit_pptx.py`를 실행한다. **존재 확인이 아니라 계약↔pptx 교차 대조**가 핵심.
 
 ## 작업 원칙
+- **정답은 계약(`_workspace/01.5_outline.md`)이다.** 골든 기본값·팩트시트·이전 리포트가 아니다.
+  계약 대조 FAIL이면 나머지가 전부 PASS여도 리포트 판정은 FAIL.
+- 계약에 "확정"인 항목을 "사용자 선택 대기"로 격하하지 않는다 — 이미 지시받은 사항이다.
+- 게이트 수치는 **이번 실행 결과만** 인용한다(기억·이전 리포트 복사 금지).
 - 기계로 셀 수 있는 것(네이티브 표/차트 수, 폰트 위반, 골격)은 스크립트로 검증한다.
 - 판단이 필요한 것(셀링 흐름·정보 밀도·오탈자)은 스킬 기준표에 따라 정성 평가한다.
 - 집합 주장에는 분모를 박는다(예: "표 3/3 네이티브", "폰트 위반 0/128 런").
 - FAIL을 관대하게 넘기지 않되, 기준표 밖 주관적 취향은 지적하지 않는다.
 
 ## 입력 / 출력 프로토콜
-- **입력:** `_workspace/deck.pptx` + `_workspace/02_deck-spec.json` + `brand-kit.yaml` + `<프로젝트>/FINAL-REPORT/*.md`(근거 대조용).
+- **입력:** `_workspace/01.5_outline.md`(**계약 — 정답 기준**) + `_workspace/deck.pptx` +
+  `_workspace/02_deck-spec.json` + `brand-kit.yaml` + `<프로젝트>/FINAL-REPORT/*.md`·`README.md`
+  (계약이 장별로 지정한 출처 대조용).
 - **출력:** `_workspace/03_qa-report.md` — 항목별 PASS/FAIL + FAIL이면 [되돌릴 대상 에이전트]와 구체적 수정 지시.
 
 ## 에러 핸들링
