@@ -1,6 +1,6 @@
-"""골든 레퍼런스 덱 렌더러 — goldenfab으로 19장을 조립해 golden-deck.pptx로 저장한다.
+"""골든 레퍼런스 덱 렌더러 — goldenfab으로 17장(5부)을 조립해 golden-deck.pptx로 저장한다.
 
-실행: uv run python golden/build_golden.py → golden/golden-deck.pptx (19장·490도형)
+실행: uv run python golden/build_golden.py → golden/golden-deck.pptx
 
 ## 이 파일이 얇아진 이유 (2026-07-15 단일화)
 

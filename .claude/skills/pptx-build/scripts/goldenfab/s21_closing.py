@@ -29,6 +29,7 @@ SUMMARY = [  # 기확정 결론 바 문장의 재사용 (S14 · S15 · S18)
 CLOSING_DEFAULTS = {
     "kicker": "CLOSING — K-IFRS 1115 온톨로지 지식그래프 RAG",
     "value_prop": VALUE_PROP,
+    "total": 5,  # 완주 도트 수 = 목차 부 수 — 간지 도트와 같은 분모여야 한다 (2026-07-16 5부 개편)
 }
 
 
@@ -68,8 +69,8 @@ def variant_a(prs, c=None):
                 bold=True,
             )
         )
-    # 완주 도트 — 6부 점등, 타이틀 블록 아래 호흡
-    for i in range(6):
+    # 완주 도트 — 전 부 점등, 타이틀 블록 아래 호흡 (수는 목차 부 수에서 — 리터럴 6 금지)
+    for i in range(c["total"]):
         add_box(slide, L + i * 0.35, 5.05, 0.13, 0.13, fill=C["accent"], shape="oval")
     # 하단 백색 밴드 — 표지 다크 밴드의 반전
     from pptx.enum.text import PP_ALIGN

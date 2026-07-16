@@ -58,7 +58,7 @@ content 키 (12개):
 | `narratives` | list | [('왜 필요한가', "실무는 '리베이트'라 말하고 기준서는 '고객에게 지급할 대가'라 쓴다. 이 언어 간극을 잇지 않으... |
 | `map_head` | str | '실무가 쓰는 말 → 기준서가 쓰는 말' |
 | `terms` | list | [('리베이트', '자동', ['고객에게 지급할 대가']), ('밀어내기', '자동', ['위탁약정']), ('볼륨디스카... |
-| `map_legend` | str | '실선 = 자동 316    점선 = 자동(위임판단) 86 — AI가 판단, 사람이 승인' |
+| `map_legend` | str | '실선 = 자동    점선 = 자동(위임판단) — AI가 판단, 사람이 승인' |
 | `map_caption` | str | '등재 423 중 발췌 5건 — 423 = 자동 316 + 자동(위임판단) 86 + 검토 18 + 사용자 확정 1 + 제... |
 | `json_title` | str | 'aliases.json — 실제 엔트리' |
 | `json_lines` | list | ['{ "term": "상품권",', '  "sources": ["query-mapping"],', '  "grade":... |
@@ -78,8 +78,8 @@ content 키 (17개):
 | `root` | str | '기준서 1115' |
 | `concepts` | list | ['변동대가', '보증', '⋯ 80'] |
 | `paras` | list | ['문단 50', '문단 56', 'B33'] |
-| `layer_tag1` | str | '개념 80' |
-| `layer_tag2` | str | '문단 250' |
+| `layer_tag1` | str | '개념층 80개' |
+| `layer_tag2` | str | '문단층 250개' |
 | `term_chip` | str | '“볼륨디스카운트”' |
 | `term_cap` | str | '용어 423 등재 · 400 진입' |
 | `case_chip` | str | '사례 188' |
@@ -152,7 +152,7 @@ content 키 (15개):
 | `right_title` | str | '지식그래프 — 경로가 근거다' |
 | `steps` | list | [('용어사전 매칭 — 볼륨디스카운트 → 변동대가', '사람이 전수 검수한 색인 (등재 423)'), ('개념 노드 — ... |
 | `right_note` | str | '탈락시킬 점수가 없다 — 연결이 있으면 도달하고, 어떤 간선을 지났는지가 그대로 답변의 근거가 된다.' |
-| `bar` | str | '확률 신호 전량 폐기 — 임베딩·가중치·리랭커 없이 온톨로지 그래프로 동작한다' |
+| `bar` | str | '이 한 축이 아니라 검색·근거·판단·검증·재현 전부 — 확률 신호 자리마다 기준서의 구조가 들어가 있다' |
 | `source` | str | "출처: 7_JOURNEY.md §7.3·§7.4 (재구축 여정) · 00_factsheet.md §A'·§D" |
 
 ## `golden.validation`  (s15_variants.variant_c)
@@ -182,28 +182,28 @@ content 키 (20개):
 | `source` | str | '출처: 6_TEST-DECISIONS.md (00_factsheet.md §F·§H) — 사람 작성 골든테스트 92건 ... |
 
 ## `golden.mirror_matrix`  (s17_variants.variant_c)
-content 키 (7개):
+content 키 (8개):
 
 | 키 | 타입 | 골든 기본값(샘플) |
 | -- | ---- | ----------------- |
 | `kicker` | str | '5. 차별점' |
-| `headline` | str | '일반 임베딩 RAG과 무엇이 다른가 — 7개 축 전부 같은 방향' |
+| `headline` | str | '일반 임베딩 RAG과 무엇이 다른가 — 7개 축, 예외 없이' |
 | `left_head` | str | '일반 임베딩 RAG' |
+| `spine_head` | str | '비교 축' |
 | `right_head` | str | '이 시스템' |
-| `mirror` | list | [('검색 진입', '임베딩 유사도\n점수 경쟁', '용어사전 문자 매칭\n결정적 진입'), ('근거 설명', '유사도 ... |
+| `groups` | list | [('01', '어떻게 찾나', '점수 경쟁 없이 사전과 그래프가 경로를 정한다', [('검색 진입', '임베딩 유사도\... |
 | `bar` | str | '일반 RAG의 확률 신호 자리마다 기준서의 구조가 들어가 있다 — 7축 전부, 예외 없이' |
 | `source` | str | '출처: 00_factsheet.md §G (6_TEST-DECISIONS.md·4_SEARCH-PIPELINE.md)' |
 
 ## `golden.boundary`  (s18_variants.variant_b)
-content 키 (14개):
+content 키 (13개):
 
 | 키 | 타입 | 골든 기본값(샘플) |
 | -- | ---- | ----------------- |
 | `headline` | str | '정직한 한계 — 이 시스템이 서 있는 경계' |
 | `outside_label` | str | '경계 밖' |
 | `inside_title` | str | 'K-IFRS 1115 — 경계 안' |
-| `inside_policy_head` | str | '답하는 범위를 계약한다' |
-| `inside_policy_body` | str | '경계 안 질문에만 결정적으로 답하고, 밖이면 거절, 모르면 유보 — 아는 척이 구조적으로 불가능하게 만든 설계다.' |
+| `inside_policy` | str | '답하는 범위를 계약한다 — 안이면 결정적으로 답하고, 밖이면 거절, 모르면 유보. 아는 척이 구조적으로 불가능한 설계다.' |
 | `out_left_chip_head` | str | '타 기준서 질문' |
 | `out_left_chip_sub` | str | 'IAS38 · 1002 · 1008 · 1037' |
 | `out_left_desc` | str | "라우팅이 코드 레벨 강제 OUT — 추측 대신 거절. 실측 4건 (예: 1116호 '증분차입이자율' 감지)" |
@@ -211,6 +211,6 @@ content 키 (14개):
 | `out_right_chip_sub` | str | '임베딩식 유사 확장 없음' |
 | `out_right_desc` | str | "색인에 없으면 진입 실패 → '못 찾음' 유보 응답. 홀드아웃 실측 진입 누락 2건" |
 | `bottom_head` | str | '경계 그 밖의 한계 — 실측으로 아는 것' |
-| `limits` | list | [('결론을 확정하지 못한 케이스', '헤지 2건 — 근거 문단을 다 찾고도 결론을 유보했다. 검색이 아니라 생성 계층의... |
+| `limits` | list | [('결론을 확정하지 못한 케이스', '헤지 2건 — 근거 문단을 다 찾고도 결론을 유보했다.', '검색이 아니라 생성 ... |
 | `bar` | str | '경계를 넓히는 대신 경계 안을 결정적으로 — 못 하는 것까지 실측으로 세어 두었다' |
 

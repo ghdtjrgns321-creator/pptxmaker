@@ -79,6 +79,45 @@ def air_pairs_tech_tree():
     ]
 
 
+def air_pairs_mirror_matrix():
+    """S17 그룹 미러 — 칼럼 헤드 → 첫 행, 그룹 경계 헤어라인 앞뒤, 마지막 행 → 하한.
+
+    좌표는 전부 s17 모듈 상수·행 수에서 파생 — 렌더와 같은 산식이라 어긋나면 렌더가 틀린 것.
+    """
+    import goldenfab.s17_variants as S17
+    from goldenfab.s08_variants import _pitch
+
+    groups = S17.VARIANT_C_DEFAULTS["groups"]
+    n_rows = sum(len(axes) for _no, _q, _cl, axes in groups)
+    eff_bottom = S17.LAST_BOTTOM - (len(groups) - 1) * S17.GGAP
+    pitch = _pitch(n_rows, S17.ROW0, eff_bottom, S17.CARD_H, cap=S17.PITCH_CAP)
+    pairs = [("칼럼 헤드 → 첫 행", S17.COLHEAD_Y + 0.26, S17.ROW0)]
+    i = 0
+    for gi, (_no, _q, _cl, axes) in enumerate(groups):
+        g_top = S17.ROW0 + i * pitch + gi * S17.GGAP
+        if gi > 0:
+            sep_y = g_top - ((pitch - S17.CARD_H) + S17.GGAP) / 2
+            prev_bottom = S17.ROW0 + (i - 1) * pitch + (gi - 1) * S17.GGAP + S17.CARD_H
+            pairs.append((f"그룹{gi} 마지막 → 헤어라인", prev_bottom, sep_y))
+            pairs.append((f"헤어라인 → 그룹{gi + 1} 첫 행", sep_y, g_top))
+        i += len(axes)
+    last_bottom = S17.ROW0 + (n_rows - 1) * pitch + (len(groups) - 1) * S17.GGAP + S17.CARD_H
+    pairs.append(("마지막 행 → 하한", last_bottom, A.CONTENT_BOTTOM + A.AIR_MIN))
+    return pairs
+
+
+def air_pairs_boundary():
+    """S18 경계 — 칩 → 실측 주석, 캔버스 → 하단 헤드, 룰 → 카드, 카드 → 하한. 전부 모듈 상수 파생."""
+    import goldenfab.s18_variants as S18
+
+    return [
+        ("칩 → 실측 주석", S18.CHIP_Y + S18.CHIP_H, S18.DESC_Y),
+        ("캔버스 → 하단 헤드", S18.CANVAS_BOTTOM, S18.BHEAD_Y),
+        ("하단 룰 → 카드", S18.BRULE_Y + 0.012, S18.CARD_Y),
+        ("카드 → 하한", S18.CARD_Y + S18.CARD_H, A.CONTENT_BOTTOM + A.AIR_MIN),
+    ]
+
+
 # 레이아웃별 기대값. progress=허용 셰브런 수, ink_allow=primary 채움 허용 수(결론 바 1개).
 SPECS = {
     "problem_grid": {
@@ -140,6 +179,23 @@ SPECS = {
         # 규칙을 느슨하게 한 게 아니라 **측정이 정확해졌다**. 실측 8을 박아 늘면 FAIL.
         "dup_allow": 8,
         "air": air_pairs_tech_tree,
+    },
+    # 차별점 장 2종 (2026-07-16 밀도 재깎기). 이전까지 SPECS 미등록이라 채움률 규칙이 한 번도
+    # 안 돌았고, S17이 채움률 14~29% FAIL 9건·판정 대비 FAIL 1건을 그대로 안고 있었다 —
+    # 규칙이 있어도 러너에 안 물리면 없는 규칙이다. **known 없음** — 새로 깎았으므로 빚 0.
+    "mirror_matrix": {  # S17 그룹 미러 — 좌 질문 칼럼 + 중앙 축 기둥 + 좌우 날개
+        "progress": 0,
+        # 결론 바 + 축 스파인 칩 7 — 칩은 전부 같은 뜻(비교 축 라벨)이라 잉크 충돌이 아니다.
+        # 계수기는 도형 단위라 8로 박는다(늘면 FAIL).
+        "ink_allow": 8,
+        "node_top_max": 0,  # 날개 높이 균일은 모듈 audit(wings=14, h 단일)이 이미 강제
+        "air": air_pairs_mirror_matrix,
+    },
+    "boundary": {  # S18 경계 — 안(응답 4유형 계약) / 밖(차단·유보) + 하단 잔여 한계
+        "progress": 0,
+        "ink_allow": 3,  # 결론 바 + 차단 바 2(경계 진입을 끊는 짧은 바 — §5 차단 어휘)
+        "node_top_max": 0,
+        "air": air_pairs_boundary,
     },
 }
 

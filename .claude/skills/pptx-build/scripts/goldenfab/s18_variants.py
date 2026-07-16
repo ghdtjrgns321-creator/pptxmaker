@@ -15,12 +15,12 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.util import Inches, Pt
 
 from . import grid as G
-from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, mix
+from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit
 
 K = load_kit()
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
-KICKER = "5. 차별점"
+KICKER = "4. 문제와 해결"  # 2026-07-16 5부 개편 — 한계 장은 검증 장 뒤 Part Ⅳ 소속
 SOURCE = "출처: 6_TEST-DECISIONS.md §6.3 · 4_SEARCH-PIPELINE.md (라우팅 강제 OUT) · 00_factsheet.md §D·§H"
 
 
@@ -244,10 +244,9 @@ DEFAULT = {
     "headline": "정직한 한계 — 이 시스템이 서 있는 경계",
     "outside_label": "경계 밖",
     "inside_title": "K-IFRS 1115 — 경계 안",
-    "inside_policy_head": "답하는 범위를 계약한다",
-    "inside_policy_body": (
-        "경계 안 질문에만 결정적으로 답하고, 밖이면 거절, 모르면 유보 — "
-        "아는 척이 구조적으로 불가능하게 만든 설계다."
+    "inside_policy": (
+        "답하는 범위를 계약한다 — 안이면 결정적으로 답하고, 밖이면 거절, 모르면 유보. "
+        "아는 척이 구조적으로 불가능한 설계다."
     ),
     "out_left_chip_head": "타 기준서 질문",
     "out_left_chip_sub": "IAS38 · 1002 · 1008 · 1037",
@@ -256,28 +255,47 @@ DEFAULT = {
     "out_right_chip_sub": "임베딩식 유사 확장 없음",
     "out_right_desc": "색인에 없으면 진입 실패 → '못 찾음' 유보 응답. 홀드아웃 실측 진입 누락 2건",
     "bottom_head": "경계 그 밖의 한계 — 실측으로 아는 것",
-    "limits": [  # 6_TEST §6.2·§6.3·L52 실물 — 경계 밖 잔여 한계 3종
+    "limits": [  # 6_TEST §6.2·§6.3·L52 실물 — (한계, 실측, 남은 과제) 3종
         (
             "결론을 확정하지 못한 케이스",
-            "헤지 2건 — 근거 문단을 다 찾고도 결론을 유보했다. 검색이 아니라 생성 계층의 남은 과제.",
+            "헤지 2건 — 근거 문단을 다 찾고도 결론을 유보했다.",
+            "검색이 아니라 생성 계층의 남은 과제",
         ),
         (
             "인용 완전성",
-            "하드 인용 재현율 59.1% — 결론이 맞아도 근거 인용을 전부 담지는 못한다. 별도 지표로 추적.",
+            "하드 인용 재현율 59.1% — 결론이 맞아도 근거 인용을 전부 담지는 못한다.",
+            "인용률은 별도 지표로 추적",
         ),
         (
             "검증 자체의 한계",
-            "92건은 개발 중 전수 열람돼 순수 홀드아웃이 아니다 — 최종 성능은 안 본 질문으로 검증해야 한다.",
+            "92건은 개발 중 전수 열람돼 순수 홀드아웃이 아니다.",
+            "최종 성능은 안 본 질문으로 검증",
         ),
     ],
     "bar": "경계를 넓히는 대신 경계 안을 결정적으로 — 못 하는 것까지 실측으로 세어 두었다",
 }
 
+# 경계 도해 좌표(2026-07-16 재재깎기) — 경계 안 상자는 **내용 크기로 압축**한다. 4유형 그리드를
+# 넣었던 판은 사용자 기각: 확정/유보는 S4, 조건부·되물음은 S12 실물 발췌, IN/OUT 거절은 S6이
+# 이미 보여준 재탕이었다. 빈 상자 문제의 근본 원인은 내용 부족이 아니라 **상자가 내용보다 큰 것**
+# — 상자를 줄이고, 확보된 세로 공간은 이 장의 고유 재료(잔여 한계 3종)에 준다.
+CANVAS_TOP, CANVAS_BOTTOM = 1.95, 3.95
+IN_W, IN_H = 4.6, 1.25
+IN_X = (SLIDE_W - IN_W) / 2  # 캔버스 정중앙
+IN_Y = 2.15  # 영역 2.15~3.40 — 캔버스 안 광학 중앙
+CHIP_Y, CHIP_H = 2.38, 0.8
+LINE_Y = CHIP_Y + CHIP_H / 2  # 2.78 — 접근 화살표·차단 바·✕의 축
+DESC_Y = 3.32  # 칩 bottom(3.18)과 공기 0.14
+BHEAD_Y, BRULE_Y = 4.20, 4.54
+CARD_Y, CARD_H = 4.70, 1.50  # 카드 bottom 6.20 — 하한(6.35)과 공기 0.27
+
 
 def variant_b(prs, c=None):
-    """B — 상단 경계 도해(안=정책, 밖=차단·유보) + 하단 잔여 한계 3섹션.
+    """B — 상단 경계 도해(안=범위 계약, 밖=차단·유보) + 하단 잔여 한계 3섹션(한계/실측/남은 과제).
 
-    c: 텍스트 내용 override(None=골든 기본값). 좌표·색·크기는 고정.
+    2026-07-16 재재깎기: 경계 안을 내용 크기로 압축(재탕 4유형 그리드 제거 — 사용자 기각),
+    확보한 세로 공간을 이 장의 고유 재료인 잔여 한계 카드에 배분 — 카드가 3단(한계 12pt bold /
+    실측 / → 남은 과제)으로 깊어졌다. c=텍스트 override(None=골든).
     """
     c = {**DEFAULT, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
@@ -286,11 +304,18 @@ def variant_b(prs, c=None):
     from pptx.enum.lang import MSO_LANGUAGE_ID
 
     # ── 상단: 경계 캔버스 ──
-    add_box(slide, G.MARGIN_L, 1.95, G.RIGHT_EDGE - G.MARGIN_L, 2.6, fill=C["bg_alt"])
+    add_box(
+        slide,
+        G.MARGIN_L,
+        CANVAS_TOP,
+        G.RIGHT_EDGE - G.MARGIN_L,
+        CANVAS_BOTTOM - CANVAS_TOP,
+        fill=C["bg_alt"],
+    )
     add_text(
         slide,
         G.MARGIN_L + 0.2,
-        2.05,
+        CANVAS_TOP + 0.10,
         3.0,
         0.24,
         c["outside_label"],
@@ -299,17 +324,16 @@ def variant_b(prs, c=None):
         C["muted"],
         bold=True,
     )
-    in_x, in_y, in_w, in_h = 4.6, 2.15, 4.1, 2.2
     region = add_box(
-        slide, in_x, in_y, in_w, in_h, fill=C["bg"], line=C["primary"], line_w=2.5, shape="round"
+        slide, IN_X, IN_Y, IN_W, IN_H, fill=C["bg"], line=C["primary"], line_w=2.5, shape="round"
     )
-    region.adjustments[0] = 0.07
+    region.adjustments[0] = 0.10
     add_text(
         slide,
-        in_x,
-        in_y + 0.2,
-        in_w,
-        0.32,
+        IN_X,
+        IN_Y + 0.15,
+        IN_W,
+        0.30,
         c["inside_title"],
         S["head"],
         F["head"],
@@ -319,29 +343,39 @@ def variant_b(prs, c=None):
     )
     add_text(
         slide,
-        in_x + 0.35,
-        in_y + 0.62,
-        in_w - 0.7,
-        1.4,
-        [
-            [(c["inside_policy_head"], {"bold": True, "color": C["primary"]})],
-            [(c["inside_policy_body"], {})],
-        ],
+        IN_X + 0.3,
+        IN_Y + 0.53,
+        IN_W - 0.6,
+        0.5,
+        c["inside_policy"],
         S["caption"],
         F["body"],
         C["muted"],
-        line_spacing=1.35,
+        align=PP_ALIGN.CENTER,
+        line_spacing=1.3,
     )
-    # 밖 좌: 타 기준서 — 강제 OUT
-    _outside_chip(slide, 0.85, 2.5, 2.5, c["out_left_chip_head"], c["out_left_chip_sub"])
-    _dash_arrow(slide, 3.45, 2.9, 4.58, 2.9)
-    add_box(slide, 4.55, 2.68, 0.05, 0.44, fill=C["primary"])
-    add_text(slide, 4.18, 2.96, 0.3, 0.26, "✕", S["body"], F["head"], C["primary"], bold=True)
+    # 밖 좌: 타 기준서 — 강제 OUT. 화살촉은 ✕ 앞에서 멈춰 보이게, ✕는 충돌점(선상·바 직전)에
+    # 올린다 — 바 뒤에 숨은 화살촉·선 아래 떠 있는 ✕는 충돌 표식을 둘로 쪼갠다(채점 지적).
+    _outside_chip(slide, 0.75, CHIP_Y, 2.5, c["out_left_chip_head"], c["out_left_chip_sub"])
+    _dash_arrow(slide, 3.35, LINE_Y, IN_X - 0.42, LINE_Y)
+    add_box(slide, IN_X - 0.05, LINE_Y - 0.22, 0.05, 0.44, fill=C["primary"])
     add_text(
         slide,
-        0.85,
-        3.45,
-        3.2,
+        IN_X - 0.40,
+        LINE_Y - 0.13,
+        0.3,
+        0.26,
+        "✕",
+        S["body"],
+        F["head"],
+        C["primary"],
+        bold=True,
+    )
+    add_text(
+        slide,
+        0.75,
+        DESC_Y,
+        3.35,
         0.55,
         c["out_left_desc"],
         S["caption"],
@@ -350,15 +384,26 @@ def variant_b(prs, c=None):
         line_spacing=1.2,
     )
     # 밖 우: 미등재 표현 — 유보
-    _outside_chip(slide, 9.95, 2.5, 2.5, c["out_right_chip_head"], c["out_right_chip_sub"])
-    _dash_arrow(slide, 9.95, 2.9, 8.72, 2.9)
-    add_box(slide, 8.7, 2.68, 0.05, 0.44, fill=C["primary"])
-    add_text(slide, 9.07, 2.96, 0.3, 0.26, "✕", S["body"], F["head"], C["primary"], bold=True)
+    _outside_chip(slide, 10.03, CHIP_Y, 2.5, c["out_right_chip_head"], c["out_right_chip_sub"])
+    _dash_arrow(slide, 10.03, LINE_Y, IN_X + IN_W + 0.47, LINE_Y)
     add_text(
         slide,
-        9.35,
-        3.45,
-        3.1,
+        IN_X + IN_W + 0.13,
+        LINE_Y - 0.13,
+        0.3,
+        0.26,
+        "✕",
+        S["body"],
+        F["head"],
+        C["primary"],
+        bold=True,
+    )
+    add_box(slide, IN_X + IN_W, LINE_Y - 0.22, 0.05, 0.44, fill=C["primary"])
+    add_text(
+        slide,
+        9.38,
+        DESC_Y,
+        G.RIGHT_EDGE - 9.38 - 0.15,  # 캔버스 우변에서 0.15 안쪽 — 끝에 붙으면 잘려 보인다
         0.55,
         c["out_right_desc"],
         S["caption"],
@@ -366,11 +411,11 @@ def variant_b(prs, c=None):
         C["muted"],
         line_spacing=1.2,
     )
-    # ── 하단: 잔여 한계 3섹션 ──
+    # ── 하단: 잔여 한계 3섹션 — 한계(12pt bold) / 실측 / → 남은 과제 ──
     add_text(
         slide,
         G.MARGIN_L,
-        4.78,
+        BHEAD_Y,
         G.RIGHT_EDGE - G.MARGIN_L,
         0.3,
         c["bottom_head"],
@@ -379,39 +424,42 @@ def variant_b(prs, c=None):
         C["primary"],
         bold=True,
     )
-    add_box(slide, G.MARGIN_L, 5.12, G.RIGHT_EDGE - G.MARGIN_L, 0.012, fill=C["muted"])
+    add_box(slide, G.MARGIN_L, BRULE_Y, G.RIGHT_EDGE - G.MARGIN_L, 0.012, fill=C["muted"])
     sec_w, gap = 3.86, 0.27
-    for i, (head, body) in enumerate(c["limits"]):
+    for i, (head, measured, task) in enumerate(c["limits"]):
         sx = G.MARGIN_L + i * (sec_w + gap)
-        card = add_box(slide, sx, 5.28, sec_w, 1.06, fill=C["bg_alt"], shape="round")
+        card = add_box(slide, sx, CARD_Y, sec_w, CARD_H, fill=C["bg_alt"], shape="round")
         tf = card.text_frame
         tf.word_wrap = True
-        tf.margin_left = tf.margin_right = Inches(0.14)
-        tf.margin_top = Inches(0.09)
-        p1 = tf.paragraphs[0]
-        p1.alignment = PP_ALIGN.LEFT
-        p1._p.get_or_add_pPr().set("eaLnBrk", "0")
-        rn = p1.add_run()
-        rn.text = f"0{i + 1}  "
-        rn.font.name, rn.font.bold = F["head"], True
-        rn.font.size = Pt(S["caption"])
-        rn.font.color.rgb = C["muted"]
-        rh = p1.add_run()
-        rh.text = head
-        rh.font.name, rh.font.bold = F["head"], True
-        rh.font.size = Pt(S["caption"])
-        rh.font.color.rgb = C["primary"]
-        p2 = tf.add_paragraph()
-        p2.alignment = PP_ALIGN.LEFT
-        p2._p.get_or_add_pPr().set("eaLnBrk", "0")
-        p2.line_spacing = 1.25
-        rb = p2.add_run()
-        rb.text = body
-        rb.font.name = F["body"]
-        rb.font.size = Pt(S["caption"])
-        rb.font.color.rgb = C["muted"]
-        for r in (rn, rh, rb):
-            r.font.language_id = MSO_LANGUAGE_ID.KOREAN
+        tf.margin_left = tf.margin_right = Inches(0.16)
+        tf.margin_top = Inches(0.12)
+        specs = [  # (런들, line_spacing) — 3단: 번호+한계 / 실측 / → 남은 과제
+            (
+                [
+                    (f"0{i + 1}  ", C["accent"], True, S["body"]),
+                    (head, C["primary"], True, S["body"]),
+                ],
+                None,
+            ),
+            ([(measured, C["muted"], False, S["caption"])], 1.3),
+            ([(f"→ {task}", C["primary"], False, S["caption"])], 1.3),
+        ]
+        for li, (runs, spacing) in enumerate(specs):
+            p = tf.paragraphs[0] if li == 0 else tf.add_paragraph()
+            p.alignment = PP_ALIGN.LEFT
+            p._p.get_or_add_pPr().set("eaLnBrk", "0")
+            if spacing:
+                p.line_spacing = spacing
+            if li > 0:
+                p.space_before = Pt(4)
+            for txt, col, bold, pt in runs:
+                r = p.add_run()
+                r.text = txt
+                r.font.name = F["head"] if bold else F["body"]
+                r.font.bold = bold
+                r.font.size = Pt(pt)
+                r.font.color.rgb = col
+                r.font.language_id = MSO_LANGUAGE_ID.KOREAN
     bar_and_source(slide, c["bar"])
     return slide
 
@@ -419,13 +467,14 @@ def variant_b(prs, c=None):
 def audit(prs):
     from pptx.oxml.ns import qn
 
+    EMU = 914400
     fails = []
     for si, sl in enumerate(prs.slides):
         accents = 0
         for sh in sl.shapes:
-            t, le = sh.top / 914400, sh.left / 914400
-            b, r = t + sh.height / 914400, le + sh.width / 914400
-            full_bleed = sh.width / 914400 >= SLIDE_W - 0.05
+            t, le = sh.top / EMU, sh.left / EMU
+            b, r = t + sh.height / EMU, le + sh.width / EMU
+            full_bleed = sh.width / EMU >= SLIDE_W - 0.05
             if t < 6.4 and b > 6.37 and not full_bleed:
                 fails.append((si, "bottom", round(b, 2), sh.shape_id))
             if r > 12.75 and not full_bleed:
@@ -436,6 +485,24 @@ def audit(prs):
                         accents += 1
         if accents > 4:
             fails.append((si, "accent>4", accents))
+        if si == 1:  # variant_b 재재깎기 구조: 잔여 한계 카드 3(h=CARD_H) + 채움률·판정 대비
+            from . import audit as GA
+
+            cards = sum(
+                1
+                for sh in sl.shapes
+                if abs(sh.height / EMU - CARD_H) < 0.01 and sh.width / EMU > 3.0
+            )
+            n_limits = len(DEFAULT["limits"])
+            if cards != n_limits:
+                fails.append((si, f"한계 카드≠{n_limits}", cards))
+            shapes_b = list(sl.shapes)
+            for rule_name, (ok, msg, _n) in (
+                ("채움률", GA.check_fill_ratio(shapes_b)),
+                ("판정 대비", GA.check_verdict_contrast(shapes_b, None)),
+            ):
+                if not ok:
+                    fails.append((si, rule_name, msg))
     assert not fails, f"AUDIT FAIL {fails}"
     print("audit pass")
 
