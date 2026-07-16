@@ -49,15 +49,17 @@ content 키 (14개):
 | `source` | str | '출처: 4_SEARCH-PIPELINE.md (00_factsheet.md §C)' |
 
 ## `golden.tech_evidence`  (s08_variants.variant_c)
-content 키 (10개):
+content 키 (12개):
 
 | 키 | 타입 | 골든 기본값(샘플) |
 | -- | ---- | ----------------- |
 | `headline` | str | '용어사전 — 실무 언어를 기준서 개념에 잇는 진입 색인' |
 | `kicker` | str | '3. 기술 설명 — TECH 01 · Analyze' |
 | `narratives` | list | [('왜 필요한가', "실무는 '리베이트'라 말하고 기준서는 '고객에게 지급할 대가'라 쓴다. 이 언어 간극을 잇지 않으... |
-| `table_rows` | list | [('용어', '원천', '등급', '연결 개념 (어디로 진입하나)'), ('리베이트', '질의 매핑', '자동', '고... |
-| `table_caption` | str | '등재 423 중 발췌 5건 — 자동 316 · 위임판단 86 · 검토 18 · 확정 1 · 제외 2' |
+| `map_head` | str | '실무가 쓰는 말 → 기준서가 쓰는 말' |
+| `terms` | list | [('리베이트', '자동', ['고객에게 지급할 대가']), ('밀어내기', '자동', ['위탁약정']), ('볼륨디스카... |
+| `map_legend` | str | '실선 = 자동 316    점선 = 자동(위임판단) 86 — AI가 판단, 사람이 승인' |
+| `map_caption` | str | '등재 423 중 발췌 5건 — 423 = 자동 316 + 자동(위임판단) 86 + 검토 18 + 사용자 확정 1 + 제... |
 | `json_title` | str | 'aliases.json — 실제 엔트리' |
 | `json_lines` | list | ['{ "term": "상품권",', '  "sources": ["query-mapping"],', '  "grade":... |
 | `json_caption` | str | '모든 엔트리가 결정 로그(누가·왜)를 갖는다 — 전건 추적.' |
@@ -79,11 +81,11 @@ content 키 (17개):
 | `layer_tag1` | str | '개념 80' |
 | `layer_tag2` | str | '문단 250' |
 | `term_chip` | str | '“볼륨디스카운트”' |
-| `term_cap` | str | '용어 423 — 진입' |
+| `term_cap` | str | '용어 423 등재 · 400 진입' |
 | `case_chip` | str | '사례 188' |
-| `xref_cap` | str | '사례는 인용 문단으로 연결 · 문단끼리는 상호참조(E3 244)' |
-| `table_title` | tuple | ('무엇을 어떻게 만들었나', '    그래프 v14 — 노드 929 · 간선 2,697 · 고립 0') |
-| `build_rows` | list | [('구성 요소', '어떻게 만들었나', '수'), ('개념', '기준서 공식 소제목을 그대로 노드로 — 이름도 경계도 ... |
+| `cat_title` | tuple | ('간선 7종 — 무엇이 무엇을 잇고, 어디서 왔나', '    7종 2,629 + BC 근거층 65 = 2,694 · ... |
+| `cat_rows` | list | [('hier', '79', '변동대가', '속한다', '거래가격을 산정함', '기준서 목차 level · 기계 생성',... |
+| `node_caption` | str | '노드 929 = 개념 80 + 문단 250 + 사례 188 + BC 그룹 11 + 용어 400(423 중 간선 보유)' |
 | `bar` | str | "임베딩이 놓치는 '법적 이웃'을 관계가 잡는다 — 텍스트가 아니라 구조로 검색한다" |
 | `source` | str | '출처: 2_DATA-TAXONOMY.md · 3_KNOWLEDGE-GRAPH.md (00_factsheet.md §C·... |
 

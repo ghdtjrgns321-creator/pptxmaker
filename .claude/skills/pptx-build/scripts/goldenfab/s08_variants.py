@@ -329,21 +329,24 @@ DEFAULT_C = {
             "사람 1차 자료 3종(질의 매핑 288 · 사례 제목 123 · 부록A 정의 9)에서 AI가 초안을 내고 사람이 전수 검수해 423개 등재 — 신규 창작 0건.",
         ),
     ],
-    # 실물 엔트리 (data/ontology/aliases.json에서 발췌 — 축약만, 창작 0)
-    "table_rows": [
-        ("용어", "원천", "등급", "연결 개념 (어디로 진입하나)"),
-        ("리베이트", "질의 매핑", "자동", "고객에게 지급할 대가"),
-        ("밀어내기", "질의 매핑", "자동", "위탁약정"),
-        ("볼륨디스카운트", "질의 매핑", "자동", "변동대가 · 변동대가 추정치를 제약함"),
-        ("상품권", "질의 매핑", "위임판단", "고객에게 지급할 대가 · 고객이 행사하지 아니한 권리"),
-        (
-            "반품의 회계처리",
-            "QNA 제목",
-            "자동",
-            "반품권이 있는 판매 · 본인 대 대리인 (QNA-SSI-38695)",
-        ),
+    # 소제목은 **짧게** — 15pt로 31자를 쓰면 5.2"라 범례(4.75 시작)를 덮어 글자가 뭉갠다
+    # (2026-07-15 렌더 실측). 발췌 건수·등급 분해는 아래 캡션이 진다.
+    "map_head": "실무가 쓰는 말 → 기준서가 쓰는 말",
+    # 실물 엔트리 (data/ontology/aliases.json 실측 — 축약만, 창작 0).
+    # (용어, 등급, [연결 개념]) — **우열 개념은 코드가 이 목록에서 파생**한다(등장순 dedup).
+    # 그래서 N:1 수렴(`고객에게 지급할 대가` ← 리베이트+상품권)이 손으로 적는 게 아니라
+    # 데이터에서 나온다. 등급 문자열도 aliases.json 원문 그대로("위임판단" 아님).
+    "terms": [
+        ("리베이트", "자동", ["고객에게 지급할 대가"]),
+        ("밀어내기", "자동", ["위탁약정"]),
+        ("볼륨디스카운트", "자동", ["변동대가", "변동대가 추정치를 제약함"]),
+        ("상품권", "자동(위임판단)", ["고객에게 지급할 대가", "고객이 행사하지 아니한 권리"]),
+        ("반품의 회계처리", "자동", ["반품권이 있는 판매", "본인 대 대리인의 고려사항"]),
     ],
-    "table_caption": "등재 423 중 발췌 5건 — 자동 316 · 위임판단 86 · 검토 18 · 확정 1 · 제외 2",
+    # 범례는 **형태 언어만**, 수치는 캡션만. 2026-07-15 제3자 채점 FAIL(#3): "자동 316"·
+    # "자동(위임판단) 86"이 범례와 캡션에 글자 그대로 두 번 있었다.
+    "map_legend": "실선 = 자동    점선 = 자동(위임판단) — AI가 판단, 사람이 승인",
+    "map_caption": "등재 423 중 발췌 5건 — 423 = 자동 316 + 자동(위임판단) 86 + 검토 18 + 사용자 확정 1 + 제외 2",
     "json_title": "aliases.json — 실제 엔트리",
     "json_lines": [  # 상품권 엔트리 실물 축약
         '{ "term": "상품권",',
@@ -363,8 +366,167 @@ DEFAULT_C = {
 }
 
 
+# ── 이분 매핑 GRID (표를 걷어낸 자리 — 2026-07-15 사용자 반려 "이해가 안 가는 시각화") ──
+#
+# 물성 선언(design-rules P1): **잇기(N:M)**. 용어사전이 하는 일은 실무 언어를 기준서 언어에
+#   잇는 것이다. 표는 그 관계를 4열 나열로 바꿔 쉼표 하나로 뭉갰다 — 한 용어가 여러 개념으로
+#   갈라지는 것(1:N)도, 여러 용어가 한 개념으로 모이는 것(N:1)도 안 보였다. 그게 본질인데.
+#   게다가 죽은 열이 절반이었다: `원천` 5행 중 4행이 같은 값, `등급` 4행이 "자동".
+#   → 좌열(실무어) ─선─▶ 우열(기준서 개념). 갈래와 수렴이 **선의 모양 그 자체**로 보인다.
+#   §6 "숫자·항목 단독 나열 금지 — 관계 인코딩과 결합" / §6 "나열은 도형에 가두기".
+#
+# 색(P4⑩): accent 예산은 **1**뿐이다 — 3칼럼 번호(01·02·03) 런이 이미 3을 쓴다(오딧 상한 4).
+#   그 1을 `자동(위임판단)` 칩 테두리에 준다. 이 장의 결론 바가 "AI가 만드는 것은 색인 하나"이므로
+#   **AI가 판단한 자리**가 accent를 가져가는 게 맞다. 선은 muted — 선까지 accent면 예산 초과다.
+#   §5 점선 = 불확실 → 위임판단 매핑은 점선.
+MAP_X = G.MARGIN_L  # 0.6
+MAP_HEAD_Y = 3.35
+MAP_RULE_DY = 0.35
+MAP_L_RIGHT = 2.45  # 좌열 **우변 고정** — 선 출발점이 일정해야 매핑이 기둥으로 읽힌다
+MAP_R_X = 4.75  # 우열 **좌변 고정** — 선 도착점 일정. 칩 폭은 글자에서 파생(아래)
+MAP_R_MAX = 8.20  # 우열 우한 (JSON 카드 8.7 앞)
+CHIP_INSET = 0.44  # 글자 좌우 여백
+CHIP_FLOOR = 0.95  # 최소 폭 — 3자짜리도 칩으로 보이게
+MAP_TOP = 3.88
+MAP_BOTTOM = 5.97  # 캡션(6.09)에서 공기 0.12 확보 — 6.05로 두면 0.04로 붙는다(§6)
+MAP_H = 0.24  # 칩 높이 — 계열 균일(P4⑧)
+DELEGATED = "자동(위임판단)"  # aliases.json grade 원문. 이 값만 점선+accent
+
+
+def _pitch(n, top, bottom, h, cap=0.42, *, what="항목"):
+    """세로 피치를 **항목 수에서 파생**한다 — design-rules §F(2026-07-15, S10 하한 초과에서 확정).
+
+    리터럴 피치(`top + i*0.42`)를 쓰면 content로 항목이 늘어난 순간 조용히 하한을 넘는다.
+
+    파생만으로는 부족하다: 항목이 아주 많으면 피치가 칩 높이보다 작아져 **칩끼리 겹친다**.
+    하한(6.35)은 안 넘으므로 경계 검사는 통과한다 — 조용히 틀리는 값이다(2026-07-15 케이스
+    테스트가 잡음: 개념 18개 → 피치 0.109 < 높이 0.24). 그래서 **시끄럽게 죽인다**:
+    이 레이아웃이 수용할 수 있는 항목 수를 넘으면 빌드를 세운다. 공장 문(content_contract)이
+    침묵 폴백을 막는 것과 같은 원리다.
+    """
+    if n <= 1:
+        return h
+    p = min(cap, (bottom - top - h) / (n - 1))
+    if p < h:
+        room = int((bottom - top - h) / h) + 1
+        raise ValueError(
+            f'{what} {n}개는 이 구획({top}~{bottom}")에 안 들어간다 — 피치 {p:.3f} < 칩 높이 {h}'
+            f"라 칩이 겹친다. 최대 {room}개. content를 줄이거나 레이아웃을 다시 설계할 것."
+        )
+    return p
+
+
+def chip_w(text, pt=None, inset=CHIP_INSET, floor=CHIP_FLOOR):
+    """칩 폭을 **글자에서 파생**한다 — §6 "칩·박스는 풀폭 금지, 내용 폭 + 인셋으로".
+
+    균일 폭(좌 1.85 / 우 3.45)으로 그렸더니 오딧 채움률이 6건 걸렸다: "위탁약정" 4자가
+    3.45" 칩에서 12%, "상품권" 3자가 16%. 정렬된 열이라 균일 폭이 자연스러워 보였지만,
+    죽은 회색은 죽은 회색이다(S4 한계 칩 3.30"→1.60"과 같은 병).
+    정렬은 **폭이 아니라 한쪽 변**으로 잡는다 — 좌열은 우변, 우열은 좌변 고정.
+    글자폭 근사는 오딧과 같은 식(한국어 1자 ≈ 0.8×pt)이라 규칙과 설계가 같은 자를 쓴다.
+    """
+    pt = pt or S["caption"]
+    return max(len(text.strip()) * pt * 0.8 / 72 + inset, floor)
+
+
+def _map_line(slide, x1, y1, x2, y2, *, dashed=False):
+    """잇기 선. 화살촉은 목적지(기준서 개념) 쪽 — 방향이 곧 "진입"이다."""
+    from pptx.oxml.ns import qn
+
+    conn = slide.shapes.add_connector(
+        MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2)
+    )
+    conn.line.color.rgb = C["muted"]
+    conn.line.width = Pt(1.0)
+    ln = conn.line._get_or_add_ln()
+    if dashed:
+        ln.append(ln.makeelement(qn("a:prstDash"), {"val": "dash"}))
+    ln.append(ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "sm", "len": "sm"}))
+    return conn
+
+
+def bipartite_map(slide, terms):
+    """실무어 → 기준서 개념 이분 매핑. 우열은 terms에서 **파생**(등장순 dedup).
+
+    우열을 손으로 적지 않는 이유: 적는 순간 데이터와 어긋날 수 있고, N:1 수렴이 "내가 그렇게
+    그렸다"가 되어버린다. 파생하면 `고객에게 지급할 대가`에 두 선이 모이는 건 aliases.json이
+    그렇게 생겼기 때문이다. 반환: (좌 y맵, 우 y맵, 선 수) — 오딧·자기검증용.
+    """
+    concepts = []  # 등장순 dedup — dict.fromkeys는 순서 보존
+    for _t, _g, cs in terms:
+        for c_ in cs:
+            if c_ not in concepts:
+                concepts.append(c_)
+
+    r_pitch = _pitch(len(concepts), MAP_TOP, MAP_BOTTOM, MAP_H, what="연결 개념")
+    r_y = {c_: MAP_TOP + i * r_pitch for i, c_ in enumerate(concepts)}
+    # 좌열은 우열 **범위 중앙**에 맞춘다 — 5개를 7개 옆에 위에서부터 쌓으면 아래가 빈다(P4④)
+    r_span = (len(concepts) - 1) * r_pitch
+    l_pitch = _pitch(len(terms), MAP_TOP, MAP_BOTTOM, MAP_H, what="용어")
+    l_span = (len(terms) - 1) * l_pitch
+    l_top = MAP_TOP + (r_span - l_span) / 2
+    l_y = {t: l_top + i * l_pitch for i, (t, _g, _cs) in enumerate(terms)}
+
+    # 여러 용어가 한 개념으로 모이면(N:1) 도착점을 **분산**한다 — 2026-07-15 제3자 채점
+    # FAIL(#6): `고객에게 지급할 대가` 좌변 한 점에 리베이트의 실선 화살촉과 상품권의 점선
+    # 화살촉이 겹쳐 하나로 뭉갰다(18배 확대 확인). 점선 종단이 실선 화살촉에 삼켜져,
+    # 범례가 구분하라는 "위임판단"이 **도착점에서 실선으로 보였다** — N:1 수렴이 이 장의
+    # 요점인데 바로 그 수렴 지점에서 형태 언어가 무너진 것이다.
+    fan_in = {}
+    for _t, _g, cs in terms:
+        for c_ in cs:
+            fan_in[c_] = fan_in.get(c_, 0) + 1
+    slot = dict.fromkeys(fan_in, 0)
+
+    # 선 먼저 → 칩이 화살촉을 덮는다(칩 변에서 깔끔히 끝남)
+    n_lines = 0
+    for t, g, cs in terms:
+        for c_ in cs:
+            n_in = fan_in[c_]
+            # 도착 y를 칩 높이 안에서 n_in등분 — 1개면 정중앙, 2개면 위·아래로 갈린다
+            off = (slot[c_] + 1) / (n_in + 1) if n_in > 1 else 0.5
+            slot[c_] += 1
+            _map_line(
+                slide,
+                MAP_L_RIGHT,
+                l_y[t] + MAP_H / 2,
+                MAP_R_X,
+                r_y[c_] + MAP_H * off,
+                dashed=(g == DELEGATED),
+            )
+            n_lines += 1
+
+    for t, g, _cs in terms:
+        deleg = g == DELEGATED
+        w = chip_w(t)
+        b = add_box(
+            slide,
+            MAP_L_RIGHT - w,  # 우변 고정
+            l_y[t],
+            w,
+            MAP_H,
+            fill=C["bg"],
+            line=C["accent"] if deleg else C["muted"],
+            line_w=1.25 if deleg else 0.75,
+            shape="round",
+        )
+        set_shape_text(b, t, S["caption"], F["head"], C["primary"], bold=True)
+    for c_ in concepts:
+        b = add_box(
+            slide,
+            MAP_R_X,  # 좌변 고정
+            r_y[c_],
+            min(chip_w(c_), MAP_R_MAX - MAP_R_X),
+            MAP_H,
+            fill=C["bg_alt"],
+            shape="round",
+        )
+        set_shape_text(b, c_, S["caption"], F["body"], C["primary"])
+    return l_y, r_y, n_lines
+
+
 def variant_c(prs, c=None):
-    """C3 — 서사 3칼럼(왜/역할/구축) + 실물 증거(네이티브 표 + JSON 카드). c: 텍스트 override(None=골든 기본값). 좌표·색·폰트 고정."""
+    """C3 — 서사 3칼럼(왜/역할/구축) + 실물 증거(이분 매핑 + JSON 카드). c: 텍스트 override(None=골든 기본값). 좌표·색·폰트 고정."""
     c = {**DEFAULT_C, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
@@ -399,40 +561,29 @@ def variant_c(prs, c=None):
         )
         if i < 2:
             add_box(slide, nx + nar_w + 0.2, G.CONTENT_TOP, 0.012, 1.2, fill=C["bg_alt"])
-    # ── 하단 좌: 네이티브 표 (실물 5행) ──
-    tbl_x, tbl_y, tbl_w = G.MARGIN_L, 3.35, 7.7
-    n_rows = len(c["table_rows"])
-    gf = slide.shapes.add_table(
-        n_rows, 4, Inches(tbl_x), Inches(tbl_y), Inches(tbl_w), Inches(0.5 * n_rows)
+    # ── 하단 좌: 이분 매핑 (실물 5건 → 개념 7개, 선 9개) ──
+    map_w = MAP_R_MAX - MAP_X  # 7.60
+    _subhead(slide, MAP_X, MAP_HEAD_Y, map_w, c["map_head"])
+    add_text(  # 범례는 소제목과 같은 줄 우측 — 룰 아래에 두면 매핑 첫 행(3.88)을 침범한다
+        slide,
+        MAP_R_X,
+        MAP_HEAD_Y + 0.06,
+        MAP_R_MAX - MAP_R_X,
+        0.22,
+        c["map_legend"],
+        S["foot"],
+        F["body"],
+        C["muted"],
+        align=PP_ALIGN.RIGHT,
     )
-    tbl = gf.table
-    for ci, cw in enumerate((1.65, 1.15, 1.15, 3.75)):
-        tbl.columns[ci].width = Inches(cw)
-    for ri, row in enumerate(c["table_rows"]):
-        tbl.rows[ri].height = Inches(0.42 if ri else 0.38)
-        for ci, val in enumerate(row):
-            cell = tbl.cell(ri, ci)
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = (
-                C["accent"] if ri == 0 else (C["bg_alt"] if ri % 2 == 0 else C["bg"])
-            )
-            cell.margin_left = cell.margin_right = Inches(0.08)
-            cell.vertical_anchor = MSO_ANCHOR.MIDDLE
-            p = cell.text_frame.paragraphs[0]
-            p._p.get_or_add_pPr().set("eaLnBrk", "0")
-            r = p.add_run()
-            r.text = val
-            r.font.name = F["head"] if ri == 0 or ci == 0 else F["body"]
-            r.font.size = Pt(S["caption"])
-            r.font.bold = ri == 0 or ci == 0
-            r.font.color.rgb = C["bg"] if ri == 0 else C["primary"]
+    bipartite_map(slide, c["terms"])
     add_text(
         slide,
-        tbl_x,
-        6.0,
-        tbl_w,
+        MAP_X,
+        6.09,
+        map_w,
         0.26,
-        c["table_caption"],
+        c["map_caption"],
         S["caption"],
         F["body"],
         C["muted"],
@@ -456,7 +607,7 @@ def variant_c(prs, c=None):
         C["bg_alt"],
         bold=True,
     )
-    tb = add_text(
+    add_text(
         slide,
         jx + 0.25,
         jy + 0.5,
@@ -471,7 +622,7 @@ def variant_c(prs, c=None):
     add_text(
         slide,
         jx,
-        6.0,
+        6.09,  # 매핑 캡션과 같은 baseline — 두 구획의 캡션이 어긋나면 바닥이 흔들려 보인다
         jw,
         0.26,
         c["json_caption"],
