@@ -67,6 +67,13 @@ for s in prs.slides:
   (`goldenfab/content_contract.py`). 안 그러면 골든 글(다른 프로젝트 내용)이 조용히 나간다.
   타입별 content 키는 `deck-compose/references/golden-content-contract.md`(코드 DEFAULT 덤프) 참조.
 - 타입 배정 판정은 deck-compose의 `references/layout-matching.md` 결정표.
+- **변형·신규 장(2026-07-16 — 골든은 복제 템플릿이 아니라 변형 가능한 출발점):**
+  `"type": "adapted.<layout>"` / `"type": "novel"` + `"script": "<경로>"`(spec 위치 기준 상대) —
+  장 스크립트의 `build(prs, content)`로 디스패치한다. 내용의 항목 수·구획이 골든과 다르면
+  content에 우겨넣지 말고 adapted로 변형한다(goldenfab 부품 재사용, design-rules Ⅲ부 P5).
+  스냅샷 회귀는 goldenfab 보호 전용 — 실전 변형·신규 장의 게이트는
+  `uv run python scripts/audit_deck.py <spec> <pptx>`(전역 오딧 + 골든 파생 밀도 밴드)와
+  **전 장 병렬 채점**(design-rules P4 — 장당 1개 에이전트 동시 파견, FAIL 장만 재채점).
 - **회귀 게이트**: goldenfab 수정 후 `uv run python scripts/compare_golden.py` —
   `goldenfab/reference.py`가 조립한 레퍼런스 덱 19장을 **기준선 스냅샷**
   (`assets/golden-snapshot.json`, 현재 490도형)과 도형 전수 대조. 불일치 1건이라도 FAIL,

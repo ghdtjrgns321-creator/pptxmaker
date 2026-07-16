@@ -83,6 +83,8 @@ class Deck:
         self._comment_side = "left"  # 해설 칼럼 좌/우 교차 토글(형식 반복 방지)
         self.render_dir = Path("_workspace/render")  # mpl 익스히빗 PNG 출력처(main이 재설정)
         self.frame_style = "v3"  # 프레임 틀(표지·간지) 스타일 — build()가 meta.frame_style로 전환
+        # 장 스크립트(adapted/novel) 상대경로 기준 — main이 spec 위치로 설정
+        self._spec_dir: Path | None = None
 
     # --- 저수준 헬퍼 ---
     def _slide(self, bg=None):
@@ -1362,6 +1364,41 @@ class Deck:
         self._flatten(slide)
         return slide
 
+    def _render_scripted(self, sl, slide_no="?"):
+        """type "adapted.<골든타입>" / "novel" — 장 스크립트 디스패치 (2026-07-16 변형 출발점).
+
+        골든은 복제 템플릿이 아니라 변형 가능한 출발점이다(design-rules 골든셋 원칙 개정).
+        내용의 카디널리티·구획이 골든과 다르면 goldenfab 부품(kit·grid)을 재사용한 장
+        스크립트로 변형(adapted)하고, 골든에 없는 물성이면 신규 설계(novel)한다.
+        스냅샷 회귀는 goldenfab 보호 전용이므로 여기 장은 대상이 아니다 — 품질은
+        audit_deck.py(전역 오딧+밀도 밴드)와 병렬 채점(design-rules P4)이 진다.
+        """
+        import importlib.util
+
+        script = sl.get("script")
+        if not script:
+            raise ValueError(
+                f"S{slide_no} {sl['type']}: 'script' 경로 필수 — 장 스크립트가 레이아웃 본체다"
+            )
+        p = Path(script)
+        if not p.is_absolute():
+            p = (self._spec_dir / p) if self._spec_dir else p
+        if not p.exists():
+            raise ValueError(f"S{slide_no} {sl['type']}: 장 스크립트 없음: {p}")
+        mod_spec = importlib.util.spec_from_file_location(f"chapter_s{slide_no}", p)
+        if mod_spec is None or mod_spec.loader is None:
+            raise ValueError(f"S{slide_no} {sl['type']}: 장 스크립트 로드 불가: {p}")
+        mod = importlib.util.module_from_spec(mod_spec)
+        mod_spec.loader.exec_module(mod)
+        if not hasattr(mod, "build"):
+            raise ValueError(f"S{slide_no} {sl['type']}: 장 스크립트에 build(prs, content) 없음")
+        result = mod.build(self.prs, sl.get("content"))
+        slide = result[0] if isinstance(result, tuple) else result
+        if slide is None:
+            slide = self.prs.slides[-1]
+        self._flatten(slide)
+        return slide
+
     def build(self, spec):
         self.meta = spec.get("meta", {})
         self.frame_style = self.meta.get("frame_style", "v3")
@@ -1399,6 +1436,11 @@ class Deck:
                 # 레거시 푸터 스탬프·배너를 적용하지 않는다. compare_golden.py가 회귀 게이트.
                 self._render_golden(sl, i)
                 continue
+            if sl["type"].startswith("adapted.") or sl["type"] == "novel":
+                # 장 스크립트 디스패치 — 골든을 출발점으로 변형(adapted) / 신규 물성(novel).
+                # 골든 장과 같이 자체 완결이므로 푸터 스탬프·배너 미적용.
+                self._render_scripted(sl, i)
+                continue
             renderer = self.RENDERERS.get(sl["type"])
             if renderer is None:
                 raise ValueError(f"unknown slide type: {sl['type']}")
@@ -1433,6 +1475,7 @@ def main():
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
     deck = Deck(brand)
     deck.render_dir = Path(args.out).resolve().parent / "render"
+    deck._spec_dir = Path(args.spec).resolve().parent
     prs = deck.build(spec)
     prs.save(args.out)
     print(f"OK: {args.out} ({len(prs.slides)} slides)")

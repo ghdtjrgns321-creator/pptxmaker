@@ -130,12 +130,21 @@ def check_verdict_contrast(shapes, prose_pt):
     bad = []
     for s in shapes:
         for text, col, pt, _bold in runs_of(s):
-            if not col or not text.strip():
+            t = text.strip()
+            if not col or not t:
                 continue
-            if re.match(r"^\s*[✕✓↩→]", text) or "불가역" in text or "없다" in text:
+            # 판정 단어는 **짧은 라벨**이다. 기호로 시작하거나(✕ 불가역 · ↩ 되돌아옴), 짧으면서
+            # 판정어로 끝난다. 길이 상한이 없으면 산문 속 "없다"까지 걸린다 — 2026-07-15
+            # tech_tree 실측: '문단 뭉치에는 순서도 관계도 없다'(17자, 서사 본문)를 판정으로
+            # 오탐했다. 서사는 muted가 정상이다(§4 위계 4단). 규칙을 느슨하게 한 게 아니라
+            # **판정과 산문을 구분**하도록 정확하게 했다 — 기호 시작 케이스는 그대로 잡힌다.
+            is_verdict = bool(re.match(r"^\s*[✕✓↩→]", t)) or (
+                len(t) <= 12 and ("불가역" in t or t.endswith("없다"))
+            )
+            if is_verdict:
                 cr = contrast(col)
                 if cr < CONTRAST_MIN:
-                    bad.append((text.strip()[:18], col, cr))
+                    bad.append((t[:18], col, cr))
     return not bad, f"판정 단어 대비 < {CONTRAST_MIN}: {len(bad)} {bad[:3]}", len(bad)
 
 
@@ -164,7 +173,7 @@ def check_fill_ratio(shapes, min_ratio=0.30, min_w=1.5):
     return not bad, f"채움률 < {min_ratio:.0%}: {len(bad)} {bad[:3]}", len(bad)
 
 
-def check_duplicate_nodes(shapes):
+def check_duplicate_nodes(shapes, allow=0):
     """**구별 장치 없는** 반복 = 재탕(P4③).
 
     출처: v4에서 '2종 · 허위 확정'이 두 밴드에 같은 글자·같은 fill·같은 테두리로 있었다.
@@ -172,6 +181,12 @@ def check_duplicate_nodes(shapes):
     ⚠ 테두리(색·점선)가 다르면 재탕이 아니라 **대조**다 — v7의 두 ◇ '근거 충분?'은 실선(성립)
     vs 점선(성립 불가)으로 뒤가 앞을 부정한다. 제3자도 "반복이 아니라 대조"로 PASS를 줬는데
     초판 규칙이 (텍스트, 채움)만 봐서 오탐을 냈다. 구별 장치까지 서명에 넣는다.
+
+    `allow`: 같은 노드의 재등장이 **그 자체로 메시지**인 레이아웃을 위한 기대값(기본 0).
+    tech_tree 카탈로그가 그렇다 — `변동대가`가 hier·cp의 출발이자 term의 도착으로 3번 나오는
+    건 "한 개념에 세 종류의 간선이 붙는다"를 보이는 것이다. 규칙이 잡으려는 건 **정보량 0인**
+    반복이고 이건 정보량이 있다. 다만 예외를 여는 게 아니라 **수를 박는다** — 실측보다 늘면
+    FAIL이라, 무심코 하나 더 그리면 잡힌다.
     """
     seen = set()
     dup = []
@@ -190,7 +205,47 @@ def check_duplicate_nodes(shapes):
         if sig in seen:
             dup.append(t[:20])
         seen.add(sig)
-    return not dup, f"구별 장치 없는 반복: {len(dup)} {dup[:3]}", len(dup)
+    return len(dup) <= allow, f"구별 장치 없는 반복: {len(dup)} (허용 {allow}) {dup[:3]}", len(dup)
+
+
+def check_node_class(shapes, min_len=2):
+    """같은 이름의 노드가 한 장 안에서 **다른 스타일**로 그려지면 FAIL (P4⑩의 쌍둥이).
+
+    출처: 2026-07-15 제3자 채점이 s9에 2/10을 줬고 최대 결함이 이것이었다 — 좌 트리는
+    `bg_alt` 채움을 **내부 노드**(개념·문단)에, 우 카탈로그는 같은 `bg_alt`를 **사례**에 썼다.
+    독자가 왼쪽에서 배운 "회색 = 내부 노드"가 오른쪽에서 "회색 = 사례"로 뒤집힌다.
+    `변동대가`는 한 장에서 회색 덩어리이자 흰 바탕 검정 테두리 볼드였다.
+
+    ⚠ `check_duplicate_nodes`의 **정확한 반대**다. 저건 "같은 이름 + 같은 서명"의 무의미한
+    반복을 잡고, 이건 "같은 이름 + **다른** 서명"의 모순을 잡는다. 둘 다 있어야 한다 —
+    duplicate만 있으면 "스타일을 바꾸면 통과"라는 잘못된 탈출구가 열린다.
+
+    ⚠ **채움만 본다.** 초판이 (채움, 테두리)를 서명으로 삼았더니 S4의 두 ◇ `근거 충분?`을
+    오탐했다 — 그건 실선(성립) vs 점선(성립 불가)으로 **뒤가 앞을 부정하는 의도된 대조**이고,
+    제3자도 "반복이 아니라 대조"로 PASS를 준 설계다. 그대로 뒀으면 duplicate 규칙("구별 장치를
+    둬라")과 이 규칙("같은 스타일이어야")이 **서로 반대를 요구**해 S4가 어느 쪽으로도 못 빠져
+    나갔다. 경계는 이렇다:
+        **채움 = 클래스**(이게 무엇인가 — 개념·문단·사례) → 같은 이름이면 같아야 한다.
+        **테두리·점선 = 상태**(성립/불성립·자동/위임) → 달라도 된다, 그게 대조다.
+    s9의 실제 결함은 채움이 갈린 것(`bg_alt` 좌 = 내부 노드 / 우 = 사례)이라 이 경계로 잡힌다.
+
+    원인은 늘 구조적이다: 노드를 그리는 함수가 둘이면 색이 갈린다. 단일 출처(NODE_STYLE)로
+    합치는 게 근본 수정이고, 이 규칙은 그게 다시 갈라지는지 지킨다.
+    """
+    sigs = {}
+    bad = []
+    for s in shapes:
+        f = fill_hex(s)
+        if not f or not s.has_text_frame:
+            continue
+        t = s.text_frame.text.strip()
+        if len(t) < min_len:
+            continue
+        if t in sigs and sigs[t] != f:
+            bad.append((t[:18], sigs[t], f))
+        else:
+            sigs.setdefault(t, f)
+    return not bad, f"같은 노드 다른 채움: {len(bad)} {[b[0] for b in bad][:3]}", len(bad)
 
 
 def check_ink_collision(shapes, ink, allow=1):
@@ -294,6 +349,67 @@ def check_air(pairs, air_min=AIR_MIN):
         for n, b, t in pairs
     ]
     return not bad, "\n".join(lines), len(bad)
+
+
+def density_band(snapshot_path=None):
+    """골든 스냅샷에서 본문 장의 밀도 하한(도형 수·텍스트 프레임 수)을 파생.
+
+    출처(2026-07-16 배선 재설계): 골든이 "복제 템플릿"에서 "변형 가능한 출발점"이 되면서
+    스냅샷 회귀가 실전 덱을 못 지킨다 — 변형·신규 장의 "밀집화"를 재는 기계 게이트가 이것.
+    임계는 리터럴이 아니라 **골든의 가장 성긴 본문 장**에서 파생한다(§4 범용 해결) —
+    골든이 바뀌어 스냅샷을 재생성하면 밴드도 따라 움직인다.
+    """
+    import json
+    from pathlib import Path
+
+    from .reference import SLIDE_ORDER
+
+    fixed = {"cover", "toc", "part", "closing"}  # 정형 장 — 밀도 대상 아님
+    if snapshot_path is None:
+        snapshot_path = Path(__file__).resolve().parents[2] / "assets/golden-snapshot.json"
+    snap = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
+    body = [sl for (key, _n), sl in zip(SLIDE_ORDER, snap["slides"]) if key not in fixed]
+    shape_counts = [len(sl) for sl in body]
+    frame_counts = [sum(1 for sh in sl if (sh.get("text") or "").strip()) for sl in body]
+    return {
+        "shapes_min": min(shape_counts),
+        "frames_min": min(frame_counts),
+        "n_body": len(body),
+    }
+
+
+def check_density(shapes, band):
+    """골든 밀도 밴드 — 변형(adapted)·신규(novel) 장이 골든 본문 최저 밀도보다 성기면 FAIL."""
+    n_shapes = len(shapes)
+    n_frames = sum(1 for s in shapes if s.has_text_frame and s.text_frame.text.strip())
+    ok = n_shapes >= band["shapes_min"] and n_frames >= band["frames_min"]
+    deficit = max(0, band["shapes_min"] - n_shapes) + max(0, band["frames_min"] - n_frames)
+    return (
+        ok,
+        f"도형 {n_shapes}(하한 {band['shapes_min']}) · "
+        f"텍스트 프레임 {n_frames}(하한 {band['frames_min']}) — 골든 본문 {band['n_body']}장 파생",
+        deficit,
+    )
+
+
+def generic_checks(shapes, accent, band=None, dup_allow=0):
+    """레이아웃 무관 전역 오딧 묶음 — 변형(adapted)·신규(novel)·content 주입 골든 장에 적용.
+
+    레이아웃 특정 규칙(진행형 도형 허용 수·ink_allow·공기 쌍·노드 높이)은 여기 없다 —
+    그건 장 스크립트가 자체 assert하거나 채점(P4)이 본다. audit_deck.py가 이 묶음의 러너.
+    """
+    res = [
+        ("§2 accent 상한", *check_accent(shapes, accent)),
+        ("P4⑤ 판정 단어 대비", *check_verdict_contrast(shapes, None)),
+        ("P4④ 채움률", *check_fill_ratio(shapes)),
+        ("P4③ 노드 재탕", *check_duplicate_nodes(shapes, allow=dup_allow)),
+        ("P4⑩ 노드 클래스", *check_node_class(shapes)),
+        ("§F 그림 침범", *check_picture_overlap(shapes)),
+        ("P2③④ 경계", *check_bounds(shapes, skip_tops=(6.60, 7.15))),
+    ]
+    if band:
+        res.append(("§6-D 밀도 밴드", *check_density(shapes, band)))
+    return res
 
 
 def report(results, known=None):

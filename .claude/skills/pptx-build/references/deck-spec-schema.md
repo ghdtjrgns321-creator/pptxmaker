@@ -35,6 +35,19 @@
 | `part`       | `title`, `subtitle`(선택)                                                                                                                                                         | 간지(PART divider)                                           |
 | `cta`        | `title`, `contact{email,site,...}`                                                                                                                                                | 마무리·연락처                                                |
 
+## 골든 계열 타입 (2026-07-16 — 골든은 변형 가능한 출발점)
+
+| type               | 필수 필드                        | 용도                                                                                                                      |
+| ------------------ | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| `golden.<layout>`  | `content{...}` (DEFAULT 키 전량) | 내용 구조가 골든과 그대로 맞을 때만 — 텍스트 전량 교체, 좌표·색·도형 고정. 키 누락 시 빌드 중단(content_contract)         |
+| `adapted.<layout>` | `script`(spec 기준 상대경로)     | 물성은 매칭되나 항목 수·구획이 다를 때 — 그 골든을 출발점으로 goldenfab 부품을 재사용한 장 스크립트 `build(prs, content)` |
+| `novel`            | `script`                         | 골든에 없는 물성 — 가장 가까운 골든 렌더를 밀도 앵커로 신규 설계(design-rules Ⅲ부 P5)                                     |
+
+- 골든 계열 장은 헤더·결론바·출처를 자체 포함 — 레거시 푸터 스탬프·배너가 붙지 않는다.
+- `adapted.*`·`novel`의 선택 필드 `"audit": {"dup_allow": N, "known": {"규칙명": 기준선}}` —
+  audit_deck.py의 장별 예외 선언(재등장이 메시지인 노드의 실측 수 등).
+- 판정 기준은 deck-compose `references/layout-matching.md`, 게이트는 audit_deck + 병렬 채점.
+
 ## PART 내비게이션 체계 (우석진 템플릿 이식 — _workspace/06_reference-notes.md)
 
 `part` 슬라이드를 본문 그룹 앞에 끼우면 빌더가 자동으로 처리한다:

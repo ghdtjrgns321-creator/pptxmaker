@@ -32,19 +32,27 @@ deck-spec의 각 장에 `"type": "golden.<layout>"`을 배정할 때 이 표로 
 
 각 타입의 content 키는 [golden-content-contract.md](golden-content-contract.md)(코드 DEFAULT 덤프) 참조.
 필수 키의 단일 출처는 `goldenfab/content_contract.required_keys()`(15/15 해석).
-새 프로젝트는 물성 매칭 후 그 타입에 자기 텍스트를 content로 넣는다 — 레이아웃(좌표·색·도형)은
-건드리지 않는다. 단일 소스는 `goldenfab/`이고, compare_golden.py가 기준선 스냅샷 대조로
-회귀·override 유효성을 게이트한다.
+단일 소스는 `goldenfab/`이고, compare_golden.py는 **goldenfab 보호 전용** 회귀 게이트다 —
+실전 덱의 adapted·novel 장은 스냅샷 대상이 아니다(audit_deck + 병렬 채점이 진다,
+design-rules Ⅲ부 P5).
 
-## 판정 절차
+## 판정 절차 (2026-07-16 개정 — 매칭 ≠ 텍스트 스왑 강제)
+
+골든은 복제 템플릿이 아니라 **변형 가능한 출발점**이다(design-rules 골든셋 원칙).
+매칭 결과는 셋 중 하나로 갈린다:
 
 1. 재료(FINAL-REPORT)의 각 장 후보에 대해 **물성을 한 줄로 선언**한다
    ("이 내용 = 비교 / 흐름 / 분해 / 경계 / 실물 화면 / …") — P1 물성 선언과 같은 형식.
-2. 결정표에서 그 물성의 행을 찾는다. 판정 질문에 "예"면 그 타입.
+2. 결정표에서 그 물성의 행을 찾는다. 판정 질문에 "예"면 그 타입이 **출발점**이다.
+   내용의 항목 수·구획 구성이 골든과 그대로 맞으면 `golden.<layout>` + content(텍스트 전량
+   교체), 다르면 **`adapted.<layout>`** — 그 타입의 코드·렌더 PNG를 먼저 Read하고 goldenfab
+   부품(kit·grid·피치 파생)을 재사용한 장 스크립트로 변형한다. 안 맞는 내용을 content에
+   우겨넣는 것이 사용자가 기각한 "텍스트 스왑"이다.
 3. **두 행에 걸치면** 주 물성(그 장이 답할 독자 질문에 직결된 쪽)을 따른다 —
    한 장에 두 물성을 우겨넣지 말고 장을 쪼갠다.
-4. **어느 행에도 안 맞으면 끼워맞추지 않는다** — 골든 확장 절차(pull):
-   물성 선언 → 새 아키타입 시안 → 사용자 승인 → design-rules 박제 + goldenfab 타입 추가
+4. **어느 행에도 안 맞으면 끼워맞추지 않는다** — **`novel`**: 물성이 가장 가까운 골든 렌더
+   PNG 2~3장을 Read해 밀도·구성 앵커로 삼고, P1 물성 선언부터 신규 설계한다(design-rules P5).
+   골든 창고 편입은 덱 완성 후 **사용자가 고른 장만**: goldenfab 타입 승격 + design-rules 박제
    + compare_golden 케이스 추가. (골든 1장 = 유지보수 계약 1개, 05-plan 결정 #8)
 
 ## 강제 장치

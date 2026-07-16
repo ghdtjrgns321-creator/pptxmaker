@@ -126,6 +126,15 @@ def golden_strings(layout_key):
     return out
 
 
+def layout_key(type_str):
+    """spec type → 골든 기본값 대조용 레이아웃 키.
+
+    `adapted.<key>`도 그 골든 레이아웃이 출발점이므로(2026-07-16 변형 출발점 배선)
+    기본값 유출을 같은 잣대로 검사한다 — 변형 스크립트에 골든 글이 복사돼 남는 사고 방지.
+    """
+    return re.sub(r"^(golden|adapted)\.", "", type_str or "")
+
+
 def title_tokens(title):
     """계약 장 제목 → 식별 토큰. 번호표식(①—+)·잡토큰 제거."""
     cleaned = re.sub(r"[①②③④⑤\[\]\-—+·]", " ", title)
@@ -181,7 +190,7 @@ def main():
         sl = slides[n - 1]
         text = slide_text(sl)
         spec_sl = spec["slides"][n - 1] if n <= len(spec["slides"]) else {}
-        layout = spec_sl.get("type", "").replace("golden.", "")
+        layout = layout_key(spec_sl.get("type", ""))
 
         # ── 1. 제목 대조 (역할 라벨은 부 컬럼으로) ──
         expect = row["part"] if row["title"] in ROLE_LABELS and row["part"] != "—" else row["title"]

@@ -5,9 +5,12 @@ description: FINAL-REPORT 재료를 아웃라인 계약에 따라 B2B 셀링 골
 
 # deck-compose — 초안 통합·골격 배치
 
-> **골든 레이아웃 배정(Phase 2~):** 각 장의 `type`은 물성 기준으로 `golden.<layout>`을 우선
-> 배정한다 — 판정은 [references/layout-matching.md](references/layout-matching.md)의 15타입
-> 결정표. 어느 타입에도 안 맞으면 끼워맞추지 말고 골든 확장 절차(pull)로 올린다.
+> **골든 레이아웃 배정(2026-07-16 — 변형 가능한 출발점):** 각 장의 `type`은 물성 기준으로
+> [references/layout-matching.md](references/layout-matching.md) 결정표로 판정한다. 매칭은
+> 텍스트 스왑 강제가 아니다 — 내용 구조가 골든과 그대로 맞으면 `golden.<layout>`+content,
+> 항목 수·구획이 다르면 `adapted.<layout>`(골든 출발점 + 장 스크립트 변형), 어느 타입에도
+> 안 맞으면 끼워맞추지 말고 `novel`(골든 렌더를 밀도 앵커로 신규 설계).
+> 절차·게이트(audit_deck·병렬 채점)는 pptx-build `references/design-rules.md` Ⅲ부 P5.
 
 FINAL-REPORT 재료를 `01.5_outline.md`(아웃라인 계약)의 목차·강조점에 따라 셀링 덱으로
 **배치**한다. 콘텐츠는 사용자가 FINAL-REPORT로 이미 확정했다 — 여기서는 재료를
