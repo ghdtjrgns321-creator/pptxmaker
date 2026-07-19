@@ -23,6 +23,12 @@ _workspace_kifrs/
 data/
 ref/
 
+# 구 사용자 문서·세션 인수인계 (로컬 보관)
+# docs/user는 골든 19장 시절 서술이라 현행 17장과 충돌 — FINAL-REPORT가 최신판으로 대체.
+# handoff는 다음 세션용 인수인계라 외부 독자에게 의미 없음.
+docs/user/
+docs/handoff-*.md
+
 # OS
 .DS_Store
 Thumbs.db
