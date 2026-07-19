@@ -3,7 +3,7 @@
 > 이 장은 "다 읽었다"의 기계 증명이다. 분모 N은 손이 아니라 `census.py inventory`가 고정했고,
 > 아래 매핑 표가 N개 파일 전부를 반영 장에 대응시킨다. 말미의 verify PASS 출력이 차집합 0의 증거다.
 
-## 분모 N = 108 (루트 48 + .claude 서브트리 60)
+## 분모 N = 109 (루트 49 + .claude 서브트리 60)
 
 census 기본 제외 상수(EXCLUDE_DIRS)에 `.claude`가 포함되어 있으나, 이 프로젝트는 본체 코드가
 `.claude/skills/`에 있다. 따라서 인벤토리를 2회 실행해 분모를 합산했다 — 스크립트 무수정, 재현 가능.
@@ -17,7 +17,7 @@ python <final-report 스킬>/scripts/census.py inventory <프로젝트 루트>/.
 
 | 실행    | 정독 분모 | kind 내역                           | 목록만(정독 면제) |
 | ------- | --------- | ----------------------------------- | ----------------- |
-| 루트    | 48        | code 4 · config 8 · doc 34 · text 2 | 376               |
+| 루트    | 49        | code 4 · config 8 · doc 35 · text 2 | 380               |
 | .claude | 60        | code 41 · config 3 · doc 16         | 99                |
 
 ## 제외 내역 (조용한 제외 금지 — 전량 기록)
@@ -32,7 +32,7 @@ python <final-report 스킬>/scripts/census.py inventory <프로젝트 루트>/.
 | `_workspace_prev`      | 983 + 4     | `--exclude` 명시                     | 폐기된 과거 스킬 작업 스크래치(v4 이전) — 여정 사료는 docs·git 이력이 대체 |
 | `state` (.claude 하위) | 46          | `--exclude` 명시                     | 하네스 런타임 상태(계약·검증 픽스처) — gitignore 대상, 코드가 아님         |
 
-## 파일 → 장 매핑 (108/108)
+## 파일 → 장 매핑 (109/109)
 
 | 파일                                                                 | kind   | 반영 장             | 비고                                                            |
 | -------------------------------------------------------------------- | ------ | ------------------- | --------------------------------------------------------------- |
@@ -142,6 +142,7 @@ python <final-report 스킬>/scripts/census.py inventory <프로젝트 루트>/.
 | `input/k-ifrs-1115/claude-report-v2.md`                              | doc    | 9                   | 파일럿 입력 재료                                                |
 | `input/k-ifrs-1115/notebooklm-report-1.md`                           | doc    | 9                   | 파일럿 입력 재료                                                |
 | `input/k-ifrs-1115/notebooklm-report-v2.md`                          | doc    | 9                   | 파일럿 입력 재료                                                |
+| `README.md`                                                          | doc    | —                   | 이 보고서를 재료로 2026-07-19 생성한 공개 문서(분모에는 들어가나 반영 대상 아님) |
 | `pyproject.toml`                                                     | config | 1                   | 기술 스택 실측                                                  |
 | `ref/catalog.md`                                                     | doc    | 6                   | 레퍼런스 카탈로그                                               |
 
@@ -244,7 +245,7 @@ PASS — 전수 커버리지 60/60
 exit 0
 ```
 
-합산 **108/108**. 글롭 0건 — 디렉토리 단위 뭉뚱그림 없이 파일별로 매핑했다(전부 매칭 글롭에 의한 hollow-PASS 여지 없음).
+합산 **109/109**. 글롭 0건 — 디렉토리 단위 뭉뚱그림 없이 파일별로 매핑했다(전부 매칭 글롭에 의한 hollow-PASS 여지 없음).
 
 ## 이 부록이 증명하지 않는 것
 

@@ -17,6 +17,7 @@ __pycache__/
 # 파이프라인 작업물 (재료·중간 산출물 — 재생성 가능)
 _workspace/
 _workspace_prev/
+_workspace_kifrs/
 
 # 레퍼런스 원본 (대용량·저작물 PDF — 로컬 보관만)
 data/
@@ -30,3 +31,10 @@ Thumbs.db
 golden/.claude/
 golden/render/
 desktop.ini
+
+# 골든 렌더 산출물 — build_golden.py로 재생성. 대표본은 docs/images/에 보존
+golden/render_v6/
+golden/_pilot_s06/render/
+golden/_pilot_s06/_ref_crops/
+golden/_proto_s06_f_render/
+golden/backup/**/render/
