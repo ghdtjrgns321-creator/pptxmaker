@@ -315,7 +315,10 @@ def selftest():
     body_keys = [k for k in SPECS]  # 오딧 등록 본문 장 = 골든 본문 표본
     dens_fails = []
     for k in body_keys:
-        okk, _m, _n = A.check_density(list(render(k).shapes), band)
+        # 스크린샷 장(§F)은 밀도 예외 — 캡처가 내용을 진다
+        okk, _m, _n = A.check_density(
+            list(render(k).shapes), band, screenshot=(k in A.DENSITY_EXEMPT)
+        )
         if not okk:
             dens_fails.append(k)
     ok.append(

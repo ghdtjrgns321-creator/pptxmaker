@@ -7,12 +7,6 @@
 전부 덮지 않으면 빌드를 중단한다(`content_contract.assert_content`). 골든 글은 밖으로 못 나간다.
 """
 
-# ⚠️ dense 승격 보류(2026-07-20): dense 7장에 DEFAULT 노출·registry 재지정까지 됐으나,
-# 골든 회귀 하네스(compare_golden PARAM 오라클·audit_golden 장별 기하 SPECS·audit.py accent/경계)가
-# 전부 sparse variant 기하에 박제돼 있어 dense로 재기준선하면 하네스가 깨진다. 승격은 별도 작업:
-# ① audit.py를 dense 인지(accent 런 제외·경계 6.9)로 ② compare_golden/audit_golden 장별 오라클을
-# dense 좌표로 재조정 ③ s15·s16 완결·승인. 그때까지 골든=variant 유지(하네스 무결).
-# dense는 deck-spec에서 adapted.<layout>+script 경로로 개별 사용 가능(_render_scripted).
 from ._variant_k import variant_k as problem_grid
 from .layouts import cover, part, toc
 from .s06_variants import variant_c as exec_graph

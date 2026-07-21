@@ -1,0 +1,8037 @@
+{
+ "_comment": "골든 레퍼런스 덱 도형 서명 기준선 — compare_golden 회귀 게이트의 정답지. goldenfab/reference.py가 만드는 19장을 박제한 것. 손으로 고치지 말 것 — 의도적 레이아웃 변경 후 `compare_golden.py --update-snapshot`으로 재생성하고 git diff로 무엇이 바뀌었는지 리뷰한다.",
+ "slides": [
+  [
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 0.55,
+    "w": 9.0,
+    "h": 0.3,
+    "text": "TECHNICAL PROPOSAL · K-IFRS 1115",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 0.92,
+    "w": 12.03299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 2.75,
+    "w": 0.3,
+    "h": 0.3,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 3.15,
+    "w": 12.03299978127734,
+    "h": 0.75,
+    "text": "K-IFRS 1115 온톨로지 지식그래프 RAG",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 4.25,
+    "w": 11.0,
+    "h": 0.35,
+    "text": "확실할 때만 확정하고, 애매하면 근거를 보여주며 유보한다 — 2종 오류를 구조로 차단하는 수익인식 특화 챗봇",
+    "fill": null,
+    "run": [
+     14.0,
+     false
+    ],
+    "run_colors": [
+     "1F2329"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 6.35,
+    "w": 4.0,
+    "h": 0.28,
+    "text": "2026",
+    "fill": null,
+    "run": [
+     15.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 6.95,
+    "w": 13.33299978127734,
+    "h": 0.5499989063867017,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 7.074998906386702,
+    "w": 6.0,
+    "h": 0.3,
+    "text": "My Company",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 9.6,
+    "t": 0.0,
+    "w": 3.73299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 10.5,
+    "t": 0.9,
+    "w": 1.9329997812773403,
+    "h": 0.9,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.5,
+    "t": 1.2,
+    "w": 1.9329997812773403,
+    "h": 0.3,
+    "text": "회사 로고",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "4A4D54"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.95,
+    "t": 6.35,
+    "w": 3.0329997812773404,
+    "h": 0.7,
+    "text": "K-IFRS 1115 온톨로지 지식그래프 RAG\n기술 제안서 · 2026",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF",
+     "F2F3F5"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.5,
+    "w": 4.0,
+    "h": 0.55,
+    "text": "목차",
+    "fill": null,
+    "run": [
+     32.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.35,
+    "w": 8.5,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.0,
+    "w": 0.6,
+    "h": 0.3,
+    "text": "01",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 1.98,
+    "w": 6.0,
+    "h": 0.32,
+    "text": "문제 정의",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 2.3,
+    "w": 6.75,
+    "h": 0.26,
+    "text": "치명적 오류는 2종(허위 확정) · 일반 LLM이 실패하는 4가지 이유",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.199998906386702,
+    "t": 2.0,
+    "w": 0.9,
+    "h": 0.3,
+    "text": "p.03",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 2.65,
+    "w": 7.75,
+    "h": 0.01,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.82,
+    "w": 0.6,
+    "h": 0.3,
+    "text": "02",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 2.8,
+    "w": 6.0,
+    "h": 0.32,
+    "text": "파이프라인",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 3.1199989063867015,
+    "w": 6.75,
+    "h": 0.26,
+    "text": "Analyze → Retrieve → Generate → Format · 4개 결정 노드",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.199998906386702,
+    "t": 2.82,
+    "w": 0.9,
+    "h": 0.3,
+    "text": "p.05",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 3.47,
+    "w": 7.75,
+    "h": 0.01,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.6399989063867015,
+    "w": 0.6,
+    "h": 0.3,
+    "text": "03",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 3.6199989063867015,
+    "w": 6.0,
+    "h": 0.32,
+    "text": "기술 설명",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 3.939998906386702,
+    "w": 6.75,
+    "h": 0.26,
+    "text": "용어사전 · 지식그래프 · 판단트리 · 구조화 출력 — 노드 순서대로 4개 기술",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.199998906386702,
+    "t": 3.6399989063867015,
+    "w": 0.9,
+    "h": 0.3,
+    "text": "p.07",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 4.29,
+    "w": 7.75,
+    "h": 0.01,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.46,
+    "w": 0.6,
+    "h": 0.3,
+    "text": "04",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 4.44,
+    "w": 6.0,
+    "h": 0.32,
+    "text": "문제와 해결",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 4.76,
+    "w": 6.75,
+    "h": 0.26,
+    "text": "확률 신호의 실패 실측(탈락 103/105) · 재현 72→78 · 정직한 한계",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.199998906386702,
+    "t": 4.46,
+    "w": 0.9,
+    "h": 0.3,
+    "text": "p.13",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 5.11,
+    "w": 7.75,
+    "h": 0.01,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 5.279998906386702,
+    "w": 0.6,
+    "h": 0.3,
+    "text": "05",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 5.26,
+    "w": 6.0,
+    "h": 0.32,
+    "text": "성과·증거",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.35,
+    "t": 5.5799989063867015,
+    "w": 6.75,
+    "h": 0.26,
+    "text": "홀드아웃 78/92 · 에러 0건 · 미재현 원인 분해",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.199998906386702,
+    "t": 5.279998906386702,
+    "w": 0.9,
+    "h": 0.3,
+    "text": "p.15",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 6.0,
+    "t": 1.9,
+    "w": 6.0,
+    "h": 2.6,
+    "text": "01",
+    "fill": null,
+    "run": [
+     160.0,
+     true
+    ],
+    "run_colors": [
+     "2F3237"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 2.0,
+    "w": 1.3,
+    "h": 0.42,
+    "text": "PART 01",
+    "fill": "D66E3A",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 2.55,
+    "w": 7.5,
+    "h": 0.75,
+    "text": "문제 정의",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 4.4,
+    "w": 0.05,
+    "h": 0.35,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.9,
+    "t": 4.4,
+    "w": 9.5,
+    "h": 0.35,
+    "text": "일반 LLM의 허위 확정 리스크와, 초기 임베딩 RAG 운영에서 실측된 4가지 균열",
+    "fill": null,
+    "run": [
+     14.0,
+     false
+    ],
+    "run_colors": [
+     "F2F3F5"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.0,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.6999989063867016,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.0499989063867017,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 6.0,
+    "h": 0.28,
+    "text": "1. 문제 정의",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "일반 LLM은 틀리는 게 아니라, 틀리는 방향이 문제다",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 1.75,
+    "w": 12.13299978127734,
+    "h": 0.32,
+    "text": "근거가 부족할 때 무엇을 하느냐가 갈린다",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 2.11,
+    "w": 12.13299978127734,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 2.515,
+    "w": 1.55,
+    "h": 1.05,
+    "text": "\"이 계약, 수익을\n지금 인식해도\n됩니까?\"",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.15,
+    "t": 3.04,
+    "w": 0.3,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.45,
+    "t": 2.565,
+    "w": 1.35,
+    "h": 0.95,
+    "text": "근거 충분?",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.8,
+    "t": 2.5,
+    "w": 0.5,
+    "h": 0.54,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.8,
+    "t": 3.04,
+    "w": 0.5,
+    "h": 0.5399989063867017,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 3.86,
+    "t": 2.2,
+    "w": 0.62,
+    "h": 0.22,
+    "text": "충분",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 3.86,
+    "t": 3.6399989063867015,
+    "w": 0.62,
+    "h": 0.22,
+    "text": "부족",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.3,
+    "t": 2.2599989063867016,
+    "w": 1.25,
+    "h": 0.48,
+    "text": "확정",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.95,
+    "t": 2.2399989063867016,
+    "w": 6.78299978127734,
+    "h": 0.48,
+    "text": "근거가 충분하면 두 시스템 모두 확정한다 — 여기서는 차이가 없다. 문제는 전부 아래, 근거가 부족한 구간에서 생긴다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "4A4D54"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.3,
+    "t": 3.34,
+    "w": 1.25,
+    "h": 0.48,
+    "text": "근거 부족",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 5.55,
+    "t": 3.1399989063867015,
+    "w": 0.4,
+    "h": 0.44,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 5.55,
+    "t": 3.5799989063867015,
+    "w": 0.4,
+    "h": 0.44,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 5.95,
+    "t": 2.9,
+    "w": 2.35,
+    "h": 0.48,
+    "text": "일반 LLM · 확정 강행",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 8.3,
+    "t": 3.1399989063867015,
+    "w": 0.4,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.7,
+    "t": 2.9,
+    "w": 1.9,
+    "h": 0.48,
+    "text": "2종 · 허위 확정",
+    "fill": "D66E3A",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 10.6,
+    "t": 3.1399989063867015,
+    "w": 0.4,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 11.0,
+    "t": 2.9,
+    "w": 1.7329997812773403,
+    "h": 0.48,
+    "text": "재무제표 반영",
+    "fill": "D66E3A",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 11.0,
+    "t": 3.42,
+    "w": 1.7329997812773403,
+    "h": 0.22,
+    "text": "✕ 불가역",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.7,
+    "t": 3.42,
+    "w": 2.2,
+    "h": 0.22,
+    "text": "그대로 왜곡으로 직결된다",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "4A4D54"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 5.95,
+    "t": 3.78,
+    "w": 2.35,
+    "h": 0.48,
+    "text": "본 시스템 · 유보 + 근거 제시",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 8.3,
+    "t": 4.019998906386702,
+    "w": 0.4,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.7,
+    "t": 3.78,
+    "w": 1.9,
+    "h": 0.48,
+    "text": "1종 · 놓침",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 9.65,
+    "t": 4.26,
+    "w": 0.0,
+    "h": 0.36,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 1.375,
+    "t": 4.62,
+    "w": 8.275,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 1.375,
+    "t": 3.565,
+    "w": 0.0,
+    "h": 1.055,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 2.4,
+    "t": 4.38,
+    "w": 3.5,
+    "h": 0.22,
+    "text": "↩ 근거를 보고 다시 묻는다 — 손실은 시간뿐",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.76,
+    "w": 12.13299978127734,
+    "h": 0.32,
+    "text": "범용 LLM은 왜 이 판정을 세울 수 없나 — 한계 4가지가 한 곳에서 만난다",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 5.12,
+    "w": 12.13299978127734,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 5.28,
+    "w": 1.6,
+    "h": 0.24,
+    "text": "근거 추적 불가",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.2,
+    "t": 5.4,
+    "w": 2.75,
+    "h": 0.375,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 5.53,
+    "w": 1.6,
+    "h": 0.24,
+    "text": "재현성 없음",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.2,
+    "t": 5.65,
+    "w": 2.75,
+    "h": 0.125,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 5.78,
+    "w": 1.6,
+    "h": 0.24,
+    "text": "판단 출처 창작",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.2,
+    "t": 5.775,
+    "w": 2.75,
+    "h": 0.125,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.03,
+    "w": 1.6,
+    "h": 0.24,
+    "text": "환각 위험",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.2,
+    "t": 5.775,
+    "w": 2.75,
+    "h": 0.375,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 4.95,
+    "t": 5.775,
+    "w": 1.1,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.05,
+    "t": 5.3,
+    "w": 1.35,
+    "h": 0.95,
+    "text": "근거 충분?",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.55,
+    "t": 5.665,
+    "w": 1.55,
+    "h": 0.22,
+    "text": "✕ 세울 수 없다",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.35,
+    "t": 5.3,
+    "w": 3.3829997812773405,
+    "h": 0.95,
+    "text": "판정이 서지 않으니 '부족'을 인지할 수단이 없다 — 그래서 늘 위쪽 경로로 나간다. 편향을 프롬프트가 아니라 구조로 걸어야 하는 이유다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "4A4D54"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "확실할 때만 확정하고, 애매하면 근거를 보여주며 유보한다",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: 1_OVERVIEW.md · PROJECT_OVERVIEW.md · 5_INTERFACE.md (00_factsheet.md §A·§B)",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 6.0,
+    "t": 1.9,
+    "w": 6.0,
+    "h": 2.6,
+    "text": "02",
+    "fill": null,
+    "run": [
+     160.0,
+     true
+    ],
+    "run_colors": [
+     "2F3237"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 2.0,
+    "w": 1.3,
+    "h": 0.42,
+    "text": "PART 02",
+    "fill": "D66E3A",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 2.55,
+    "w": 7.5,
+    "h": 0.75,
+    "text": "파이프라인",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 4.4,
+    "w": 0.05,
+    "h": 0.35,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.9,
+    "t": 4.4,
+    "w": 9.5,
+    "h": 0.35,
+    "text": "질문에서 답까지 4개 노드 전부가 결정적으로 동작합니다 — 진입부 임베딩 유사도 0",
+    "fill": null,
+    "run": [
+     14.0,
+     false
+    ],
+    "run_colors": [
+     "F2F3F5"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.0,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.6999989063867016,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.0499989063867017,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 6.0,
+    "h": 0.28,
+    "text": "2. 파이프라인",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "질문에서 응답까지 — 분기까지 전부 결정적인 실행 그래프",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 1.75,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "진입부 임베딩 유사도 0 — LLM이 고르는 것은 35토픽 목록뿐, 경로는 그래프가 결정한다.",
+    "fill": null,
+    "run": [
+     14.0,
+     false
+    ],
+    "run_colors": [
+     "1F2329"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 2.35,
+    "w": 1.0,
+    "h": 0.6,
+    "text": "질문",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.1304997812773405,
+    "t": 2.35,
+    "w": 1.45,
+    "h": 0.6,
+    "text": "Analyze",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.110999562554681,
+    "t": 2.225,
+    "w": 1.15,
+    "h": 0.85,
+    "text": "판정",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 5.791499343832021,
+    "t": 2.35,
+    "w": 1.45,
+    "h": 0.6,
+    "text": "Retrieve",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 7.771999125109361,
+    "t": 2.35,
+    "w": 1.45,
+    "h": 0.6,
+    "text": "Generate",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 9.7525,
+    "t": 2.35,
+    "w": 1.45,
+    "h": 0.6,
+    "text": "Format",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 11.732999781277341,
+    "t": 2.35,
+    "w": 1.0,
+    "h": 0.6,
+    "text": "응답",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 1.6,
+    "t": 2.65,
+    "w": 0.5304997812773403,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.5804997812773403,
+    "t": 2.65,
+    "w": 0.5304997812773403,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 5.260999562554681,
+    "t": 2.65,
+    "w": 0.5304997812773403,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.241499343832021,
+    "t": 2.65,
+    "w": 0.5304997812773403,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 9.221999125109361,
+    "t": 2.65,
+    "w": 0.5305008748906387,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 11.2025,
+    "t": 2.65,
+    "w": 0.5304997812773403,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.7804997812773404,
+    "t": 3.05,
+    "w": 2.15,
+    "h": 0.24,
+    "text": "용어사전 매칭",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.441499343832021,
+    "t": 3.05,
+    "w": 2.15,
+    "h": 0.24,
+    "text": "그래프 1홉 탐색",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.4219991251093616,
+    "t": 3.05,
+    "w": 2.15,
+    "h": 0.24,
+    "text": "판단트리 주입",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.4025,
+    "t": 3.05,
+    "w": 2.15,
+    "h": 0.24,
+    "text": "경고·꼬리질문",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.29099956255468,
+    "t": 2.33,
+    "w": 0.5,
+    "h": 0.22,
+    "text": "IN",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.685999562554681,
+    "t": 3.55,
+    "w": 2.0,
+    "h": 0.45,
+    "text": "거절 메시지",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 4.685999562554681,
+    "t": 3.0749989063867016,
+    "w": 0.0,
+    "h": 0.47500109361329834,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.805999562554681,
+    "t": 3.195,
+    "w": 0.6,
+    "h": 0.22,
+    "text": "OUT",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.885999562554681,
+    "t": 3.65,
+    "w": 4.2,
+    "h": 0.26,
+    "text": "범위 밖 질문은 본선에 진입하지 못하고 즉시 거절된다",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.349998906386702,
+    "w": 12.13299978127734,
+    "h": 0.32,
+    "text": "핵심 기술 — 결정성을 어떻게 만들었나",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 4.699998906386702,
+    "w": 12.13299978127734,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.85,
+    "w": 2.7707491251093614,
+    "h": 0.28,
+    "text": "01  용어사전 — 후보 진입점",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 5.18,
+    "w": 2.7707491251093614,
+    "h": 1.05,
+    "text": "등재 423 · AI 신규 창작 0. 사람이 만든 자료 3종(질의 매핑 288 · 사례 제목 123 · 부록A 정의 9)에서 AI 초안 + 사람 전수 검수로 등재. 확정 라우터가 아니라 후보 진입점이다.",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.5457491251093614,
+    "t": 4.85,
+    "w": 0.01199912510936133,
+    "h": 1.05,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 3.720749125109361,
+    "t": 4.85,
+    "w": 2.7707491251093614,
+    "h": 0.28,
+    "text": "02  지식그래프 — 기계 생성 뼈대",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 3.720749125109361,
+    "t": 5.18,
+    "w": 2.7707491251093614,
+    "h": 1.05,
+    "text": "노드 929 · 간선 2,697. 기준서 공식 소제목이 그대로 개념 80, 문단 250 배정. 계층·참조 간선은 기준서에서 기계 생성 — AI가 만드는 것은 용어 색인 하나뿐이다.",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.666499343832021,
+    "t": 4.85,
+    "w": 0.01199912510936133,
+    "h": 1.05,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 6.841499343832021,
+    "t": 4.85,
+    "w": 2.7707491251093614,
+    "h": 0.28,
+    "text": "03  판단트리 — 판단 순서의 사전 조립",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 6.841499343832021,
+    "t": 5.18,
+    "w": 2.7707491251093614,
+    "h": 1.05,
+    "text": "조건-분기 골격 41개, 원문 앵커 포함. 기준서에 흩어진 판단 절차를 미리 조립해 두고, 진입 개념과 트리거 개념의 최다 겹침 + 주제 직속 트리를 전부 프롬프트에 주입한다.",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 9.787249562554681,
+    "t": 4.85,
+    "w": 0.01199912510936133,
+    "h": 1.05,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.96224956255468,
+    "t": 4.85,
+    "w": 2.7707491251093614,
+    "h": 0.28,
+    "text": "04  구조화 출력 — 코드 수준 강제",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.96224956255468,
+    "t": 5.18,
+    "w": 2.7707491251093614,
+    "h": 1.05,
+    "text": "PydanticAI 스키마 강제. 답변 형식을 코드로 강제하고, 위반하면 result_validator가 자동 재시도한다. 감리 경고·꼬리질문은 마지막에 부가되는 보조 장치다.",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 6.05,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "초기 설계에 있던 유사도 재정렬(rerank) 단계는 제거 — 그래프가 이미 결정적으로 선별하므로 재정렬할 것이 없다",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "질문에서 답까지 4개 노드 전부가 결정적으로 동작한다",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: 4_SEARCH-PIPELINE.md (00_factsheet.md §C)",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 6.0,
+    "t": 1.9,
+    "w": 6.0,
+    "h": 2.6,
+    "text": "03",
+    "fill": null,
+    "run": [
+     160.0,
+     true
+    ],
+    "run_colors": [
+     "2F3237"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 2.0,
+    "w": 1.3,
+    "h": 0.42,
+    "text": "PART 03",
+    "fill": "D66E3A",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 2.55,
+    "w": 7.5,
+    "h": 0.75,
+    "text": "기술 설명",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 4.4,
+    "w": 0.05,
+    "h": 0.35,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.9,
+    "t": 4.4,
+    "w": 9.5,
+    "h": 0.35,
+    "text": "기준서의 명시적 관계를 그대로 옮긴 지식그래프와, 회계 항등식으로 전수 검증한 데이터입니다",
+    "fill": null,
+    "run": [
+     14.0,
+     false
+    ],
+    "run_colors": [
+     "F2F3F5"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.0,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.6999989063867016,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.0499989063867017,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "3. 기술 설명 — TECH 01 · Analyze",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "용어사전 — 실무 언어를 기준서 개념에 잇는 진입 색인",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "01  왜 필요한가",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "실무는 '리베이트'라 말하고 기준서는 '고객에게 지급할 대가'라 쓴다. 이 언어 간극을 잇지 않으면 검색이 시작조차 되지 않는다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.5776662292213475,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 1.2,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.777666229221348,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "02  파이프라인에서의 역할",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.777666229221348,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "Analyze 단계의 진입 관문. 질문에 등재 용어가 문자 그대로 나타나면 연결 개념으로 그래프에 진입한다 — 유사도 점수 없이, 사람이 승인한 경로로만.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.755332458442695,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 1.2,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.955332458442694,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "03  어떻게 만들었나",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.955332458442694,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "사람 1차 자료 3종(질의 매핑 288 · 사례 제목 123 · 부록A 정의 9)에서 AI가 초안을 내고 사람이 전수 검수해 423개 등재 — 신규 창작 0건.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.35,
+    "w": 7.6,
+    "h": 0.32,
+    "text": "실무가 쓰는 말 → 기준서가 쓰는 말",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 3.7,
+    "w": 7.6,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.75,
+    "t": 3.41,
+    "w": 3.4499989063867016,
+    "h": 0.22,
+    "text": "실선 = 자동    점선 = 자동(위임판단) — AI가 판단, 사람이 승인",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 3.96,
+    "w": 2.3,
+    "h": 0.125,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 4.308333333333334,
+    "w": 2.3,
+    "h": 0.19666666666666666,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 4.616666666666666,
+    "w": 2.3,
+    "h": 0.30833333333333335,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 4.925,
+    "w": 2.3,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 4.04,
+    "w": 2.3,
+    "h": 1.305,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 5.233333333333333,
+    "w": 2.3,
+    "h": 0.11166666666666666,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 5.541666666666667,
+    "w": 2.3,
+    "h": 0.22333333333333333,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.45,
+    "t": 5.765,
+    "w": 2.3,
+    "h": 0.085,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.5,
+    "t": 3.965,
+    "w": 0.95,
+    "h": 0.24,
+    "text": "리베이트",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.5,
+    "t": 4.385,
+    "w": 0.95,
+    "h": 0.24,
+    "text": "밀어내기",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.31,
+    "t": 4.805,
+    "w": 1.14,
+    "h": 0.24,
+    "text": "볼륨디스카운트",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.5,
+    "t": 5.225,
+    "w": 0.95,
+    "h": 0.24,
+    "text": "상품권",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.21,
+    "t": 5.645,
+    "w": 1.24,
+    "h": 0.24,
+    "text": "반품의 회계처리",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.75,
+    "t": 3.88,
+    "w": 1.54,
+    "h": 0.24,
+    "text": "고객에게 지급할 대가",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.75,
+    "t": 4.1883333333333335,
+    "w": 0.95,
+    "h": 0.24,
+    "text": "위탁약정",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.75,
+    "t": 4.4966655730533684,
+    "w": 0.95,
+    "h": 0.24,
+    "text": "변동대가",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.75,
+    "t": 4.805,
+    "w": 1.74,
+    "h": 0.24,
+    "text": "변동대가 추정치를 제약함",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.75,
+    "t": 5.113333333333333,
+    "w": 1.94,
+    "h": 0.24,
+    "text": "고객이 행사하지 아니한 권리",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.75,
+    "t": 5.421666666666667,
+    "w": 1.44,
+    "h": 0.24,
+    "text": "반품권이 있는 판매",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.75,
+    "t": 5.73,
+    "w": 1.84,
+    "h": 0.24,
+    "text": "본인 대 대리인의 고려사항",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 6.09,
+    "w": 7.6,
+    "h": 0.26,
+    "text": "등재 423 중 발췌 5건 — 423 = 자동 316 + 자동(위임판단) 86 + 검토 18 + 사용자 확정 1 + 제외 2",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.699998906386702,
+    "t": 3.35,
+    "w": 4.03299978127734,
+    "h": 2.55,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.949998906386702,
+    "t": 3.5,
+    "w": 3.5329997812773404,
+    "h": 0.24,
+    "text": "aliases.json — 실제 엔트리",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "F2F3F5"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.949998906386702,
+    "t": 3.85,
+    "w": 3.5329997812773404,
+    "h": 1.8499989063867017,
+    "text": "{ \"term\": \"상품권\",\n  \"sources\": [\"query-mapping\"],\n  \"grade\": \"자동(위임판단)\",\n  \"concepts\": [\n    \"고객에게 지급할 대가\",\n    \"고객이 행사하지 아니한 권리\" ],\n  \"decision\": {\n    \"by\": \"AI 위임 판단\",\n    \"reason\": \"미행사 상품권 =\n        B44~47 정면 조항\" } }",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF",
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 6.09,
+    "w": 4.03299978127734,
+    "h": 0.26,
+    "text": "모든 엔트리가 결정 로그(누가·왜)를 갖는다 — 전건 추적.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "AI가 만드는 것은 색인 하나 — 틀려도 1종(놓침)으로 드러나는 자리에만 둔다",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: 2_DATA-TAXONOMY.md §2.6 · 4_SEARCH-PIPELINE.md (00_factsheet.md §C·§D)",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "3. 기술 설명 — TECH 02 · Retrieve",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "지식그래프 — 기준서의 구조를 그대로 옮긴 결정적 지도",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "01  왜 필요한가",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "문단 뭉치에는 순서도 관계도 없다. 기준서는 계층·상호참조·사례가 얽힌 구조 — 그 구조를 보존해야 근거가 근거로 이어진다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.5776662292213475,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 1.2,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.777666229221348,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "02  파이프라인에서의 역할",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.777666229221348,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "Retrieve의 지도. 진입 개념에서 관계를 한 단계만 따라 문단·사례·근거를 수집한다 — 수집 범위 자체가 그래프로 고정된다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.755332458442695,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 1.2,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.955332458442694,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "03  어떻게 만들었나",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.955332458442694,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "기준서 공식 소제목 80개를 그대로 개념 노드로, 뼈대 간선은 기준서에서 기계 생성 — AI 판단 0. 고립 노드 0을 감사로 확인했다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.3,
+    "w": 4.0,
+    "h": 0.24,
+    "text": "구조 — 기준서의 위계 그대로",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.35,
+    "t": 3.6,
+    "w": 1.6,
+    "h": 0.34,
+    "text": "기준서 1115",
+    "fill": "15171B",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.0499989063867017,
+    "t": 4.45,
+    "w": 1.0,
+    "h": 0.34,
+    "text": "변동대가",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.55,
+    "t": 3.94,
+    "w": 0.6,
+    "h": 0.51,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.2,
+    "t": 4.45,
+    "w": 0.7,
+    "h": 0.34,
+    "text": "보증",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.15,
+    "t": 3.94,
+    "w": 0.4,
+    "h": 0.51,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.05,
+    "t": 4.45,
+    "w": 0.65,
+    "h": 0.34,
+    "text": "⋯ 80",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.15,
+    "t": 3.94,
+    "w": 1.225,
+    "h": 0.51,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.75,
+    "t": 5.35,
+    "w": 0.8,
+    "h": 0.34,
+    "text": "문단 50",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.15,
+    "t": 4.79,
+    "w": 0.4,
+    "h": 0.56,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.95,
+    "t": 5.35,
+    "w": 0.8,
+    "h": 0.34,
+    "text": "문단 56",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.55,
+    "t": 4.79,
+    "w": 0.8,
+    "h": 0.56,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.95,
+    "t": 5.35,
+    "w": 0.6,
+    "h": 0.34,
+    "text": "B33",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.55,
+    "t": 4.79,
+    "w": 0.7,
+    "h": 0.56,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.5,
+    "w": 1.15,
+    "h": 0.22,
+    "text": "개념층 80개",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 5.4,
+    "w": 1.15,
+    "h": 0.22,
+    "text": "문단층 250개",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 3.6,
+    "w": 1.45,
+    "h": 0.34,
+    "text": "“볼륨디스카운트”",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.96,
+    "w": 1.5,
+    "h": 0.18,
+    "text": "용어 423 등재 · 400 진입",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.0499989063867017,
+    "t": 3.77,
+    "w": 0.0,
+    "h": 0.85,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 5.85,
+    "w": 1.1,
+    "h": 0.34,
+    "text": "사례 188",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 1.7,
+    "t": 5.69,
+    "w": 0.05,
+    "h": 0.33,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.55,
+    "t": 5.52,
+    "w": 0.4,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 6.21,
+    "w": 4.3,
+    "h": 0.14,
+    "text": "노드 929 = 개념 80 + 문단 250 + 사례 188 + BC 그룹 11 + 용어 400(423 중 간선 보유)",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 3.3,
+    "w": 7.73299978127734,
+    "h": 0.24,
+    "text": "간선 7종 — 무엇이 무엇을 잇고, 어디서 왔나    7종 2,629 + BC 근거층 65 = 2,694 · 고립 0",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 3.67,
+    "w": 1.05,
+    "h": 0.24,
+    "text": "hier 79",
+    "fill": null,
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.819998906386702,
+    "t": 3.66,
+    "w": 0.95,
+    "h": 0.26,
+    "text": "변동대가",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.82,
+    "t": 3.66,
+    "w": 1.24,
+    "h": 0.26,
+    "text": "거래가격을 산정함",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.77,
+    "t": 3.79,
+    "w": 1.05,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.77,
+    "t": 3.59,
+    "w": 1.05,
+    "h": 0.17,
+    "text": "속한다",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.97,
+    "t": 3.67,
+    "w": 1.7629997812773404,
+    "h": 0.24,
+    "text": "기준서 목차 level · 기계 생성",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 4.075,
+    "w": 1.05,
+    "h": 0.24,
+    "text": "cp 250",
+    "fill": null,
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.819998906386702,
+    "t": 4.065,
+    "w": 0.95,
+    "h": 0.26,
+    "text": "변동대가",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.82,
+    "t": 4.065,
+    "w": 0.95,
+    "h": 0.26,
+    "text": "문단 50",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.77,
+    "t": 4.195,
+    "w": 1.05,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.77,
+    "t": 3.995,
+    "w": 1.05,
+    "h": 0.17,
+    "text": "관할",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.97,
+    "t": 4.075,
+    "w": 1.7629997812773404,
+    "h": 0.24,
+    "text": "documentId · 기계 생성",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 4.479998906386702,
+    "w": 1.05,
+    "h": 0.24,
+    "text": "e3 244",
+    "fill": null,
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.819998906386702,
+    "t": 4.47,
+    "w": 0.95,
+    "h": 0.26,
+    "text": "문단 56",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.82,
+    "t": 4.47,
+    "w": 0.95,
+    "h": 0.26,
+    "text": "문단 53",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.77,
+    "t": 4.6,
+    "w": 1.05,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.77,
+    "t": 4.399998906386702,
+    "w": 1.05,
+    "h": 0.17,
+    "text": "인용",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.97,
+    "t": 4.479998906386702,
+    "w": 1.7629997812773404,
+    "h": 0.24,
+    "text": "원문에 “문단 53” · 회계 항등식",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 4.885,
+    "w": 1.05,
+    "h": 0.24,
+    "text": "case 1,220",
+    "fill": null,
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.352222222222222,
+    "t": 4.875,
+    "w": 1.4177777777777778,
+    "h": 0.26,
+    "text": "QNA 201909A",
+    "fill": "F2F3F5",
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.82,
+    "t": 4.875,
+    "w": 0.95,
+    "h": 0.26,
+    "text": "문단 50",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.77,
+    "t": 5.005,
+    "w": 1.05,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.77,
+    "t": 4.805,
+    "w": 1.05,
+    "h": 0.17,
+    "text": "인용",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.97,
+    "t": 4.885,
+    "w": 1.7629997812773404,
+    "h": 0.24,
+    "text": "감사본 related_paragraphs",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 5.29,
+    "w": 1.05,
+    "h": 0.24,
+    "text": "term 755",
+    "fill": null,
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.529998906386702,
+    "t": 5.28,
+    "w": 1.24,
+    "h": 0.26,
+    "text": "“볼륨디스카운트”",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.82,
+    "t": 5.28,
+    "w": 0.95,
+    "h": 0.26,
+    "text": "변동대가",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.77,
+    "t": 5.41,
+    "w": 1.05,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.77,
+    "t": 5.21,
+    "w": 1.05,
+    "h": 0.17,
+    "text": "진입",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.97,
+    "t": 5.29,
+    "w": 1.7629997812773404,
+    "h": 0.24,
+    "text": "사람 1차자료 전수검수 (TECH 01)",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 5.695,
+    "w": 1.05,
+    "h": 0.24,
+    "text": "example 74",
+    "fill": null,
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.707777777777777,
+    "t": 5.685,
+    "w": 1.0622222222222222,
+    "h": 0.26,
+    "text": "IE 사례 1",
+    "fill": "F2F3F5",
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.82,
+    "t": 5.685,
+    "w": 1.0622222222222222,
+    "h": 0.26,
+    "text": "계약을 식별함",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.77,
+    "t": 5.815,
+    "w": 1.05,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.77,
+    "t": 5.615,
+    "w": 1.05,
+    "h": 0.17,
+    "text": "공식예시",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.97,
+    "t": 5.695,
+    "w": 1.7629997812773404,
+    "h": 0.24,
+    "text": "IE 목차 매핑 · 사람 확정",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 5.0,
+    "t": 6.1,
+    "w": 1.05,
+    "h": 0.24,
+    "text": "e2 7",
+    "fill": null,
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.707777777777777,
+    "t": 6.09,
+    "w": 1.0622222222222222,
+    "h": 0.26,
+    "text": "계약을 식별함",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.82,
+    "t": 6.09,
+    "w": 1.24,
+    "h": 0.26,
+    "text": "수행의무를 식별함",
+    "fill": "FFFFFF",
+    "run": [
+     8.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 7.77,
+    "t": 6.22,
+    "w": 1.05,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.77,
+    "t": 6.02,
+    "w": 1.05,
+    "h": 0.17,
+    "text": "먼저판단",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.97,
+    "t": 6.1,
+    "w": 1.7629997812773404,
+    "h": 0.24,
+    "text": "5단계 모형 1→2 · 사람 확정",
+    "fill": null,
+    "run": [
+     7.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "임베딩이 놓치는 '법적 이웃'을 관계가 잡는다 — 텍스트가 아니라 구조로 검색한다",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: 2_DATA-TAXONOMY.md · 3_KNOWLEDGE-GRAPH.md (00_factsheet.md §C·§D)",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "3. 기술 설명 — TECH 02 · Retrieve",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "노드 929개가 하나의 구조로 — 지식그래프 3D 뷰어",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "PICTURE (13)",
+    "l": 0.6,
+    "t": 1.8,
+    "w": 7.6,
+    "h": 3.7059503499562556,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 5.775950349956256,
+    "w": 0.5,
+    "h": 0.035,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.25,
+    "t": 5.685950349956255,
+    "w": 6.949998906386702,
+    "h": 0.3,
+    "text": "실제 운영 화면 — 지식그래프 3D 뷰어 (초기 V1 스냅샷, 수치 표기는 그래프 v14 기준)",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 1.8,
+    "w": 4.1329997812773405,
+    "h": 0.3,
+    "text": "이 화면에서 보이는 것",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.6,
+    "t": 2.15,
+    "w": 4.1329997812773405,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 2.4,
+    "w": 0.5,
+    "h": 0.28,
+    "text": "01",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 2.42,
+    "w": 3.6829997812773403,
+    "h": 0.26,
+    "text": "큰 파란 노드 = 개념",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 2.72,
+    "w": 3.6829997812773403,
+    "h": 0.6,
+    "text": "기준서 소제목 80개 — 클수록·밝을수록 상위 계층이다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 3.41,
+    "w": 0.5,
+    "h": 0.28,
+    "text": "02",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 3.43,
+    "w": 3.6829997812773403,
+    "h": 0.26,
+    "text": "작은 점 = 문단·사례",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 3.73,
+    "w": 3.6829997812773403,
+    "h": 0.6,
+    "text": "회색은 문단 250, 색 점은 QNA·감리·IE 사례 188 — 전부 개념 아래 매달린다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 4.42,
+    "w": 0.5,
+    "h": 0.28,
+    "text": "03",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 4.439998906386702,
+    "w": 3.6829997812773403,
+    "h": 0.26,
+    "text": "선 = 관계 간선",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 4.74,
+    "w": 3.6829997812773403,
+    "h": 0.6,
+    "text": "회색 계층(목차) · 노랑 상호참조(E3) · 빨강 선행판단(E2) — 검색이 걷는 길이 그대로 보인다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 5.43,
+    "w": 0.5,
+    "h": 0.28,
+    "text": "04",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 5.449998906386702,
+    "w": 3.6829997812773403,
+    "h": 0.26,
+    "text": "고립 노드 0",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.049998906386701,
+    "t": 5.75,
+    "w": 3.6829997812773403,
+    "h": 0.6,
+    "text": "모든 노드가 최소 하나의 경로로 본문에 닿는다 — 감사로 확인.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "3. 기술 설명 — TECH 03 · Generate",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "판단트리 41개 — 흩어진 조건-분기를 판단 순서로 미리 조립",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "01  왜 필요한가",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "하나의 회계 판단이 문단 32·35·36·37과 B9~B13에 흩어져 있다. 문단을 조각으로 검색해서는 판단의 순서가 복원되지 않는다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.5776662292213475,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 1.2,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.777666229221348,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "02  파이프라인에서의 역할",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.777666229221348,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "Generate 직전에 주입되는 답변의 골격. 질문에 걸린 트리가 판단 순서를 제공하므로 AI가 순서를 창작하지 않는다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.755332458442695,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 1.2,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.955332458442694,
+    "t": 1.75,
+    "w": 3.777666229221347,
+    "h": 0.28,
+    "text": "03  어떻게 만들었나",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.955332458442694,
+    "t": 2.11,
+    "w": 3.777666229221347,
+    "h": 0.95,
+    "text": "기준서 본문의 조건-분기만 원문 앵커(문단 번호)와 함께 옮겨 41개를 미리 조립 — AI 창작 아님, 전 트리 사용자 검수 완료.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.05,
+    "w": 7.5,
+    "h": 0.3,
+    "text": "트리는 이렇게 걸린다 — 주제기반 다중주입",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 3.3899989063867015,
+    "w": 7.5,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 3.6,
+    "w": 2.3,
+    "h": 1.1,
+    "text": "01  주제 지목\n질문 분석 AI가 35개 주제 목록에서 최대 3개를 지목한다 — 개념 80개를 직접 고르지 않는다.",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099",
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.9,
+    "t": 4.15,
+    "w": 0.2999989063867017,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.1999989063867016,
+    "t": 3.6,
+    "w": 2.3,
+    "h": 1.1,
+    "text": "02  직속 개념 매칭\n지목된 주제의 직속 개념과 트리의 발동 개념이 겹치면 그 트리가 걸린다 — 딸려온 배경 개념은 제외.",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099",
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 5.5,
+    "t": 4.15,
+    "w": 0.3,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 5.799998906386701,
+    "t": 3.6,
+    "w": 2.3,
+    "h": 1.1,
+    "text": "03  걸린 트리 전부 주입\n1개만 고르지 않고 걸린 판단 절차를 모두 이어붙여 넣는다. 직속 개념이 없으면 진입 개념 전체로 폴백.",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099",
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.82,
+    "w": 7.5,
+    "h": 0.22,
+    "text": "주입 뒤 — 답변은 질문 성격에 따라 세 갈래로 갈린다",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 5.5399989063867014,
+    "w": 1.35,
+    "h": 0.46,
+    "text": "주입된 질문",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 1.95,
+    "t": 5.77,
+    "w": 0.15,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.1,
+    "t": 5.35,
+    "w": 0.0,
+    "h": 0.84,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.1,
+    "t": 5.35,
+    "w": 0.23,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.35,
+    "t": 5.17,
+    "w": 5.4,
+    "h": 0.36,
+    "text": "사실관계 부족    되물음 — 부족한 사실을 묻는다",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.1,
+    "t": 5.77,
+    "w": 0.23,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.35,
+    "t": 5.59,
+    "w": 5.4,
+    "h": 0.36,
+    "text": "산술 필요    계산을 확인한 뒤 답변",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.1,
+    "t": 6.19,
+    "w": 0.23,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.35,
+    "t": 6.01,
+    "w": 5.4,
+    "h": 0.36,
+    "text": "그 외    확정 또는 조건부 답변",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.3,
+    "t": 3.05,
+    "w": 0.01199912510936133,
+    "h": 3.3,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.5,
+    "t": 3.05,
+    "w": 4.23299978127734,
+    "h": 0.3,
+    "text": "적용 실물 — 질문에서 트리 분기까지",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.5,
+    "t": 3.3899989063867015,
+    "w": 4.23299978127734,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.8,
+    "t": 3.55,
+    "w": 3.6329997812773405,
+    "h": 0.4,
+    "text": "“볼륨디스카운트 조항이 있는 계약은…”",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 10.616499343832022,
+    "t": 3.95,
+    "w": 0.0,
+    "h": 0.27,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.76649934383202,
+    "t": 3.97,
+    "w": 1.966499343832021,
+    "h": 0.2,
+    "text": "주제 지목 — 변동대가",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 9.35,
+    "t": 4.22,
+    "w": 2.5329997812773404,
+    "h": 0.38,
+    "text": "「변동대가 (추정)」 걸림",
+    "fill": "15171B",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 10.616499343832022,
+    "t": 4.6,
+    "w": 0.0,
+    "h": 0.2,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 9.866499343832022,
+    "t": 4.8,
+    "w": 1.5,
+    "h": 0.62,
+    "text": "변동금액 포함?",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 11.446499343832022,
+    "t": 5.0,
+    "w": 1.1,
+    "h": 0.22,
+    "text": "문단 51",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 9.5,
+    "t": 5.38,
+    "w": 0.766499343832021,
+    "h": 0.24,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 10.966499343832021,
+    "t": 5.38,
+    "w": 0.7665004374453194,
+    "h": 0.24,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.6,
+    "t": 5.62,
+    "w": 1.85,
+    "h": 0.5,
+    "text": "기댓값\n확률 가중 합",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 10.78299978127734,
+    "t": 5.62,
+    "w": 1.85,
+    "h": 0.5,
+    "text": "가능성 최고 금액\n단일 결과치",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.5,
+    "t": 6.14,
+    "w": 4.23299978127734,
+    "h": 0.21,
+    "text": "문단 53 — 더 잘 예측하는 방법 하나를 일관 적용(문단 54)",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "질문이 여러 판단에 걸치면 걸린 절차를 모두 넣는다 — 트리 41개, 전부 원문 앵커",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: data/ontology/judgment_trees.json(트리 41 · 사용자 검수 완료) · 3_KNOWLEDGE-GRAPH.md §3.3 · 4_SEARCH-PIPELINE.md L72·78",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "3. 기술 설명 — TECH 04 · Generate",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "구조화 출력 — 답변의 형식을 코드가 강제한다",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 1.75,
+    "w": 2.55,
+    "h": 0.28,
+    "text": "01  왜 필요한가",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.0899989063867017,
+    "w": 2.55,
+    "h": 1.15,
+    "text": "같은 질문에 매번 다른 형식으로 답하면 정량 평가가 불가능하다. 자유형 텍스트를 폐기하고 답변의 칸을 고정해야 한다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.3,
+    "w": 2.55,
+    "h": 0.28,
+    "text": "02  파이프라인에서의 역할",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.6399989063867015,
+    "w": 2.55,
+    "h": 1.15,
+    "text": "Generate의 출력 계약. 모든 답변이 결론·인용·후속질문의 같은 칸으로 나오므로 화면 배치와 채점이 기계적으로 가능해진다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.85,
+    "w": 2.55,
+    "h": 0.28,
+    "text": "03  어떻게 만들었나",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 5.19,
+    "w": 2.55,
+    "h": 1.15,
+    "text": "답변 형식을 코드(스키마)로 선언하고, 검증기가 빈 인용·빈 분기를 거부해 자동 재시도 — 형식 미달 답변은 화면에 도달하지 못한다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.35,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 4.6,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 3.5,
+    "t": 1.75,
+    "w": 4.8,
+    "h": 0.3,
+    "text": "실물 답변 화면 — 발췌",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.5,
+    "t": 2.0899989063867017,
+    "w": 4.8,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "PICTURE (13)",
+    "l": 3.5,
+    "t": 2.25,
+    "w": 4.8,
+    "h": 3.6094488188976377,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 3.5,
+    "t": 6.02,
+    "w": 0.4,
+    "h": 0.03,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.05,
+    "t": 5.94,
+    "w": 4.25,
+    "h": 0.4,
+    "text": "전체 답변 중 [확인 질문]·[조건부 결론 Case 1·2] 발췌 — 본인 vs 대리인 질의",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.449998906386702,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 4.6,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 1.75,
+    "w": 4.1329997812773405,
+    "h": 0.3,
+    "text": "출력 스키마 — ClarifyOutput",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.6,
+    "t": 2.0899989063867017,
+    "w": 4.1329997812773405,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.6,
+    "t": 2.22,
+    "w": 4.1329997812773405,
+    "h": 2.0,
+    "text": "selected_branches  고른 결론 분기\nanswer  답변 본문 (마크다운)\ncited_paragraphs  인용 문단 — 비면 거부\ncited_cases  인용 질의회신·감리 ID\ncited_ie  인용 적용사례 번호\nfollow_up_questions  확인 질문 3개\nis_conclusion  결론 포함 — 항상 True",
+    "fill": "15171B",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF",
+     "F2F3F5",
+     "FFFFFF",
+     "F2F3F5",
+     "FFFFFF",
+     "F2F3F5",
+     "FFFFFF",
+     "F2F3F5",
+     "FFFFFF",
+     "F2F3F5",
+     "FFFFFF",
+     "F2F3F5",
+     "FFFFFF",
+     "F2F3F5"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 4.5,
+    "w": 4.1329997812773405,
+    "h": 0.3,
+    "text": "형식 검증 — 거부와 자동 재시도",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.6,
+    "t": 4.84,
+    "w": 4.1329997812773405,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.6,
+    "t": 5.0,
+    "w": 1.15,
+    "h": 0.58,
+    "text": "답변 생성",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 9.75,
+    "t": 5.29,
+    "w": 0.2,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 9.95,
+    "t": 4.96,
+    "w": 1.15,
+    "h": 0.66,
+    "text": "스키마\n검사",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 11.1,
+    "t": 5.29,
+    "w": 0.2,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 11.3,
+    "t": 5.0,
+    "w": 1.4329997812773403,
+    "h": 0.58,
+    "text": "화면 표시",
+    "fill": "FFFFFF",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 10.525,
+    "t": 5.62,
+    "w": 0.0,
+    "h": 0.26,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 9.15,
+    "t": 5.88,
+    "w": 1.375,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 9.15,
+    "t": 5.6,
+    "w": 0.0,
+    "h": 0.28,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.6,
+    "t": 5.98,
+    "w": 4.1329997812773405,
+    "h": 0.3,
+    "text": "거부 — 자동 재시도: 인용 0개 · 분기 0개 · 결론 없는 단정",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "형식을 지키지 못한 답변은 화면에 도달하지 못한다 — 스키마 선언 + 검증기 자동 재시도",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: app/agents.py (ClarifyOutput · output_validator) · 5_INTERFACE.md · 7_JOURNEY.md",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 6.0,
+    "t": 1.9,
+    "w": 6.0,
+    "h": 2.6,
+    "text": "04",
+    "fill": null,
+    "run": [
+     160.0,
+     true
+    ],
+    "run_colors": [
+     "2F3237"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 2.0,
+    "w": 1.3,
+    "h": 0.42,
+    "text": "PART 04",
+    "fill": "D66E3A",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 2.55,
+    "w": 7.5,
+    "h": 0.75,
+    "text": "문제와 해결",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 4.4,
+    "w": 0.05,
+    "h": 0.35,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.9,
+    "t": 4.4,
+    "w": 9.5,
+    "h": 0.35,
+    "text": "실측된 네 균열마다 구조적 대체물을 배치했습니다 — 확률 신호의 전량 폐기, 그리고 정직한 한계",
+    "fill": null,
+    "run": [
+     14.0,
+     false
+    ],
+    "run_colors": [
+     "F2F3F5"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.0,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.6999989063867016,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.0499989063867017,
+    "t": 5.75,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "4. 문제와 해결",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "같은 질문, 두 시스템 — 점수는 떨어뜨리고, 경로는 도달한다",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.85,
+    "w": 5.75,
+    "h": 4.5,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.85,
+    "t": 2.0,
+    "w": 5.25,
+    "h": 0.28,
+    "text": "리랭커 — 점수가 근거다, 그런데 점수엔 근거가 없다",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.625,
+    "t": 2.42,
+    "w": 3.7,
+    "h": 0.42,
+    "text": "“볼륨디스카운트 조항이 있는 계약은…”",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 1.66,
+    "t": 2.84,
+    "w": 1.815,
+    "h": 0.91,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 2.3175,
+    "t": 3.175,
+    "w": 0.5,
+    "h": 0.22,
+    "text": "1위",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.85,
+    "t": 3.75,
+    "w": 1.62,
+    "h": 0.5,
+    "text": "표면 단어가\n비슷한 문단",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.475,
+    "t": 2.84,
+    "w": 0.005,
+    "h": 0.91,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 3.2275,
+    "t": 3.175,
+    "w": 0.5,
+    "h": 0.22,
+    "text": "2위",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.67,
+    "t": 3.75,
+    "w": 1.62,
+    "h": 0.5,
+    "text": "표면 단어가\n비슷한 문단",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.475,
+    "t": 2.84,
+    "w": 1.825,
+    "h": 0.91,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.1375,
+    "t": 3.175,
+    "w": 0.5,
+    "h": 0.22,
+    "text": "3위",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.49,
+    "t": 3.75,
+    "w": 1.62,
+    "h": 0.5,
+    "text": "표면 단어가\n비슷한 문단",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 0.85,
+    "t": 4.62,
+    "w": 5.25,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.05,
+    "t": 4.36,
+    "w": 2.0499989063867017,
+    "h": 0.22,
+    "text": "상위 컷 — 아래는 버려진다",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 1.2,
+    "t": 4.86,
+    "w": 0.4,
+    "h": 0.34,
+    "text": "✕",
+    "fill": null,
+    "run": [
+     32.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.7,
+    "t": 4.82,
+    "w": 3.4,
+    "h": 0.5,
+    "text": "전문가 큐레이션 문단 — 정답인데 표면 유사도가 낮다",
+    "fill": "D8DADE",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.85,
+    "t": 5.5,
+    "w": 5.25,
+    "h": 0.6,
+    "text": "실측 — 전문가 배정 큐레이션 문서가 표면 유사도가 낮아 105건 중 103건 탈락(98%). 이미 bypass로 우회 중이었다 — 유사도 필터가 정답을 거른다는 신호.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.75,
+    "t": 1.85,
+    "w": 5.98299978127734,
+    "h": 0.035,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 6.75,
+    "t": 1.885,
+    "w": 5.98299978127734,
+    "h": 4.465,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.0,
+    "t": 2.0,
+    "w": 5.48299978127734,
+    "h": 0.28,
+    "text": "지식그래프 — 경로가 근거다",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 7.1,
+    "t": 2.42,
+    "w": 3.55,
+    "h": 0.42,
+    "text": "“볼륨디스카운트 조항이 있는 계약은…”",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 8.875,
+    "t": 2.84,
+    "w": 0.0,
+    "h": 0.36,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 7.1,
+    "t": 3.2,
+    "w": 3.55,
+    "h": 0.46,
+    "text": "용어사전 매칭 — 볼륨디스카운트 → 변동대가",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.799998906386701,
+    "t": 3.3,
+    "w": 1.5829997812773404,
+    "h": 0.4,
+    "text": "사람이 전수 검수한 색인 (등재 423)",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 8.875,
+    "t": 3.66,
+    "w": 0.0,
+    "h": 0.32,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 7.1,
+    "t": 3.98,
+    "w": 3.55,
+    "h": 0.46,
+    "text": "개념 노드 — 변동대가",
+    "fill": "15171B",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.799998906386701,
+    "t": 4.08,
+    "w": 1.5829997812773404,
+    "h": 0.4,
+    "text": "목차 위계의 그 자리 — 측정 > 거래가격 산정 > 변동대가",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 8.875,
+    "t": 4.44,
+    "w": 0.0,
+    "h": 0.32,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 7.1,
+    "t": 4.76,
+    "w": 3.55,
+    "h": 0.46,
+    "text": "관할 문단 50~54 — 변동대가 추정",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 10.799998906386701,
+    "t": 4.859998906386702,
+    "w": 1.5829997812773404,
+    "h": 0.4,
+    "text": "개념에 배정된 문단으로 — 간선 자체가 근거 ✓",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 7.0,
+    "t": 5.5,
+    "w": 5.48299978127734,
+    "h": 0.6,
+    "text": "탈락시킬 점수가 없다 — 연결이 있으면 도달하고, 어떤 간선을 지났는지가 그대로 답변의 근거가 된다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "1F2329"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "이 한 축이 아니라 검색·근거·판단·검증·재현 전부 — 확률 신호 자리마다 기준서의 구조가 들어가 있다",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: 7_JOURNEY.md §7.3·§7.4 (재구축 여정) · 00_factsheet.md §A'·§D",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "4. 문제와 해결",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "골든테스트 92건 — 정답 문서를 차단한 채 사람의 결론을 재현하는가",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 1.75,
+    "w": 3.8,
+    "h": 0.3,
+    "text": "① 어떻게 만든 시험인가",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 2.0899989063867017,
+    "w": 3.8,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.22,
+    "w": 3.8,
+    "h": 0.24,
+    "text": "실제 질의회신 92건 — 질의자·회계기준원·해석위원회 작성",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 2.5,
+    "w": 1.5,
+    "h": 1.7,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 3.35,
+    "w": 1.5,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 2.64,
+    "w": 1.5,
+    "h": 0.55,
+    "text": "질문\n실무 사실관계",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 3.49,
+    "w": 1.5,
+    "h": 0.55,
+    "text": "회신\n전문가의 결론",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.1,
+    "t": 2.81,
+    "w": 0.55,
+    "h": 0.11,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.7,
+    "t": 2.5,
+    "w": 1.6999989063867016,
+    "h": 0.62,
+    "text": "질문만 시스템에 입력",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.1,
+    "t": 3.76,
+    "w": 0.55,
+    "h": 0.02,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.7,
+    "t": 3.45,
+    "w": 1.6999989063867016,
+    "h": 0.62,
+    "text": "회신은 채점 정답지로\n3축 대조 — 결론·문단·분기",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 2.1,
+    "t": 3.35,
+    "w": 0.55,
+    "h": 1.46,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.7,
+    "t": 4.5,
+    "w": 1.6999989063867016,
+    "h": 0.62,
+    "text": "문서 자체는 검색 차단 ✕\n격리 증명 0/92",
+    "fill": "F2F3F5",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 5.4,
+    "w": 3.8,
+    "h": 0.9,
+    "text": "자작 시나리오를 버리고 사람이 쓴 실제 문답으로 — AI가 만든 문제를 AI가 푸는 자가순환과, 자기 답을 자기가 인용하는 순환을 모두 차단했다. 재현 판정 = 결론축 ≥ 1 그리고 3축 합 ≥ 4.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.6,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 4.6,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 1.75,
+    "w": 2.9,
+    "h": 0.3,
+    "text": "② 최종 기록",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.85,
+    "t": 2.0899989063867017,
+    "w": 2.9,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 2.4,
+    "w": 2.9,
+    "h": 0.75,
+    "text": "78 / 92",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 3.15,
+    "w": 2.9,
+    "h": 0.3,
+    "text": "사람 전문가 결론 재현",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 3.65,
+    "w": 2.9,
+    "h": 0.28,
+    "text": "소프트 채점   92 / 92",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099",
+     "8A9099",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 4.07,
+    "w": 2.9,
+    "h": 0.28,
+    "text": "실행 에러   0건",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099",
+     "8A9099",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 4.49,
+    "w": 2.9,
+    "h": 0.28,
+    "text": "개선 추적   재현 72 → 78",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099",
+     "8A9099",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 4.91,
+    "w": 2.9,
+    "h": 0.28,
+    "text": "평균 총점   4.79 → 4.88 (5점)",
+    "fill": null,
+    "run": [
+     12.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099",
+     "8A9099",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.85,
+    "t": 5.5,
+    "w": 2.9,
+    "h": 0.75,
+    "text": "하드 인용 재현율 59.1%는 별도 보고 — 인용률만으로 품질을 재지 않는다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 7.85,
+    "t": 1.75,
+    "w": 0.01199912510936133,
+    "h": 4.6,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.1,
+    "t": 1.75,
+    "w": 4.6329997812773405,
+    "h": 0.3,
+    "text": "③ 미재현 14건 — 각각 왜",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.1,
+    "t": 2.0899989063867017,
+    "w": 4.6329997812773405,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.1,
+    "t": 2.35,
+    "w": 0.44,
+    "h": 0.44,
+    "text": "6",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 2.33,
+    "w": 4.03299978127734,
+    "h": 0.26,
+    "text": "기타 소프트축",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 2.61,
+    "w": 4.03299978127734,
+    "h": 0.5,
+    "text": "타 기준서 4건(1115 코퍼스 밖 — 인용 불가) + 헤지 2건(근거 확보, 결론 미확정)",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.1,
+    "t": 3.21,
+    "w": 0.44,
+    "h": 0.44,
+    "text": "4",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 3.19,
+    "w": 4.03299978127734,
+    "h": 0.26,
+    "text": "질문 프레임",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 3.47,
+    "w": 4.03299978127734,
+    "h": 0.5,
+    "text": "정답 규칙은 판단트리가 이미 주입 — 기준서 개념 교차연결, 고칠 대상이 아님",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.1,
+    "t": 4.07,
+    "w": 0.44,
+    "h": 0.44,
+    "text": "2",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 4.05,
+    "w": 4.03299978127734,
+    "h": 0.26,
+    "text": "진입 누락",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 4.33,
+    "w": 4.03299978127734,
+    "h": 0.5,
+    "text": "정답 개념 진입 실패 — 검색 개선으로 움직일 실익은 1건뿐",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.1,
+    "t": 4.93,
+    "w": 0.44,
+    "h": 0.44,
+    "text": "2",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 4.91,
+    "w": 4.03299978127734,
+    "h": 0.26,
+    "text": "범위 밖 판정",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.699998906386702,
+    "t": 5.19,
+    "w": 4.03299978127734,
+    "h": 0.5,
+    "text": "라우팅이 코퍼스 범위 밖으로 판정, 정답 회수 0",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 8.1,
+    "t": 5.85,
+    "w": 4.6329997812773405,
+    "h": 0.45,
+    "text": "합 6+4+2+2 = 14, 전수 귀속 — 검색 재설계로 실제 움직일 수 있는 것은 1건뿐이다.",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "정답이 적힌 문서를 못 보게 한 상태에서 78/92 — 실패 14건까지 전수 해부된 수치다",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: 6_TEST-DECISIONS.md (00_factsheet.md §F·§H) — 사람 작성 골든테스트 92건 홀드아웃",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.42,
+    "w": 8.0,
+    "h": 0.28,
+    "text": "4. 문제와 해결",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 0.72,
+    "w": 12.13299978127734,
+    "h": 0.55,
+    "text": "정직한 한계 — 이 시스템이 서 있는 경계",
+    "fill": null,
+    "run": [
+     28.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.45,
+    "w": 12.13299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 1.95,
+    "w": 12.13299978127734,
+    "h": 2.0,
+    "text": "",
+    "fill": "F2F3F5",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.8,
+    "t": 2.0499989063867017,
+    "w": 3.0,
+    "h": 0.24,
+    "text": "경계 밖",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.366499343832021,
+    "t": 2.15,
+    "w": 4.6,
+    "h": 1.25,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.366499343832021,
+    "t": 2.3,
+    "w": 4.6,
+    "h": 0.3,
+    "text": "K-IFRS 1115 — 경계 안",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 4.666499343832021,
+    "t": 2.6799989063867016,
+    "w": 3.999998906386702,
+    "h": 0.5,
+    "text": "답하는 범위를 계약한다 — 안이면 결정적으로 답하고, 밖이면 거절, 모르면 유보. 아는 척이 구조적으로 불가능한 설계다.",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.75,
+    "t": 2.38,
+    "w": 2.5,
+    "h": 0.8,
+    "text": "타 기준서 질문\nIAS38 · 1002 · 1008 · 1037",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 3.35,
+    "t": 2.78,
+    "w": 0.596499343832021,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.316499343832021,
+    "t": 2.5599989063867015,
+    "w": 0.05,
+    "h": 0.44,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 3.966499343832021,
+    "t": 2.65,
+    "w": 0.3,
+    "h": 0.26,
+    "text": "✕",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.75,
+    "t": 3.32,
+    "w": 3.35,
+    "h": 0.55,
+    "text": "라우팅이 코드 레벨 강제 OUT — 추측 대신 거절. 실측 4건 (예: 1116호 '증분차입이자율' 감지)",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 10.03,
+    "t": 2.38,
+    "w": 2.5,
+    "h": 0.8,
+    "text": "등재되지 않은 표현\n임베딩식 유사 확장 없음",
+    "fill": "FFFFFF",
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "15171B",
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "LINE (9)",
+    "l": 9.43649934383202,
+    "t": 2.78,
+    "w": 0.593500656167979,
+    "h": 0.0,
+    "text": "",
+    "fill": null,
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.09649934383202,
+    "t": 2.65,
+    "w": 0.3,
+    "h": 0.26,
+    "text": "✕",
+    "fill": null,
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.966499343832021,
+    "t": 2.5599989063867015,
+    "w": 0.05,
+    "h": 0.44,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 9.38,
+    "t": 3.32,
+    "w": 3.2029997812773403,
+    "h": 0.55,
+    "text": "색인에 없으면 진입 실패 → '못 찾음' 유보 응답. 홀드아웃 실측 진입 누락 2건",
+    "fill": null,
+    "run": [
+     9.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 4.2,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "경계 그 밖의 한계 — 실측으로 아는 것",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 4.54,
+    "w": 12.13299978127734,
+    "h": 0.01199912510936133,
+    "text": "",
+    "fill": "8A9099",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 4.7,
+    "w": 3.86,
+    "h": 1.5,
+    "text": "01  결론을 확정하지 못한 케이스\n헤지 2건 — 근거 문단을 다 찾고도 결론을 유보했다.\n→ 검색이 아니라 생성 계층의 남은 과제",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B",
+     "8A9099",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 4.73,
+    "t": 4.7,
+    "w": 3.86,
+    "h": 1.5,
+    "text": "02  인용 완전성\n하드 인용 재현율 59.1% — 결론이 맞아도 근거 인용을 전부 담지는 못한다.\n→ 인용률은 별도 지표로 추적",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B",
+     "8A9099",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 8.859998906386702,
+    "t": 4.7,
+    "w": 3.86,
+    "h": 1.5,
+    "text": "03  검증 자체의 한계\n92건은 개발 중 전수 열람돼 순수 홀드아웃이 아니다.\n→ 최종 성능은 안 본 질문으로 검증",
+    "fill": "F2F3F5",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "D66E3A",
+     "15171B",
+     "8A9099",
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.6,
+    "t": 6.6,
+    "w": 12.13299978127734,
+    "h": 0.45,
+    "text": "경계를 넓히는 대신 경계 안을 결정적으로 — 못 하는 것까지 실측으로 세어 두었다",
+    "fill": "15171B",
+    "run": [
+     12.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.6,
+    "t": 7.15,
+    "w": 12.13299978127734,
+    "h": 0.3,
+    "text": "출처: 6_TEST-DECISIONS.md §6.3 · 4_SEARCH-PIPELINE.md (라우팅 강제 OUT) · 00_factsheet.md §D·§H",
+    "fill": null,
+    "run": [
+     8.0,
+     false
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ],
+  [
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 0.0,
+    "w": 13.33299978127734,
+    "h": 7.5,
+    "text": "",
+    "fill": "15171B",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 0.55,
+    "w": 9.0,
+    "h": 0.3,
+    "text": "CLOSING — K-IFRS 1115 온톨로지 지식그래프 RAG",
+    "fill": null,
+    "run": [
+     9.0,
+     true
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 0.92,
+    "w": 12.03299978127734,
+    "h": 0.013999343832020998,
+    "text": "",
+    "fill": "50545A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 2.62,
+    "w": 0.3,
+    "h": 0.3,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 3.05,
+    "w": 12.0,
+    "h": 0.7,
+    "text": "확실할 때만 확정하고,",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 3.769998906386702,
+    "w": 12.0,
+    "h": 0.7,
+    "text": "애매하면 근거를 보여주며 유보한다",
+    "fill": null,
+    "run": [
+     40.0,
+     true
+    ],
+    "run_colors": [
+     "FFFFFF"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.65,
+    "t": 5.05,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.0,
+    "t": 5.05,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.35,
+    "t": 5.05,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 1.6999989063867016,
+    "t": 5.05,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 2.0499989063867017,
+    "t": 5.05,
+    "w": 0.13,
+    "h": 0.13,
+    "text": "",
+    "fill": "D66E3A",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 0.0,
+    "t": 6.62,
+    "w": 13.33299978127734,
+    "h": 0.8799989063867016,
+    "text": "",
+    "fill": "FFFFFF",
+    "run": null,
+    "run_colors": null,
+    "cells": null
+   },
+   {
+    "type": "TEXT_BOX (17)",
+    "l": 0.65,
+    "t": 6.91,
+    "w": 5.0,
+    "h": 0.3,
+    "text": "My Company",
+    "fill": null,
+    "run": [
+     15.0,
+     true
+    ],
+    "run_colors": [
+     "15171B"
+    ],
+    "cells": null
+   },
+   {
+    "type": "AUTO_SHAPE (1)",
+    "l": 10.482999781277341,
+    "t": 6.82,
+    "w": 2.2,
+    "h": 0.48,
+    "text": "회사 로고",
+    "fill": null,
+    "run": [
+     9.0,
+     null
+    ],
+    "run_colors": [
+     "8A9099"
+    ],
+    "cells": null
+   }
+  ]
+ ],
+ "names": [
+  "S1 표지",
+  "S2 목차",
+  "S3 간지1",
+  "S4 문제정의",
+  "S5 간지2",
+  "S6 실행그래프",
+  "S7 간지3",
+  "S8 용어사전",
+  "S9 지식그래프",
+  "S10 스크린샷",
+  "S11 판단트리",
+  "S12 구조화출력",
+  "S13 간지4",
+  "S14 트러블슈팅",
+  "S15 골든테스트",
+  "S16 경계",
+  "S17 클로징"
+ ]
+}

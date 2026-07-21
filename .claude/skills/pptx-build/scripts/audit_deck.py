@@ -62,7 +62,7 @@ def main():
     print(
         f"오딧 대상 {len(targets)}/{len(slides)}장 · "
         f"밀도 밴드(골든 본문 {band['n_body']}장 파생): "
-        f"도형 ≥{band['shapes_min']} · 텍스트 프레임 ≥{band['frames_min']}"
+        f"글자 ≥{band['chars_min']} · 도형 ≥{band['shapes_floor']}"
     )
     for no, sl in targets:
         if no > len(slides):
@@ -70,8 +70,20 @@ def main():
             continue
         shapes = list(slides[no - 1].shapes)
         opts = sl.get("audit", {})
+        # 스크린샷 장(§F) = 밀도 예외 — golden.screenshot 타입 or spec audit 선언
+        screenshot = sl["type"].endswith("screenshot") or opts.get("screenshot", False)
+        # dense 인지 — adapted/novel(=dense 챕터 스크립트)·spec audit.dense 선언 시 accent 런 제외·
+        # 경계 dense 하한·칩 폭 등 dense 캘리브레이션 적용(그렇지 않으면 sparse 골든 기준).
+        dense = sl["type"].startswith(("adapted.", "novel")) or opts.get("dense", False)
         print(f"\n── S{no} {sl['type']}: 도형 {len(shapes)}")
-        res = A.generic_checks(shapes, accent, band=band, dup_allow=opts.get("dup_allow", 0))
+        res = A.generic_checks(
+            shapes,
+            accent,
+            band=band,
+            dup_allow=opts.get("dup_allow", 0),
+            screenshot=screenshot,
+            dense=dense,
+        )
         fails = A.report(res, known=opts.get("known"))
         all_fails += [f"S{no}: {f}" for f in fails]
 

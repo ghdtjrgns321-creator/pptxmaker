@@ -30,9 +30,7 @@ from pptx.enum.shapes import MSO_SHAPE
 EMU = 914400
 AIR_MIN = 0.12  # §6 공기 하한
 ACCENT_MAX = 4  # §2 accent 상한
-ACCENT_MAX_DENSE = 6  # dense accent 상한(채움·선만, 런 제외) — 압축 헤더 룰 등 여유
-CONTENT_BOTTOM = 6.35  # P2③ (sparse 골든 본문 하한 — 결론 바 6.60 위)
-CONTENT_BOTTOM_DENSE = 7.1  # dense 본문 하한 — 바 없이 출처선(dense.SOURCE_Y 7.14) 바로 위까지
+CONTENT_BOTTOM = 6.35  # P2③
 RIGHT_EDGE = 12.733  # P2④
 CONTRAST_MIN = 4.5  # WCAG AA (일반 텍스트)
 
@@ -110,22 +108,17 @@ def box(sh):
 # ── 규칙 ──────────────────────────────────────────────────────
 
 
-def check_accent(shapes, accent, cap=ACCENT_MAX, count_runs=True):
+def check_accent(shapes, accent, cap=ACCENT_MAX):
     """§2 accent 상한. **채움만 세면 안 된다 — 테두리·커넥터 선도 accent 예산이다.**
 
     출처: v4에서 채움·런만 세서 4로 통과시켰는데 제3자가 7군데를 셌다(선 미계수).
-
-    **count_runs(2026-07-20 dense 인지):** dense 장은 2단 불릿의 **강조**를 accent 텍스트 런으로
-    쓴다(정상 표현, 장당 28~31런). 그건 '장식적 accent 남용'(이 규칙이 막는 것)이 아니므로
-    dense에선 count_runs=False로 채움·선만 센다. sparse 골든은 기존대로 런까지 센다(기본 True).
     """
     f = [s for s in shapes if fill_hex(s) == accent]
     ln = [s for s in shapes if line_hex(s) == accent]
-    rn = [r for s in shapes for r in runs_of(s) if r[1] == accent] if count_runs else []
+    rn = [r for s in shapes for r in runs_of(s) if r[1] == accent]
     tot = len(f) + len(ln) + len(rn)
     ok = tot <= cap
-    run_note = f" + 런 {len(rn)}" if count_runs else " (런 제외·dense)"
-    return ok, f"accent 채움 {len(f)} + 선 {len(ln)}{run_note} = {tot} (상한 {cap})", tot
+    return ok, f"accent 채움 {len(f)} + 선 {len(ln)} + 런 {len(rn)} = {tot} (상한 {cap})", tot
 
 
 def check_verdict_contrast(shapes, prose_pt):
@@ -178,65 +171,6 @@ def check_fill_ratio(shapes, min_ratio=0.30, min_w=1.5):
         if ratio < min_ratio:
             bad.append((txt.strip()[:14], round(w, 2), f"{ratio:.0%}"))
     return not bad, f"채움률 < {min_ratio:.0%}: {len(bad)} {bad[:3]}", len(bad)
-
-
-def check_adhoc_card(shapes, w_min=3.0, h_min=1.5):
-    """즉흥 밋밋 카드 금지 — 카드 크기 박스가 **구조 자식**(아이콘·배지·구분선·중첩 박스) 0이면 FAIL.
-
-    출처(2026-07-21): dense.py에 '카드=hero_card 단일 · 장별 즉흥 카드 금지'(design-rules §8)가
-    **prose로만** 있어 반복 무시됐다 — s16 한계 카드를 add_box+텍스트로 손으로 밋밋하게 그려
-    글자수·채움률·넘침 게이트를 전부 통과시켰다(사용자 반려: "밋밋하고 쓰레기"). hero_card는
-    배지(oval)·히어로 아이콘(picture)·배너·구분선(rule)·칩(중첩 박스)을 **항상** 낳는다 —
-    그 구조 자식이 하나도 없는 카드 크기 박스 = 즉흥 밋밋 카드. '리치·의미 정합'은 기계화 못
-    하지만 '구조 0'은 여기서 막는다(그 위는 눈검증 몫). dense 전용(sparse 골든 카드 idiom은 다름).
-    """
-    from pptx.enum.shapes import MSO_SHAPE_TYPE
-
-    def center_in(inner, ox, oy, ow, oh):
-        ix, iy, iw, ih = inner
-        cx, cy = ix + iw / 2, iy + ih / 2
-        return ox <= cx <= ox + ow and oy <= cy <= oy + oh
-
-    bad = []
-    for c in shapes:
-        if shape_kind(c) not in (MSO_SHAPE.RECTANGLE, MSO_SHAPE.ROUNDED_RECTANGLE):
-            continue
-        if fill_hex(c) is None and line_hex(c) is None:
-            continue
-        cx, cy, cw, ch = box(c)
-        if cw < w_min or ch < h_min:
-            continue
-        if cw > 13 and ch > 7:
-            continue  # 풀블리드 배경
-        fh = fill_hex(c)
-        if fh is not None and _lum(fh) < 0.45:
-            continue  # 어두운 패널(코드/JSON/스키마/터미널 아티팩트) — 카드 아님(P0 #1 실물)
-        c_area = cw * ch
-        has_text = bool(c.has_text_frame and c.text_frame.text.strip())
-        n_struct = 0
-        for s in shapes:
-            if s._element is c._element:
-                continue
-            sx, sy, sw, sh = box(s)
-            if not center_in((sx, sy, sw, sh), cx, cy, cw, ch):
-                continue
-            if s.has_text_frame and s.text_frame.text.strip():
-                has_text = True
-            if s.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                n_struct += 1  # 아이콘
-            elif shape_kind(s) == MSO_SHAPE.OVAL:
-                n_struct += 1  # 배지
-            elif line_hex(s) is not None or fill_hex(s) is not None:
-                if sh < 0.06 or sw < 0.08:
-                    n_struct += 1  # 구분선·세로 바
-                elif shape_kind(s) in (MSO_SHAPE.RECTANGLE, MSO_SHAPE.ROUNDED_RECTANGLE) and (
-                    sw * sh < c_area * 0.7
-                ):
-                    n_struct += 1  # 중첩 박스(배너·칩·내부 패널)
-        if has_text and n_struct == 0:
-            lbl = c.text_frame.text.strip()[:14] if c.has_text_frame else "(카드)"
-            bad.append((lbl, round(cw, 1), round(ch, 1)))
-    return not bad, f"즉흥 밋밋 카드(구조 0 · hero_card 미사용): {len(bad)} {bad[:3]}", len(bad)
 
 
 def check_duplicate_nodes(shapes, allow=0):
@@ -354,44 +288,6 @@ def check_progress_shapes(shapes, allowed=0):
     return len(prog) <= allowed, f"진행형 도형 {len(prog)} (허용 {allowed})", len(prog)
 
 
-def check_text_overflow(shapes, tol=1.5):
-    """텍스트가 제 상자 높이를 넘겨 흘러나오나(세로 오버플로우) — 근사 추정(2026-07-21 신설).
-
-    add_text는 word_wrap=True라 가로는 감기지만, 감긴 줄 수가 상자 높이를 넘으면 **아래로 흘러**
-    이웃 요소와 겹친다(s15 fix 블록 사고). 렌더 없이 잡으려고 근사한다: 줄당 글자수 ≈ 상자폭 /
-    (pt·CW/72), 필요 줄 수 = ceil(글자수/줄당), 필요 높이 = 줄수·pt·1.2·행간/72. 필요 높이가
-    상자 높이×tol을 넘으면 넘침. **근사 한계:** 글자폭은 혼합 텍스트(한글·숫자·공백) 평균 ≈
-    0.62×pt(순 한글 1.0, 숫자·공백 0.4~0.5). tol·CW는 오탐(짧은 라벨)과 미탐(경계) 사이 타협 —
-    총체적 겹침이 아니라 **단일 상자 세로 초과**만 잡는 하한 대리지표다(눈검증은 여전히 필요).
-    """
-    bad = []
-    for s in shapes:
-        if not s.has_text_frame:
-            continue
-        tf = s.text_frame
-        if not tf.text.strip():
-            continue
-        w, h = s.width / EMU, s.height / EMU
-        if w < 0.3 or h < 0.05:
-            continue
-        need = 0.0
-        for para in tf.paragraphs:
-            ptxt = "".join(r.text for r in para.runs)
-            if not ptxt:
-                need += 0.12  # 빈 문단도 한 줄 차지
-                continue
-            pts = [r.font.size.pt for r in para.runs if r.font.size]
-            pt = max(pts) if pts else 12
-            cw = pt * 0.62 / 72  # 혼합 텍스트 평균 글자폭
-            per_line = max(1, int((w - 0.04) / cw))
-            lines = max(1, -(-len(ptxt) // per_line))  # ceil
-            ls = para.line_spacing if isinstance(para.line_spacing, (int, float)) else 1.0
-            need += lines * pt * 1.2 * ls / 72
-        if need > h * tol:
-            bad.append((tf.text.strip()[:12], round(need, 2), round(h, 2)))
-    return not bad, f"텍스트 상자 넘침(추정) {len(bad)} {bad[:3]}", len(bad)
-
-
 def check_picture_overlap(shapes):
     """그림이 다른 요소를 침범하지 않는가.
 
@@ -409,8 +305,6 @@ def check_picture_overlap(shapes):
     hits = []
     for p in pics:
         x, y, w, h = box(p)
-        if w < 1.0 and h < 1.0:
-            continue  # 아이콘(콘텐츠 그림 아님) — 라벨과 나란히·겹쳐 놓이는 게 정상(dense 칩)
         for s in shapes:
             if s._element is p._element:
                 continue
@@ -457,22 +351,13 @@ def check_air(pairs, air_min=AIR_MIN):
     return not bad, "\n".join(lines), len(bad)
 
 
-# 밀도 파생·검사에서 제외할 골든 본문 장 — 스크린샷은 캡처가 내용을 지므로 글자가 적다(§F).
-DENSITY_EXEMPT = {"screenshot"}
-
-
 def density_band(snapshot_path=None):
-    """골든 스냅샷에서 본문 장의 밀도 하한을 파생 — **텍스트 글자수가 주 지표**(2026-07-20).
+    """골든 스냅샷에서 본문 장의 밀도 하한(도형 수·텍스트 프레임 수)을 파생.
 
     출처(2026-07-16 배선 재설계): 골든이 "복제 템플릿"에서 "변형 가능한 출발점"이 되면서
     스냅샷 회귀가 실전 덱을 못 지킨다 — 변형·신규 장의 "밀집화"를 재는 기계 게이트가 이것.
     임계는 리터럴이 아니라 **골든의 가장 성긴 본문 장**에서 파생한다(§4 범용 해결) —
     골든이 바뀌어 스냅샷을 재생성하면 밴드도 따라 움직인다.
-
-    **왜 글자수인가(2026-07-20 preflight_dense 통합):** 도형 수로 재면 밀도 부족을 hero_card
-    4장으로 메우는 반사(4카드 강제)를 유발한다 — 골든 항목형은 도형이 적어도(예: ab_simulation
-    37도형) 글자가 꽉 차 통과작급이다. 그래서 chars를 주 하한으로, 도형 수는 텅 빈 장만 거르는
-    느슨한 바닥(shapes_floor). 스크린샷 장은 DENSITY_EXEMPT로 파생·검사에서 뺀다.
     """
     import json
     from pathlib import Path
@@ -483,83 +368,47 @@ def density_band(snapshot_path=None):
     if snapshot_path is None:
         snapshot_path = Path(__file__).resolve().parents[2] / "assets/golden-snapshot.json"
     snap = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
-    pairs = [(key, sl) for (key, _n), sl in zip(SLIDE_ORDER, snap["slides"]) if key not in fixed]
-    body = [sl for _k, sl in pairs]
-    dense_body = [sl for k, sl in pairs if k not in DENSITY_EXEMPT]  # 글자수 하한은 비스크린샷에서
+    body = [sl for (key, _n), sl in zip(SLIDE_ORDER, snap["slides"]) if key not in fixed]
     shape_counts = [len(sl) for sl in body]
     frame_counts = [sum(1 for sh in sl if (sh.get("text") or "").strip()) for sl in body]
-    char_counts = [sum(len((sh.get("text") or "").strip()) for sh in sl) for sl in dense_body]
     return {
         "shapes_min": min(shape_counts),
         "frames_min": min(frame_counts),
-        "chars_min": round(min(char_counts) * 0.85),  # 통과작 최저 텍스트량 × 경계 여유
-        "shapes_floor": 20,  # 텅 빈 장만 거르는 느슨한 바닥(도형 수로 카드 강제 금지)
         "n_body": len(body),
     }
 
 
-def check_density(shapes, band, screenshot=False):
-    """골든 밀도 밴드 — **글자수가 주 지표**(2026-07-20). 변형(adapted)·신규(novel) 장이 골든
-    본문 최저 텍스트량보다 성기면 FAIL. 도형 수는 텅 빈 장만 거르는 바닥이다 — 도형 수로 재면
-    밀도 부족을 카드로 메우는 반사(4카드 강제)를 유발하므로 chars를 주 하한으로 한다.
-    스크린샷 장(§F)은 캡처가 내용을 지므로 밀도 예외.
-    """
+def check_density(shapes, band):
+    """골든 밀도 밴드 — 변형(adapted)·신규(novel) 장이 골든 본문 최저 밀도보다 성기면 FAIL."""
     n_shapes = len(shapes)
-    n_chars = sum(
-        len(s.text_frame.text.strip())
-        for s in shapes
-        if s.has_text_frame and s.text_frame.text.strip()
+    n_frames = sum(1 for s in shapes if s.has_text_frame and s.text_frame.text.strip())
+    ok = n_shapes >= band["shapes_min"] and n_frames >= band["frames_min"]
+    deficit = max(0, band["shapes_min"] - n_shapes) + max(0, band["frames_min"] - n_frames)
+    return (
+        ok,
+        f"도형 {n_shapes}(하한 {band['shapes_min']}) · "
+        f"텍스트 프레임 {n_frames}(하한 {band['frames_min']}) — 골든 본문 {band['n_body']}장 파생",
+        deficit,
     )
-    floor = band.get("shapes_floor", 20)
-    if screenshot:
-        msg = f"글자 {n_chars} · 도형 {n_shapes} — 스크린샷 장(§F) 밀도 예외"
-        ok, deficit = True, 0
-    else:
-        ok = n_chars >= band["chars_min"] and n_shapes >= floor
-        deficit = max(0, band["chars_min"] - n_chars)
-        msg = (
-            f"글자 {n_chars}(하한 {band['chars_min']}) · 도형 {n_shapes}(바닥 {floor}) "
-            f"— 골든 본문 {band['n_body']}장 텍스트량 파생"
-        )
-    return bool(ok), msg, int(deficit)
 
 
-def generic_checks(shapes, accent, band=None, dup_allow=0, screenshot=False, dense=False):
+def generic_checks(shapes, accent, band=None, dup_allow=0):
     """레이아웃 무관 전역 오딧 묶음 — 변형(adapted)·신규(novel)·content 주입 골든 장에 적용.
 
     레이아웃 특정 규칙(진행형 도형 허용 수·ink_allow·공기 쌍·노드 높이)은 여기 없다 —
     그건 장 스크립트가 자체 assert하거나 채점(P4)이 본다. audit_deck.py가 이 묶음의 러너.
-    screenshot=True면 밀도 검사를 예외 처리(§F 스크린샷 장).
-
-    dense=True(2026-07-20 dense 인지): accent는 런 제외(2단 불릿 **강조**는 정상)·상한 완화,
-    경계는 dense 하한(압축 헤더로 세로를 더 씀). sparse 골든은 dense=False(기존 그대로).
     """
-    if dense:
-        accent_res = check_accent(shapes, accent, cap=ACCENT_MAX_DENSE, count_runs=False)
-        bounds_res = check_bounds(shapes, bottom=CONTENT_BOTTOM_DENSE, skip_tops=(7.14,))
-        # dense 칩(아이콘+짧은 라벨)은 폭 대비 텍스트가 적어도 죽은 회색이 아니다 — min_w를 칩
-        # 폭(≤2.98") 위로 올려 진짜 넓은 죽은 박스(≥3.2")만 잡는다.
-        fill_res = check_fill_ratio(shapes, min_w=3.2)
-    else:
-        accent_res = check_accent(shapes, accent)
-        bounds_res = check_bounds(shapes, skip_tops=(6.60, 7.15))
-        fill_res = check_fill_ratio(shapes)
     res = [
-        ("§2 accent 상한", *accent_res),
+        ("§2 accent 상한", *check_accent(shapes, accent)),
         ("P4⑤ 판정 단어 대비", *check_verdict_contrast(shapes, None)),
-        ("P4④ 채움률", *fill_res),
+        ("P4④ 채움률", *check_fill_ratio(shapes)),
         ("P4③ 노드 재탕", *check_duplicate_nodes(shapes, allow=dup_allow)),
         ("P4⑩ 노드 클래스", *check_node_class(shapes)),
         ("§F 그림 침범", *check_picture_overlap(shapes)),
-        ("텍스트 넘침", *check_text_overflow(shapes)),
-        ("P2③④ 경계", *bounds_res),
+        ("P2③④ 경계", *check_bounds(shapes, skip_tops=(6.60, 7.15))),
     ]
-    if dense:
-        # §8 즉흥 밋밋 카드 금지 — hero_card 미사용(구조 0)을 기계로 차단. dense 전용
-        # (통과작 8장 오탐 0 검증). 어두운 코드·아티팩트 패널은 제외.
-        res.append(("§8 즉흥 카드", *check_adhoc_card(shapes)))
     if band:
-        res.append(("§6-D 밀도 밴드", *check_density(shapes, band, screenshot=screenshot)))
+        res.append(("§6-D 밀도 밴드", *check_density(shapes, band)))
     return res
 
 

@@ -23,7 +23,22 @@ from mpl_exhibits import MPL_TYPES  # noqa: E402
 
 # "박스+화살표" 어휘 — 다양성 게이트 3(30% 상한) 분모·분자 정의
 BOX_LAYOUTS = {"flow", "layers", "cards", "branch", "from_to"}
-FRAME_TYPES = {"cover", "toc", "part", "section", "cta"}
+# 프레임(정형) 레이아웃 — 본문 다양성 계수에서 제외. golden.<layout>·adapted.<layout>도
+# 접두사를 벗겨 판정한다(golden.cover/toc/part/closing이 본문으로 오계수되던 버그, 2026-07-20).
+FRAME_LAYOUTS = {"cover", "toc", "part", "section", "cta", "closing"}
+FRAME_TYPES = {"cover", "toc", "part", "section", "cta"}  # 하위호환(레거시 타입)
+
+
+def _base_layout(t):
+    """golden.<layout>·adapted.<layout> → <layout>, 그 외는 타입 그대로."""
+    if t.startswith("golden.") or t.startswith("adapted."):
+        return t.split(".", 1)[1]
+    return t
+
+
+def is_frame(sl):
+    """정형 장인가 — golden/adapted 접두사를 벗겨 판정(다양성 본문에서 제외)."""
+    return _base_layout(sl["type"]) in FRAME_LAYOUTS
 
 
 def visual_key(sl):
@@ -33,12 +48,16 @@ def visual_key(sl):
         return f"chart:{'panels' if sl.get('panels') else sl.get('chart_type', 'bar')}"
     if t == "diagram":
         return f"diagram:{sl.get('layout', 'flow')}"
+    if t.startswith("golden.") or t.startswith("adapted."):
+        return f"golden:{_base_layout(t)}"  # golden 레이아웃도 정규화 계수(각기 고유 어휘)
+    if t == "novel":
+        return f"novel:{sl.get('script', '?')}"
     return t  # table·bullets·metrics·two_column
 
 
 def diversity_checks(slides):
     """다양성 게이트 4종 — 아키타입 세트 제약(archetype-catalog.md)을 기계로 강제."""
-    body = [sl for sl in slides if sl["type"] not in FRAME_TYPES]
+    body = [sl for sl in slides if not is_frame(sl)]
     keys = [visual_key(sl) for sl in body]
     out = []
     # 게이트 1(쿨다운): 동일 시각 유형 간격 ≥3 — 연속(간격1)·한 장 건너(간격2) 모두 위반

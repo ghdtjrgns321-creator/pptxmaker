@@ -60,6 +60,25 @@ uv run python .claude/skills/consistency-qa/scripts/check_contract.py \
 
 위반 시 → **deck-composer로 되돌림**(아키타입 재배정 — archetype-catalog.md 세트 제약).
 
+## 1-3. 골든·변형·신규 장 전역 오딧 (audit_deck.py — 밀도·재탕·경계·accent)
+
+spec에 `golden.*`(정형 제외)·`adapted.*`·`novel` 장이 하나라도 있으면 **반드시** 실행한다.
+이 장들은 §1-2(레거시 다양성 게이트)의 대상이 아니라 goldenfab 전역 규칙으로 채점된다:
+
+```bash
+uv run python .claude/skills/pptx-build/scripts/audit_deck.py \
+    _workspace/02_deck-spec.json _workspace/deck.pptx
+```
+
+검사(장별): **§6-D 밀도 밴드(글자수 주지표** — 골든 본문 최저 텍스트량 파생, 스크린샷 장은 예외)
+· §2 accent 상한 · P4③ 노드 재탕 · P4④ 채움률 · P4⑩ 노드 클래스 · §F 그림 침범 · P2 경계.
+종료코드 1 = FAIL. **밀도 FAIL = "허전·탑헤비" 결함이 정량으로 잡힌 것** — 도형 수가 아니라
+글자수로 재므로 "카드 4장으로 도형 채우기"로는 통과 못 한다(그 반사가 재작업 루프의 원인이었다).
+
+- **밀도 미달** → **deck-composer/장 스크립트로 되돌림**: 카드로 메우지 말고 그 장 물성의 근거
+  텍스트를 보강한다(layout-matching §검색 플라이휠·design-rules §8 R0). 재드로·4카드 강제 금지.
+- 단일 dense 모듈 개발 중 사전 점검은 `preflight_dense.py <mod>`(같은 audit.py 지표, green 후 제시).
+
 ## 2. 브랜드 일관성 (스크립트 + 대조)
 
 - 텍스트 런의 폰트가 brand-kit의 head/body/mono 집합에만 속하는지 (외부 폰트 혼입 0)

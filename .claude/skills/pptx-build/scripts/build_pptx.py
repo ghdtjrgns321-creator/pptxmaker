@@ -1458,7 +1458,52 @@ class Deck:
                     self._source(slide, sl["source"])
                 if sl.get("footnotes"):
                     self._footnotes(slide, sl["footnotes"])
+        self.gate_fails = self._gate_density(spec)
         return self.prs
+
+    def _gate_density(self, spec):
+        """빌드 시 밀도 게이트(2026-07-20 기계 강제) — golden/adapted/novel 장을 audit_deck과
+        같은 규칙(goldenfab.audit.generic_checks + 글자수 밀도 밴드)으로 **빌드가 스스로** 채점한다.
+        오케스트레이터가 consistency-qa를 안 돌려도 성김이 잡힌다. 러너 단일 출처는 audit_deck.py.
+        반환: 실패 문자열 목록(빈 목록=통과). 빌드는 막지 않는다 — main()이 종료코드로 신호한다.
+        """
+        import sys as _sys
+
+        gf = str(Path(__file__).resolve().parent)
+        if gf not in _sys.path:
+            _sys.path.insert(0, gf)
+        from goldenfab import audit as A
+        from goldenfab.kit import load_kit
+
+        fixed = {"cover", "toc", "part", "closing"}
+        accent = str(load_kit()["rgb"]["accent"])
+        band = A.density_band()
+        slides = list(self.prs.slides)
+        fails = []
+        for i, sl in enumerate(spec["slides"], start=1):
+            t = sl.get("type", "")
+            base = t.split(".", 1)[1] if t.startswith(("golden.", "adapted.")) else t
+            target = (
+                (t.startswith("golden.") and base not in fixed)
+                or t.startswith("adapted.")
+                or t == "novel"
+            )
+            if not target or i > len(slides):
+                continue
+            opts = sl.get("audit", {})
+            screenshot = base == "screenshot" or opts.get("screenshot", False)
+            dense = t.startswith(("adapted.", "novel")) or opts.get("dense", False)
+            shapes = list(slides[i - 1].shapes)
+            res = A.generic_checks(
+                shapes,
+                accent,
+                band=band,
+                dup_allow=opts.get("dup_allow", 0),
+                screenshot=screenshot,
+                dense=dense,
+            )
+            fails += [f"S{i} {t}: {x}" for x in A.report(res, known=opts.get("known"))]
+        return fails
 
 
 def main():
@@ -1479,6 +1524,16 @@ def main():
     prs = deck.build(spec)
     prs.save(args.out)
     print(f"OK: {args.out} ({len(prs.slides)} slides)")
+    # 빌드 시 밀도 게이트 결과 — pptx는 이미 저장(검사 가능), 실패면 종료코드로 신호(기계 강제)
+    fails = getattr(deck, "gate_fails", [])
+    if fails:
+        print(
+            f"\n밀도 게이트 FAIL {len(fails)}건 — 성김/탑헤비(글자수 미달). 카드로 메우지 말고 근거 보강:"
+        )
+        for f in fails:
+            print(f"  - {f}")
+        return 1
+    return 0
 
 
 if __name__ == "__main__":

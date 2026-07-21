@@ -41,6 +41,7 @@ desktop.ini
 # 골든 렌더 산출물 — build_golden.py로 재생성. 대표본은 docs/images/에 보존
 golden/render_v6/
 golden/_pilot_s06/render/
+golden/_pilot_s06/render_operating/
 golden/_pilot_s06/_ref_crops/
 golden/_proto_s06_f_render/
 golden/backup/**/render/
