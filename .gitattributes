@@ -1,0 +1,2 @@
+# 셸 훅은 LF 고정 — CRLF로 체크아웃되면 bash가 캐리지리턴(\r)에 죽어 훅이 깨진다.
+*.sh text eol=lf
