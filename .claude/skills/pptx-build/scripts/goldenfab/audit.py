@@ -423,6 +423,72 @@ def check_picture_overlap(shapes):
     return not hits, f"PICTURE {len(pics)}개 · 침범 {len(hits)} {hits[:3]}", len(hits)
 
 
+def check_text_collision(
+    shapes, min_depth=0.03, cover=0.6, wsim=0.55, small_frac=0.5, contain_frac=0.7
+):
+    """**배경 없는 순수 텍스트** 두 상자가 같은 열에서 세로로 포개지나 — 글자가 판독 불가로 겹침.
+
+    출처(2026-07-24 카드 목업 3회 반려): evidence_card 함의줄이 하단 출처줄 위에 겹침, hero_card
+    불릿이 세로로 뭉개져 서로 겹침, 출처줄과 인용 블록 겹침. 사용자가 **눈으로 3번** 잡았다.
+    기존 오딧의 사각지대였다 — check_text_overflow는 '제 상자 세로 초과'(단일 박스)만,
+    check_picture_overlap은 '그림 대 요소'만 본다. **텍스트 요소끼리의 겹침**은 아무도 안 봤다.
+    이 규칙은 check_picture_overlap의 형제다: 저건 그림이 침범, 이건 텍스트가 텍스트를 침범.
+
+    역할 분담(단일 출처의 두 반쪽): check_text_overflow(제 상자 초과·경미한 흘러내림·tol 대리지표)
+    + 이 규칙(배치 충돌·상자 세로 포갬). 렌더 추정을 **안 쓴다** — 순수 기하라 추정 오탐 0.
+
+    오탐 경계 — 통과작 전수 실측(2026-07-24)으로 좁힌 네 축(핵심 난제):
+    (1) **배경 있는 도형 제외**(fill_hex 있으면 스킵): 판정 마름모 노드·아이콘 칩·배지·bg 패널은
+        배경색으로 구분돼 겹쳐도 판독되고 의도된 배치다(다이어그램 노드 근접, 배지 위 라벨).
+        실측: s04·problem_grid 라벨 대 노드가 여기서 걸러진다. 결함 3건은 **전부 fill 없는
+        add_text**끼리였다 — 배경 없는 글자만 포개면 판독 불가.
+    (2) **세로 파일업만**(ox >= cover x 좁은 폭): 두 상자가 같은 열에 겹쳐(가로 폭 대부분 공유)
+        세로로 파고들 때만. 마크·번호가 라벨과 **가로로 나란한** 한 줄 인접('01 큰 노드=')은
+        ox가 좁아 제외 — 결함은 문장이 **아래로** 흐르는 세로 겹침이다(screenshot 번호 대 설명).
+    (3) **같은 폭 컬럼끼리만**(width_sim = 좁폭/넓폭 >= wsim): 결함은 카드 폭 두 문장이 세로로
+        포개짐(폭비 ~1). 넓은 캡션·부제(w12·3.78) 밑에 **좁은 간선/판정 라벨**(w1.0~1.8)이
+        얹히는 다이어그램 배치(폭비 <=0.47)는 본문 충돌이 아니라 라벨-오버-영역이라 제외한다.
+        실측: tech_tree 6건('지식그래프…'x'hier 79' 등)·s16 '✕'x'실측 4건'(0.32)이 전부 여기서.
+    (4) 포함(작은 라벨이 큰 텍스트 박스 안): 면적비 < small_frac AND 교집합 >= contain_frac x
+        작은 면적이면 제외 — 비슷한 크기 포갬(불릿 뭉갬)은 포함이 아니라 충돌이다.
+
+    경계 한계(정직): '배경 없는·같은 폭·세로 파일업'까지만 기계로 막는다. 배경 있는 요소 위 텍스트
+    겹침·좁은 라벨 대 넓은 본문·가로 충돌은 여기서 안 잡힌다(눈검증 몫) — 정밀(오탐 0) > 양.
+    """
+    tb = []
+    for s in shapes:
+        if not s.has_text_frame or not s.text_frame.text.strip():
+            continue
+        if fill_hex(s) is not None:
+            continue  # 배경 있는 도형(노드·칩·배지·패널) — 순수 텍스트 요소 아님(1)
+        x, y, w, h = box(s)
+        if w > 13 and h > 7:
+            continue  # 풀블리드 배경
+        tb.append((s, x, y, w, h))
+    bad = []
+    for i in range(len(tb)):
+        _s1, ax, ay, aw, ah = tb[i]
+        for j in range(i + 1, len(tb)):
+            _s2, bx, by, bw, bh = tb[j]
+            ox = min(ax + aw, bx + bw) - max(ax, bx)
+            oy = min(ay + ah, by + bh) - max(ay, by)
+            if ox <= 0 or oy <= 0:
+                continue
+            if oy < min_depth:
+                continue  # 세로 침투 없음(접점·정확 타일링·EMU 반올림)
+            if ox < cover * min(aw, bw):
+                continue  # 가로로 나란함(마크+라벨·번호+설명) — 세로 파일업 아님(2)
+            if min(aw, bw) < wsim * max(aw, bw):
+                continue  # 폭이 크게 다름 — 좁은 라벨이 넓은 캡션/영역 밑에 얹힘(3, 다이어그램)
+            small, large = min(aw * ah, bw * bh), max(aw * ah, bw * bh)
+            if large > 0 and small / large < small_frac and ox * oy >= contain_frac * small:
+                continue  # 작은 라벨이 큰 텍스트 박스 안(4 포함)
+            t1 = tb[i][0].text_frame.text.strip()[:10]
+            t2 = tb[j][0].text_frame.text.strip()[:10]
+            bad.append((t1, t2, round(oy, 3)))
+    return not bad, f"텍스트 상자 세로 겹침: {len(bad)} {bad[:3]}", len(bad)
+
+
 def check_bounds(shapes, bottom=CONTENT_BOTTOM, right=RIGHT_EDGE, skip_tops=()):
     """P2③ 콘텐츠 하한 · P2④ 풀폭 우변."""
     over, badr = [], []
@@ -552,6 +618,7 @@ def generic_checks(shapes, accent, band=None, dup_allow=0, screenshot=False, den
         ("P4⑩ 노드 클래스", *check_node_class(shapes)),
         ("§F 그림 침범", *check_picture_overlap(shapes)),
         ("텍스트 넘침", *check_text_overflow(shapes)),
+        ("텍스트 겹침", *check_text_collision(shapes)),
         ("P2③④ 경계", *bounds_res),
     ]
     if dense:

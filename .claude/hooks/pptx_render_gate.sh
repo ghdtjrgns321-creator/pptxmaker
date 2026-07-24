@@ -1,16 +1,20 @@
 #!/bin/bash
-# Stop 훅 — pptmaker 렌더 게이트 (자가무장, 2026-07-21)
+# Stop 훅 — pptmaker 덱 게이트 (자가무장 2026-07-21 · 산출물→에이전트 확장 2026-07-24)
 #
-# 강제하는 규율: "렌더 눈검증·preflight green 없이 dense 완료 선언 금지"(design-rules §8,
-#   consistency-qa §3). 지금까지 prose라서 무시됐다 — 여기서 기계로 못 하게 만든다.
+# 무장 2종 (pptx_arm.py가 세션 스코프로 기록):
+#   ① 소스 arm({sid}.tsv): goldenfab dense/build/audit 소스 편집.
+#      차단 = preflight red(generic_checks) OR 렌더 스테일(편집 후 sNN.png 없음). (기존)
+#   ② 산출물 arm({sid}.pptx.tsv): 이 세션의 명령이 .pptx를 저장/빌드/복사/렌더.
+#      차단 = 대화 기록(transcript)에 덱 에이전트(deck-smith·pptx-builder·deck-composer·
+#      consistency-qa)의 **완료 실행**이 없음 — tool_use↔tool_result 페어링으로 판정(거부·
+#      무응답 호출은 불인정). "덱 작업은 에이전트 루프 경유"(CLAUDE.md 정체)를 기계로 강제.
+#      메인 즉흥 덱 작업(스크래치 우회)이 하네스 전체를 잠재우던 구멍을 막는다(2026-07-24 전수
+#      감사 — 입구만 기계화). 페어링 교체(2026-07-24): 거부된 호출도 tool_use JSON은 남아
+#      옛 grep(문자열 존재)이 거짓통과하던 것을 실증하고 실제 완료 판정으로 전환.
+#   통과 = 무장 없음 / 전부 green / 백스톱(N=3 무진행 자동통과) / fail-open(오류 시).
 #
-#   무장 = 이번 세션에 goldenfab dense/build/audit 소스를 편집(pptx_arm.py가 기록).
-#   차단 = ① preflight red(generic_checks: 빈상자·넘침·재탕·밀도·accent)  OR
-#          ② 마지막 편집 이후 렌더 PNG(render_deck.ps1의 sNN.png)가 없음/스테일.
-#   통과 = 무장 없음 / 둘 다 green / 백스톱(N=3 무진행) / fail-open(오류 시).
-#
-# self-regulation(completion_gate와 동일 — 이 프로젝트가 "상시 적색 게이트는 무시당한다"를
-#   test_wiring.py:37에 학습): 같은 SIG로 N=3회 무진행 재차단되면 로그 남기고 자동통과+음소거.
+# self-regulation(completion_gate와 동일 — "상시 적색 게이트는 무시당한다", test_wiring.py:37):
+#   같은 SIG로 N=3회 무진행 재차단되면 로그 남기고 자동통과+음소거.
 set -uo pipefail
 N=3
 INPUT=$(cat 2>/dev/null)
@@ -23,10 +27,11 @@ fi
 
 STATE="$HOME/.claude/state/pptx_arm"
 ARM="$STATE/$SID.tsv"
+PPTX="$STATE/$SID.pptx.tsv"
 COUNTER="$STATE/.count.$SID"
 MUTED="$STATE/.muted.$SID"
 OVLOG="$STATE/.override.log"
-[[ -f "$ARM" ]] || exit 0
+[[ -f "$ARM" || -f "$PPTX" ]] || exit 0
 
 # Windows 경로(C:/...) → Git Bash 경로(/c/...) 변환 — stat·find가 드라이브레터를 못 읽는 것 방지.
 to_unix() {
@@ -38,31 +43,33 @@ to_unix() {
   fi
 }
 
-# 존재하는 armed 소스만 훑어 최신 mtime 파일·dense 스템·프로젝트 루트를 구한다.
+# ── 소스 arm 스캔 — 존재하는 armed 소스의 최신 mtime·dense 스템·프로젝트 루트 ──
 NEWEST_SRC=""
 NEWEST_T=0
 DENSE_STEMS=""
 PROJ=""
-while IFS=$'\t' read -r _ns path; do
-  path="${path%$'\r'}"  # CRLF 방어(Windows에서 arm 파일이 \r\n일 수 있음)
-  [[ -n "$path" ]] || continue
-  u=$(to_unix "$path")
-  [[ -f "$u" ]] || continue
-  cur=$(stat -c %Y "$u" 2>/dev/null || echo 0)
-  if [[ "$cur" -ge "$NEWEST_T" ]]; then NEWEST_T="$cur"; NEWEST_SRC="$u"; fi
-  base="${u##*/}"; stem="${base%.py}"
-  [[ "$stem" == *_dense ]] && DENSE_STEMS+="$stem "
-  [[ -z "$PROJ" && "$u" == */.claude/* ]] && PROJ="${u%%/.claude/*}"
-done < "$ARM"
+if [[ -f "$ARM" ]]; then
+  while IFS=$'\t' read -r _ns path; do
+    path="${path%$'\r'}"  # CRLF 방어
+    [[ -n "$path" ]] || continue
+    u=$(to_unix "$path")
+    [[ -f "$u" ]] || continue
+    cur=$(stat -c %Y "$u" 2>/dev/null || echo 0)
+    if [[ "$cur" -ge "$NEWEST_T" ]]; then NEWEST_T="$cur"; NEWEST_SRC="$u"; fi
+    base="${u##*/}"; stem="${base%.py}"
+    [[ "$stem" == *_dense ]] && DENSE_STEMS+="$stem "
+    [[ -z "$PROJ" && "$u" == */.claude/* ]] && PROJ="${u%%/.claude/*}"
+  done < "$ARM"
+  # 편집 소스가 하나도 안 남았으면(되돌림·삭제) 소스 무장만 해제. 산출물 무장은 별개.
+  [[ -n "$NEWEST_SRC" && -n "$PROJ" ]] || rm -f "$ARM" 2>/dev/null
+fi
+[[ -f "$ARM" || -f "$PPTX" ]] || { rm -f "$COUNTER" "$MUTED" 2>/dev/null; exit 0; }
 
-# 편집 소스가 하나도 안 남았으면(되돌림·삭제) 무장 해제하고 통과.
-[[ -n "$NEWEST_SRC" && -n "$PROJ" ]] || { rm -f "$ARM" "$COUNTER" "$MUTED" 2>/dev/null; exit 0; }
-
-# 백스톱용 서명(armed 경로·mtime 집합).
+# 백스톱용 서명 — 두 마커 합산(경로·mtime·스니펫 집합).
 if command -v sha1sum >/dev/null 2>&1; then
-  SIG=$(sort "$ARM" | sha1sum | cut -d' ' -f1)
+  SIG=$(cat "$ARM" "$PPTX" 2>/dev/null | sort | sha1sum | cut -d' ' -f1)
 else
-  SIG=$(wc -c < "$ARM" | tr -d ' ')
+  SIG=$(cat "$ARM" "$PPTX" 2>/dev/null | wc -c | tr -d ' ')
 fi
 MSIG=""
 if [[ -f "$MUTED" ]]; then
@@ -92,10 +99,10 @@ backstop_or_block() {
   if [[ "$SIG" == "$PREV_SIG" ]]; then CNT=$((PREV_CNT + 1)); else CNT=1; fi
   printf '%s %s\n' "$SIG" "$CNT" > "$COUNTER" 2>/dev/null
   if [[ "$CNT" -ge "$N" ]]; then
-    { printf '[render-gate backstop] auto-pass:\n%s\n' "$reason"; } >> "$OVLOG" 2>/dev/null
+    { printf '[deck-gate backstop] auto-pass:\n%s\n' "$reason"; } >> "$OVLOG" 2>/dev/null
     rm -f "$COUNTER" 2>/dev/null
     printf '%s\n' "$SIG" > "$MUTED" 2>/dev/null
-    emit_ctx "렌더 게이트 백스톱: ${N}회 무진행 자동통과. 렌더 눈검증 미완을 사용자에게 명시 보고할 것."
+    emit_ctx "덱 게이트 백스톱: ${N}회 무진행 자동통과. 미충족 항목(렌더 눈검증/에이전트 경유)을 사용자에게 명시 보고할 것."
     exit 0
   fi
   emit_block "$reason (무진행 ${CNT}/${N}, 도달 시 자동통과)"
@@ -104,29 +111,97 @@ backstop_or_block() {
 
 FAILS=""
 
-# --- 검사 ①: preflight green (dense 스템 지정, 없으면 통과작 자기검증) ---
-TO=""
-command -v timeout >/dev/null 2>&1 && TO="timeout 120"
-pf_out=$(cd "$PROJ" && $TO uv run python .claude/skills/pptx-build/scripts/preflight_dense.py $DENSE_STEMS 2>&1)
-pf_rc=$?
-if [[ "$pf_rc" -ne 0 ]]; then
-  FAILS+="✗ preflight red (rc=${pf_rc}): $(printf '%s' "$pf_out" | tail -c 300)
+# ── 검사 ①②: 소스 arm — preflight green + 렌더 신선도 (기존) ──
+if [[ -f "$ARM" && -n "$NEWEST_SRC" && -n "$PROJ" ]]; then
+  TO=""
+  command -v timeout >/dev/null 2>&1 && TO="timeout 120"
+  pf_out=$(cd "$PROJ" && $TO uv run python .claude/skills/pptx-build/scripts/preflight_dense.py $DENSE_STEMS 2>&1)
+  pf_rc=$?
+  if [[ "$pf_rc" -ne 0 ]]; then
+    FAILS+="✗ preflight red (rc=${pf_rc}): $(printf '%s' "$pf_out" | tail -c 300)
 "
+  fi
+  FRESH=$(find "$PROJ" -path '*/.venv' -prune -o -path '*/.git' -prune -o \
+    -name 's[0-9][0-9].png' -newer "$NEWEST_SRC" -print 2>/dev/null | head -1)
+  if [[ -z "$FRESH" ]]; then
+    FAILS+="✗ 렌더 없음/스테일: '${NEWEST_SRC##*/}' 편집 이후 sNN.png 없음. render_deck.ps1로 렌더→눈검증.
+"
+  fi
 fi
 
-# --- 검사 ②: 렌더 신선도 (편집 이후 sNN.png 존재) ---
-FRESH=$(find "$PROJ" -path '*/.venv' -prune -o -path '*/.git' -prune -o \
-  -name 's[0-9][0-9].png' -newer "$NEWEST_SRC" -print 2>/dev/null | head -1)
-if [[ -z "$FRESH" ]]; then
-  FAILS+="✗ 렌더 없음/스테일: '${NEWEST_SRC##*/}' 편집 이후 sNN.png 없음. render_deck.ps1로 렌더→눈검증.
+# ── 검사 ③: 산출물 arm — 덱 에이전트 "완료 실행" 경유 (2026-07-24 · 페어링 교체 2026-07-24) ──
+# 문자열 존재(옛 grep)가 아니라 tool_use↔tool_result 페어링으로 "실제 완료"를 본다: 덱 에이전트
+# subagent_type를 가진 tool_use의 tool_use_id에 대응하는 tool_result가 있고, 그것이 거부
+# (is_error:true / "The user doesn't want to proceed" …)도 무응답(미완료)도 아닐 때만 경유 인정.
+# 실증(2026-07-24): 거부된 deck-smith 호출도 tool_use JSON은 transcript에 남아 옛 grep이
+# 거짓통과했다(사용자 tool use rejected). 페어링은 그 거부를 걸러낸다.
+if [[ -f "$PPTX" ]]; then
+  TR_RAW=$(printf '%s' "$INPUT" | python -c "import json,sys;print(json.load(sys.stdin).get('transcript_path','').replace(chr(92),'/'))" 2>/dev/null)
+  TR=$(to_unix "$TR_RAW")
+  if [[ -n "$TR" && -f "$TR" ]]; then
+    VIA=$(TR="$TR" python - <<'PY' 2>/dev/null
+import json, os
+DECK = {"deck-smith", "pptx-builder", "deck-composer", "consistency-qa"}
+uses = {}     # tool_use_id -> subagent_type (덱 에이전트 Agent 호출만)
+results = {}  # tool_use_id -> (is_error, content_str)
+try:
+    fh = open(os.environ["TR"], encoding="utf-8")
+except Exception:
+    raise SystemExit  # 못 읽으면 아무것도 출력 안 함 → 아래서 fail-open
+for line in fh:
+    line = line.strip()
+    if not line:
+        continue
+    try:
+        obj = json.loads(line)
+    except Exception:
+        continue
+    msg = obj.get("message")
+    if not isinstance(msg, dict):
+        continue
+    content = msg.get("content")
+    if not isinstance(content, list):
+        continue
+    for b in content:
+        if not isinstance(b, dict):
+            continue
+        t = b.get("type")
+        if t == "tool_use":
+            st = (b.get("input") or {}).get("subagent_type")
+            if st in DECK:
+                uses[b.get("id")] = st
+        elif t == "tool_result":
+            cc = b.get("content")
+            cs = cc if isinstance(cc, str) else json.dumps(cc, ensure_ascii=False)
+            results[b.get("tool_use_id")] = (b.get("is_error"), cs)
+completed = False
+for uid in uses:
+    if uid not in results:  # 무응답(미완료·pending) — 경유 불인정
+        continue
+    err, cs = results[uid]
+    if err is True:  # tool_result 에러/거부
+        continue
+    if cs.startswith("The user doesn't want to proceed"):  # 거부 문자열 방어
+        continue
+    completed = True
+    break
+print("PASS" if completed else "BLOCK")
+PY
+)
+    if [[ "$VIA" == "BLOCK" ]]; then
+      FAILS+="✗ 덱 산출물(.pptx) 저장 감지 — 덱 에이전트 완료 실행 없음(호출만 있고 거부/무응답이거나 아예 미경유). 메인 즉흥 덱 작업 금지: 수정·재작업은 deck-smith, 신규 빌드는 pptmaker 파이프라인 에이전트로 **실제 완료까지** 수행하라(CLAUDE.md 정체 루프).
 "
+    fi
+    # VIA="" (python 오류) 또는 "PASS" → 차단 안 함(fail-open / 정상 통과). BLOCK만 적재.
+  fi
+  # transcript를 못 읽으면 fail-open(검사 생략) — 게이트 오류가 종료를 막지 않는다.
 fi
 
 if [[ -n "$FAILS" ]]; then
-  backstop_or_block "종료 차단(렌더 게이트). dense 소스를 고쳤는데 아래가 안 끝났다:
-${FAILS}green + 렌더 후 종료하라. 의도적 중간 양보면 백스톱까지 대기(무진행 누적)."
+  backstop_or_block "종료 차단(덱 게이트). 이 세션에 덱 작업 흔적이 있는데 아래가 안 끝났다:
+${FAILS}해소(green + 렌더 / 에이전트 경유) 후 종료하라. 의도적 중간 양보면 백스톱까지 대기(무진행 누적)."
 fi
 
-# 둘 다 green — 무장 해제.
-rm -f "$ARM" "$COUNTER" "$MUTED" 2>/dev/null
+# 전부 green — 무장 해제.
+rm -f "$ARM" "$PPTX" "$COUNTER" "$MUTED" 2>/dev/null
 exit 0

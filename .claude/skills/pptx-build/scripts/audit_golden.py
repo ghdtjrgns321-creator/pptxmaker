@@ -330,6 +330,63 @@ def selftest():
         )
     )
 
+    # ── 텍스트 겹침(check_text_collision) 민감도 — 배경 없는 같은 폭 두 문장이 세로로 포개지면
+    # 잡고, 좁은 라벨·fill 노드·정상 간격·골든 전수는 오탐 0 (2026-07-24 카드 목업 3회 반려 하강).
+    def _txt(sl, x, y, w, h, s):
+        tbx = sl.shapes.add_textbox(Inches(x), Inches(y), Inches(w), Inches(h))
+        tbx.text_frame.word_wrap = True
+        tbx.text_frame.paragraphs[0].add_run().text = s
+        return tbx
+
+    def _blank():
+        p = Presentation()
+        p.slide_width, p.slide_height = Inches(13.333), Inches(7.5)
+        return p.slides.add_slide(p.slide_layouts[6])
+
+    # (a) 검출 — evidence_card 함의줄↔출처줄 유형(fill 없는 같은 폭 문장이 세로로 겹침)
+    slo = _blank()
+    _txt(slo, 0.6, 2.60, 3.5, 0.18, "출처 · 7_JOURNEY.md §7.3")
+    _txt(slo, 0.6, 2.73, 3.5, 0.24, "유사도 필터가 정답을 거른다")
+    hit_c, msg_c, n_c = A.check_text_collision(list(slo.shapes))
+    ok.append(("텍스트 겹침 검출", not hit_c, msg_c, n_c))
+
+    # (b) 정상 간격 — 오탐 0(같은 두 문장을 안 겹치게 배치)
+    slg = _blank()
+    _txt(slg, 0.6, 2.60, 3.5, 0.18, "출처 · 7_JOURNEY.md §7.3")
+    _txt(slg, 0.6, 2.88, 3.5, 0.24, "유사도 필터가 정답을 거른다")
+    hit_g, msg_g, n_g = A.check_text_collision(list(slg.shapes))
+    ok.append(("텍스트 겹침 정상 오탐 0", hit_g, msg_g, n_g))
+
+    # (c) 경계 — 좁은 라벨이 넓은 캡션 밑(폭 크게 다름 = 다이어그램 라벨) → 오탐 0(width_sim)
+    slw = _blank()
+    _txt(slw, 0.6, 6.30, 12.1, 0.20, "지식그래프 — 기준서의 구조를 그대로 담는다")
+    _txt(slw, 3.0, 6.42, 1.0, 0.18, "hier 79")
+    hit_w, msg_w, n_w = A.check_text_collision(list(slw.shapes))
+    ok.append(("텍스트 겹침 좁은라벨 오탐 0", hit_w, msg_w, n_w))
+
+    # (d) 경계 — fill 있는 노드끼리 겹침 → 오탐 0(배경 있으면 판독 구분·의도, check_adhoc 담당)
+    slf = _blank()
+    for i, xx in enumerate((2.0, 2.1)):
+        shf = slf.shapes.add_shape(
+            MSO_SHAPE.RECTANGLE, Inches(xx), Inches(2.0 + i * 0.15), Inches(2.0), Inches(0.4)
+        )
+        shf.fill.solid()
+        shf.fill.fore_color.rgb = C["bg_alt"]
+        shf.text_frame.paragraphs[0].add_run().text = f"노드 {i}"
+    hit_f, msg_f, n_f = A.check_text_collision(list(slf.shapes))
+    ok.append(("텍스트 겹침 fill노드 오탐 0", hit_f, msg_f, n_f))
+
+    # (e) 통과작 전수 — SPECS 골든 레이아웃 전부 오탐 0(§6-D 골든 오탐 0과 같은 회귀 방어)
+    tc_fails = [k for k in SPECS if not A.check_text_collision(list(render(k).shapes))[0]]
+    ok.append(
+        (
+            "텍스트 겹침 골든 오탐 0",
+            not tc_fails,
+            f"골든 {len(SPECS) - len(tc_fails)}/{len(SPECS)} 통과 {tc_fails}",
+            len(tc_fails),
+        )
+    )
+
     # 대비 산수 자체
     cr_muted = A.contrast(C["muted"])
     cr_primary = A.contrast(C["primary"])

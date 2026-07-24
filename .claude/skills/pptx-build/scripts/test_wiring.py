@@ -125,6 +125,53 @@ def test_adhoc_card_gate_wired():
     )
 
 
+# ── ④.5 텍스트 겹침 게이트 배선 (배경없는 세로 파일업을 generic_checks 전 경로에서 막나) ──
+def test_text_collision_gate_wired():
+    """2026-07-24: 텍스트 요소끼리 겹침(카드 목업 3회 반려)이 오딧 사각지대였다 — 하강.
+    check_text_overflow(제 상자)·check_picture_overlap(그림)의 형제. **공유 res**라 dense·sparse
+    양 경로에 물려야 한다(존재≠검사 hollow 방지 + 한쪽만 물리면 실전/골든 한쪽이 샌다)."""
+    from goldenfab import audit as A
+
+    has_fn = hasattr(A, "check_text_collision")
+    dense_names = [r[0] for r in A.generic_checks([], "D66E3A", dense=True)]
+    sparse_names = [r[0] for r in A.generic_checks([], "D66E3A", dense=False)]
+    wired_both = "텍스트 겹침" in dense_names and "텍스트 겹침" in sparse_names
+    check(
+        "④.5 텍스트 겹침 게이트→generic_checks(양 경로) (배경없는 세로 파일업 기계 차단)",
+        has_fn and wired_both,
+        f"check_text_collision 존재={has_fn} · dense·sparse 양쪽 배선={wired_both}"
+        if (has_fn and wired_both)
+        else f"미배선(존재={has_fn}, dense={'텍스트 겹침' in dense_names}, "
+        f"sparse={'텍스트 겹침' in sparse_names})",
+    )
+
+
+# ── ⑤ 산출물→덱 에이전트 게이트 (pptx 저장 감지 → deck-smith "완료 실행" 경유 강제) ──
+def test_artifact_agent_gate_wired():
+    """2026-07-24 전수 감사: 게이트가 경로(goldenfab 소스)만 봐서 스크래치 pptx 작업이
+    무검증 통과하던 구멍. 훅 3점(matcher·arm 감지·게이트 검사)이 전부 물려 있어야 한다.
+    페어링 교체(2026-07-24): 옛 게이트는 subagent_type "문자열 존재"만 봐서 **거부된**
+    deck-smith 호출(tool use rejected)도 거짓통과했다(실세션 실증). 게이트가 tool_use↔
+    tool_result 페어링으로 '실제 완료'를 보는지(거부·무응답 불인정) 마커로 못 박는다 —
+    이 마커(is_error·tool_result·거부 문자열)가 사라지면 naive grep으로의 회귀."""
+    sj = _read(".claude/settings.json")
+    arm = _read(".claude/hooks/pptx_arm.py")
+    gate = _read(".claude/hooks/pptx_render_gate.sh")
+    matcher_ok = "Write|Edit|Bash|PowerShell" in sj
+    arm_ok = "pptx_signal" in arm and ".pptx.tsv" in arm
+    # 존재 마커 + 페어링(완료 실행) 판정 마커. 후자가 naive grep과의 차이를 강제한다.
+    exists_ok = "subagent_type" in gate and "deck-smith" in gate and ".pptx.tsv" in gate
+    pairing_ok = (
+        "tool_result" in gate and "is_error" in gate and "The user doesn't want to proceed" in gate
+    )
+    gate_ok = exists_ok and pairing_ok
+    check(
+        "⑤ 산출물→덱 에이전트 게이트 (pptx 저장 감지 → deck-smith 완료 실행 경유, 거부 불인정)",
+        matcher_ok and arm_ok and gate_ok,
+        f"matcher={matcher_ok} arm감지={arm_ok} 게이트검사(존재={exists_ok}·페어링={pairing_ok})",
+    )
+
+
 # ── 통합 A: 밀도 지표 단일 출처 (audit.py 하나, 경쟁 임계 없음) ──────────────────
 def test_density_metric_single_source():
     pf = _read(".claude/skills/pptx-build/scripts/preflight_dense.py")
@@ -253,6 +300,8 @@ def main():
         test_gate_mechanical,
         test_diversity_golden_aware,
         test_adhoc_card_gate_wired,
+        test_text_collision_gate_wired,
+        test_artifact_agent_gate_wired,
         test_density_metric_single_source,
         test_decision_table_single_source,
         test_content_contract_resolves,
