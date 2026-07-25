@@ -172,6 +172,67 @@ def test_artifact_agent_gate_wired():
     )
 
 
+# ── ⑥ 규칙 택소노미 양방향 (design-rules 강제 태그 ↔ 검사 실체 — 유령·고아·부채 래칫) ──
+PROSE_DEBT_CAP = (
+    4  # [산문·하강대기: 태그 수(§3·§7·§8·E-2). 증감은 P1.5 백로그 경유 + 사용자 승인 전용.
+)
+
+
+def test_rules_taxonomy():
+    """2026-07-25: design-rules(570줄)가 목차는 있는데 **강제 상태 축**이 없어 "산문인데
+    강제라고 착각"이 반복됐다("규칙이 있어도 러너에 안 물리면 없는 규칙"). 각 § 머리의
+    `> **강제:**` 태그를 기계로 양방향 검증한다:
+    ①전 § 태그 존재(영구 census) ②[기계: check_x]는 generic_checks에, [기계·골든: check_x]는
+    audit_golden에 실재·배선(유령 태그 차단 — 골든 전용 검사를 전 덱 규칙에 달면 유령 강제)
+    ③audit.py 전 검사가 문서에 등장(고아 검사 차단 — 새 검사 추가 시 문서 태그 강제 래칫)
+    ④[산문·하강대기:] 총수 ≤ CAP(산문 부채 래칫 — 넘으려면 이 상수를 같은 커밋에서 올려야
+    해서 부채 증가가 항상 가시화된다). 태그 전이의 정당성은 기계가 판정 못 함(사용자 승인 몫)."""
+    doc = _read(".claude/skills/pptx-build/references/design-rules.md")
+    audit_src = _read(".claude/skills/pptx-build/scripts/goldenfab/audit.py")
+    golden_src = _read(".claude/skills/pptx-build/scripts/audit_golden.py")
+    probs = []
+    # ① 전 §(##~####) 헤딩 밑 3줄 내 강제 태그 줄
+    lines = doc.split("\n")
+    for i, ln in enumerate(lines):
+        if re.match(r"^#{2,4} ", ln):
+            win = lines[i + 1 : i + 4]
+            if not any(w.startswith("> **강제:**") or w.startswith("> (구조") for w in win):
+                probs.append(f"태그 없음: {ln.lstrip('# ')[:24]}")
+    # ② 태그의 check_*가 맞는 러너에 실재·배선
+    defined = set(re.findall(r"^def (check_[a-z_]+)", audit_src, re.M))
+    gen_body = (
+        audit_src.split("def generic_checks", 1)[1].split("\ndef ", 1)[0]
+        if "def generic_checks" in audit_src
+        else ""
+    )
+    for m in re.finditer(r"\[(기계·골든|기계)[^\]]*\]", doc):
+        cls = m.group(1)
+        for tok in re.findall(r"check_[a-z_]+", m.group(0)):
+            if tok not in defined:
+                probs.append(f"유령 태그: {tok}(audit.py에 없음)")
+            elif cls == "기계" and f"{tok}(" not in gen_body:
+                probs.append(f"오배선: [기계] {tok}가 generic_checks에 없음")
+            elif cls == "기계·골든" and f"{tok}(" not in golden_src:
+                probs.append(f"오배선: [기계·골든] {tok}가 audit_golden에 없음")
+    # ③ 고아 검사(정의됐는데 문서 미등장) — 새 검사는 반드시 규칙 태그를 동반
+    orphans = sorted(c for c in defined if c not in doc)
+    if orphans:
+        probs.append(f"고아 검사(문서 태그 없음): {orphans}")
+    # ④ 산문 부채 래칫
+    n_debt = doc.count("[산문·하강대기:")
+    if n_debt > PROSE_DEBT_CAP:
+        probs.append(
+            f"산문 부채 증가: {n_debt} > 상한 {PROSE_DEBT_CAP}(백로그 경유+사용자 승인 필요)"
+        )
+    check(
+        "⑥ 규칙 택소노미 양방향 (전 § 태그 · 유령/고아 0 · 부채 래칫)",
+        not probs,
+        "; ".join(probs)
+        if probs
+        else f"§ 태그 전수 · 검사 {len(defined)}종 전부 문서 등장 · 부채 {n_debt}/{PROSE_DEBT_CAP}",
+    )
+
+
 # ── 통합 A: 밀도 지표 단일 출처 (audit.py 하나, 경쟁 임계 없음) ──────────────────
 def test_density_metric_single_source():
     pf = _read(".claude/skills/pptx-build/scripts/preflight_dense.py")
@@ -302,6 +363,7 @@ def main():
         test_adhoc_card_gate_wired,
         test_text_collision_gate_wired,
         test_artifact_agent_gate_wired,
+        test_rules_taxonomy,
         test_density_metric_single_source,
         test_decision_table_single_source,
         test_content_contract_resolves,
