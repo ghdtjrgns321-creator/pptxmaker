@@ -1,154 +1,210 @@
-# 6. 시각 어휘층 — 차트·다이어그램·아이콘·목업 갤러리
+# 6. 시각 어휘 — (A) 부품 도구함 · (B) 차트·다이어그램
 
-> 이 장은 "슬라이드에 무엇을 그릴 수 있는가(어휘)"와 "그 어휘를 어떻게 고르고 승인받는가(추천→심사→갤러리)"를 다룬다.
-> 구현 실물은 `.claude/skills/pptx-visuals/scripts/` 아래 7개 스크립트다 — pptx-visuals SKILL.md 서두에는 "구현은 3개"로 남아 있으나 실물은 7개(같은 문서 뒷절이 스스로 3개(render_real_mockups·check_candidates·make_icons)를 더 언급하고 recommend_archetypes는 아예 언급하지 않는 자기 불일치).
+> 이 장은 "슬라이드에 무엇을 그릴 수 있는가"를 다룬다. 어휘는 두 축이다 — **(A) 골든에서 꺼낸 도해 부품**(`goldenfab/figures/`)과 **(B) 범용 차트·다이어그램**(`pptx-visuals/`). 같은 물성에 둘 다 있으면 (A)가 1순위이고, (A)에 어휘가 없는 물성(시계열·구성비·분포·좌표계)은 (B)가 정본이다. 어느 어휘를 고르는지의 규칙은 `상세: 4_DECK-COMPOSE.md`.
 
-## 6.1 파이프라인 내 위치
-
-```
-① GRILL ──▶ ② deck-compose ──▶ ②.5 목업 승인 ──▶ ③ build_pptx ──▶ ④ QA
-                 │                    │                 │              │
-                 ▼                    ▼                 ▼              ▼
-   ┌──────────────────────────────────────────────────────────────────────┐
-   │ ★ 시각 어휘층 (.claude/skills/pptx-visuals/)                          │
-   │   추천 엔진(②) · 후보 자기 심사(②) · 목업 갤러리(②.5)                 │
-   │   렌더러 visuals·mpl_exhibits(③) · MPL_TYPES 집합은 QA 계수에도(④)    │
-   └──────────────────────────────────────────────────────────────────────┘
-```
-
-시각 어휘층은 파이프라인의 한 단계가 아니라 ②~④를 관통하는 **가로층**이다. ②에서 후보를 추천·심사하고, ②.5에서 사용자 승인을 받고, ③에서 실제로 그리고, ④에서는 `MPL_TYPES` 집합이 "이미지가 정상인가"의 계수 기준으로 쓰인다. 절차 상세는 `상세: 4_DECK-COMPOSE.md`(②·②.5), 빌더 본체는 `상세: 5_PPTX-BUILD.md`, 게이트 전체는 `상세: 8_QA-GATES.md`.
-
-## 6.2 어휘 인벤토리 (구조 표)
-
-| 어휘층          | 종수                    | 목록                                                                                                                                                                          | 정본 출처                                                                                              | 낡은 서술(어디에 남아있나)                                                                                                  |
-| --------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
-| 네이티브 차트   | **6종**                 | bar/hbar/line/pie/doughnut/stacked_bar (pie ≤5조각)                                                                                                                           | `.claude/skills/pptx-visuals/scripts/visuals.py:36~43` CHART_TYPES                                     | —                                                                                                                           |
-| 도형 다이어그램 | **18종**                | flow·layers·branch·timeline·cards·from_to·process_band·band_table·matrix_2x2·spectrum·harvey_table·check_matrix·venn·pro_con·icon_rows·stat_split·contrast_split·split_detail | `visuals.py:181~220` add_diagram 디스패치                                                              | "다이어그램 2종 flow·layers(YAGNI)": pptx-visuals SKILL.md·visuals.py 도크스트링 L4·docs/PIPELINE.md                        |
-| mpl 확장 차트   | **9종**                 | waterfall/heatmap/dumbbell/slope/funnel/annotated_scatter/histogram/**bubble/waffle** (220dpi PNG, 수치 편집 불가)                                                            | `.claude/skills/pptx-visuals/scripts/mpl_exhibits.py:25~35` MPL_TYPES                                  | "7종": mpl_exhibits 도크스트링 L3-4·pptx-build SKILL.md L29·CLAUDE.md v4 이력(bubble·waffle는 Deloitte p7·p24 실측 후 추가) |
-| 아이콘          | **24종 × 3색 = 72 PNG** | Lucide(MIT) 큐레이션 24종, primary/accent/white 3색, 256px, CDN lucide-static@0.462.0 사전 박제                                                                               | `.claude/skills/pptx-visuals/scripts/make_icons.py:19~44(ICONS)·45~61`                                 | "Lucide 아이콘 72종": CLAUDE.md v3 이력(파일 수 기준 표기 — 종수는 24)                                                      |
-| L-ID 카탈로그   | **38종(L01~L38)**       | 정량 네이티브 L01~06 · mpl L07~13 · 도형 L14~25 · 텍스트·표 L26~30 · v4.4 승격 L31~34 · v4.5 컴포지트 L35~38                                                                  | `.claude/skills/pptx-visuals/references/archetype-catalog.md`; `recommend_archetypes.py:24~63` LID_KEY | visual-selection.md B표 하단 3행은 카탈로그 밖(§6.9 갭 참조)                                                                |
-
-네이티브 6종 + 도형 18종 = **PPT에서 직접 편집 가능한 어휘 24종**이 `visuals.py`(1,164행) 한 파일에 모여 있고, 여기에 mpl 9종(이미지)을 더한 것이 전체 렌더 어휘다. pptx-visuals SKILL.md의 선언 — "시각자료 코드는 이 모듈에만 존재한다" — 대로 빌더에는 차트 코드 중복이 없다.
-
-카탈로그의 철칙은 "**모든 행은 렌더러가 실존한다**"(archetype-catalog.md) — 렌더러 없는 등재로 빌드 불가 spec이 나오는 것(hollow 카탈로그)을 막는 장치다. 이 철칙이 우회된 곳이 1군데 있다(§6.9).
-
-## 6.3 시각 생성 흐름 — 후보에서 렌더까지
+## 6.1 두 축이 왜 갈리나
 
 ```
-deck-spec 초안(장별 visual 후보)                        [② deck-composer]
-   │
-   ▼
-recommend_archetypes.py ─ 실데이터 특성 7+1종 결정적 검출 ─▶ L-ID 랭킹
-   │
-   ▼
-03_exhibit-candidates.json  (본문 장 × 3안, 조합장치 ≥1, 디폴트 어휘엔 why_not)
-   │
-   ▼
-check_candidates.py ─ 검사 7종 + 게이트 통과 조합 시뮬레이션(≤200,000) ─ FAIL ─▶ 후보 재작성
-   │ PASS
-   ▼
-render_real_mockups.py ─ 실물 pptx 빌드 + PowerPoint COM PNG 렌더
-   │        └─ COM 불가 환경 ─▶ make_mockups.py (mpl 스케치 폴백)
-   ▼
-gallery.html ─ JS 게이트 4종 실시간 채점 + 그리디 기본선택 ─▶ 사용자 회신 "sNN=X"   [②.5 승인 게이트]
-   │
-   ▼
-02_deck-spec.json 확정 ─▶ build_pptx.py ─┬─ CHART_TYPES 6종 ──▶ 네이티브 차트(수치 편집 가능)
-                                          ├─ MPL_TYPES 9종 ───▶ 220dpi PNG(편집 불가)
-                                          └─ add_diagram 18종 ─▶ 도형 다이어그램(편집 가능)
+ (A) 부품 도구함                        (B) 범용 어휘
+ goldenfab/figures/ · 10종               pptx-visuals/scripts/ · 차트6+mpl9+도형9
+ ────────────────────────                ────────────────────────
+ 골든에서 **꺼낸** 도해                   일반 데이터 시각화 어휘
+ 구조·인과·관계·정성 물성                정량 물성(FT Visual Vocabulary)
+ draw(slide, box, data, kit)             add_chart / add_diagram / mpl render
+ composed 장이 조립해 쓴다               chart·diagram·table 장이 쓴다
 ```
 
-핵심 설계 의도: "다양하게·알맞게"라는 판단을 LLM 감각에 맡기지 않고 **결정적 규칙(추천)·exit code(심사)·사용자 눈(갤러리)**의 3중으로 기계화·외부화한 것이다. ①은 "무엇을 말할 것인가", ②.5는 "어떻게 보일 것인가"를 각각 승인받는다(pptmaker SKILL.md).
-
-## 6.4 렌더러 세부 — visuals.py · mpl_exhibits.py (build_pptx 실배선)
-
-### visuals.py — 편집 가능 어휘의 단일 출처
-
-- **단일 소비자는 build_pptx다.** `build_pptx.py:28` import 후 add_icon(904·1011)·add_chart(1192·1224)·add_callouts(1227)·add_diagram(1266·1278·1285)에서 호출. 색·폰트·크기는 인자 brand dict(brand-kit.yaml)에서만 나온다 — hex 하드코딩 없음.
-- **emphasis = BCG 규칙**: emphasis가 있으면 전 시리즈 회색(GRAY_BASE `#C7CBD1`, `visuals.py:95`) + 강조만 accent 1색(`visuals.py:98~131`; 단일 시리즈 bar/hbar는 포인트 단위 강조). 없으면 accent→primary→muted 순환. 자동 제목 제거, 데이터 레이블은 bar/hbar/line/stacked_bar만.
-- **add_callouts**: 이미지에 굽지 않는 pptx 도형 콜아웃(3.0×0.55in, 영역 밖 탈출 방지 클램프 `visuals.py:144`) — 네이티브 경로에서는 주석도 편집 가능 객체다.
-- **add_icon**: 사전 변환 PNG 삽입, 없는 이름은 ValueError — "조용한 누락 금지"(`visuals.py:29~32`).
-- **add_diagram 18종 디스패치**(`visuals.py:181~220`), 미지 레이아웃 ValueError. stat_split/contrast_split/split_detail은 _icon_rows를 재사용하는 복합 골격이고 split_detail은 add_diagram을 재귀 호출한다(`visuals.py:419`). v4.5 플랫 룩: 노드 직각+무테(`visuals.py:995`), flow 화살촉은 XML 직접 부착(`visuals.py:982~986`).
-- 구현 우회의 예: 하비볼 부분 채움은 python-pptx가 노출하지 않는 기능이라 PIE 도형 각도 조정(-90°+90°×score)으로 구현(`visuals.py:755~783`).
-- 엣지: `_from_to` 열 머리 "From — 기존 방식"/"To — 본 시스템"이 하드코딩(`visuals.py:944`) — 전환 서사가 아닌 데이터에 쓰면 문구가 안 맞는다.
-
-### mpl_exhibits.py — 하이브리드 이미지 경로
-
-- 네이티브 차트가 표현 못 하는 9종을 matplotlib 220dpi(`mpl_exhibits.py:22`) PNG로 렌더한다. **MPL_TYPES 집합 자체가 라우팅 스위치** — build_pptx는 chart_type이 이 집합에 있으면 이미지 경로로 전환한다(`build_pptx.py:1256`). 배선은 3곳: 빌더(`build_pptx.py:27` import·`:1208` render), QA(`audit_pptx.py:22`), 목업(`make_mockups.py:25`).
-- 스타일 단일 경로: 모든 렌더러가 `_fig()`(폰트·스파인·눈금 강제)로 시작해 `_save()`(annotations 콜아웃+note 각주+220dpi 저장)로 끝나고, 색은 회색 베이스+accent 1색만(`_emph_colors`, `mpl_exhibits.py:141~144`). "전부 회색, 강조 데이터만 브랜드색 1개 + 콜아웃 주석 + 하단 출처 각주가 BCG 룩의 최대 지렛대"(모듈 주석 L8~9).
-- 렌더러별 자동 장치: waterfall은 증감분 입력에 합계 막대 자동 추가+단차 점선(`:147~178`), heatmap은 흰색→accent 단색 그라데이션(`:184`), funnel은 단계 간 전환율 ↓% 표기(`:279~281`), slope는 강조 시리즈만 굵은 선(`:225~234`). 미지 타입 ValueError(`:135`). 한글 폰트 우선순위 Pretendard→Malgun Gothic→NanumGothic(`:41~43`).
-- 산출물은 이미지라 수치 편집 불가 — 수정은 deck-spec 경유 재빌드가 공식 경로다.
-
-## 6.5 추천·심사·갤러리 — 목업 계열 4종 (파이썬 import 0곳, 스킬 절차서 CLI 배선)
-
-이 절의 스크립트들은 §6.4와 배선 형태가 다르다. **build_pptx가 import하는 것은 visuals·mpl_exhibits뿐**이고, 목업 계열(check_candidates·render_real_mockups·make_icons는 파이썬 import 0곳, make_mockups는 render_real_mockups가 부품 CSS·edit_label만 import — `render_real_mockups.py:20`)은 스킬 절차서(deck-compose SKILL 등)가 실행 명령으로 배선한 **CLI 도구**다. 즉 "자동으로 실행된다"가 아니라 "절차서가 이 시점에 이 명령을 돌리라고 지정한다"가 정확한 현재형이다.
-
-### recommend_archetypes.py — 결정적 추천 엔진
-
-실데이터에서 특성 7+1종(has_numbers 수치≥3·time_axis·sum100 합 95~105·pair2·grouped·stagey·kpi·funnel_like 단조감소)을 **전부 결정적 규칙으로** 검출(`recommend_archetypes.py:105~146`)하고, classify 우선순위(`:149~167`)로 형상을 분류한 뒤 SHAPE_RANK(`:66~77`)로 L-ID를 랭킹한다. 소비자는 `check_candidates.py:38` 1곳 — 빌더·QA에는 미배선(후보 심사 단계 전용).
-
-### check_candidates.py — 후보 사양서 자기 심사기
-
-deck-composer가 사용자 보고 전에 스스로 돌려 PASS/FAIL(exit 0/1)을 받는 CLI(배선: deck-compose SKILL:96·108). 검사 7종 — ①본문 슬라이드 커버 전수(양방향 차집합) ②슬라이드당 후보 ≥3안 ③슬라이드 내 후보 유형 중복 금지 ④후보마다 조합장치 ≥1 ⑤shape 필드 필수 ⑥디폴트 어휘(bar·flow·cards) 후보의 why_not 의무 ⑦현행 재출품 금지. 추가로 추천군 밖 후보는 warn(FAIL 아님), 그리고 **다양성 게이트를 통과하는 선택 조합이 존재하는지를 product 전수 시뮬레이션(≤200,000 조합)으로 사전 확인**한다(`check_candidates.py:98~122`). 다양성을 문장이 아니라 exit code로 강제하는 장치다.
-
-### render_real_mockups.py — ②.5 승인 게이트의 기본 경로
-
-후보 전수를 **실제 build_pptx.Deck으로 빌드**해 candidates.pptx를 만들고 PowerPoint COM(SaveAs 포맷 18=PNG)으로 전장 PNG 렌더 후 인터랙티브 gallery.html을 생성한다(배선: deck-compose SKILL:99, 기본 경로). mpl 스케치와 달리 최종 산출물과 동일한 룩(마스터 틀·폰트·색)을 보여준다. 갤러리에는 다양성 게이트 4종(쿨다운 간격≥3·최소 5종·박스≤30%·동일 유형≤2회)을 JS로 실시간 재계산하는 세트 심사 패널이 있고(`render_real_mockups.py:195~202`), 기본 선택은 게이트 전부 통과 조합을 그리디로 사전 계산한다(페널티: 쿨다운 +100·동일 유형 ≥2회 +100·박스 30% 초과 +50·기유형 재사용 +3, `:108~118`). Windows+PowerPoint COM 전제, 실패 시 exit 1 후 make_mockups 폴백. 사용자는 "s07=B" 형식으로 회신하고, 회신 전 deck-spec 확정은 금지다.
-
-주의: pptmaker SKILL.md는 ②.5 기본을 make_mockups.py로 서술하나 **현행 기본은 render_real_mockups.py**(deck-compose·pptx-visuals SKILL) — 오케스트레이터 문서 쪽이 낡았다.
-
-### make_mockups.py — COM 불가 환경 폴백
-
-mpl 스케치 PNG(5.2×2.9in)+gallery.html 생성기(배선: deck-compose SKILL:102 폴백). 원칙은 "차트는 실데이터, 다이어그램은 스케치"(`make_mockups.py:203`) — 룩 미리보기와 데이터 검증을 동시에 한다. 후보마다 편집 가능성 3라벨(native=PPT 수치편집가능 / image=재빌드 수정 / shape=편집가능)을 판정해 카드에 명시한다(`:35~43`).
-
-## 6.6 아이콘 파이프라인 — make_icons.py
-
-```
-Lucide CDN(lucide-static@0.462.0) ─▶ SVG 캐시(icons/_svg) ─▶ 브랜드 hex 치환 ─▶ pymupdf 256px PNG
-                                                                                  │
-                          visuals.add_icon(없는 이름 ValueError) ◀─ assets/icons/ 박제 ◀─┘
-                                    │
-                                    ▼
-                               build_pptx 렌더
-```
-
-일회성 CLI(파이썬 import 0곳, 배선: pptx-visuals SKILL:69~70 재실행 절차)로 24종×3색(primary·accent는 brand-kit에서, white 고정)=72 PNG를 `pptx-build/assets/icons/`에 사전 박제한다 — 빌드 시 네트워크 의존 제거. **브랜드 색이 바뀌면 이 스크립트만 재실행하는 ripple 단일 경로**다. 실행에는 네트워크(unpkg CDN)가 필요하고, 다운로드 실패 이름은 모아 출력 후 exit 1(`make_icons.py:85~87`). 산출물 기준으로는 `visuals.py:24`(ICON_DIR)→add_icon→build_pptx로 이어지는 실배선이다.
-
-## 6.7 배선 지도 (7 스크립트 전수)
-
-| 스크립트                | 배선 형태                                                      | 근거                                                                            |
-| ----------------------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| visuals.py              | **build_pptx 실배선** (단일 소비자)                            | `build_pptx.py:28` import, add_chart/add_diagram/add_icon/add_callouts 호출 8곳 |
-| mpl_exhibits.py         | **실배선 3곳** (빌더+QA+목업)                                  | `build_pptx.py:27·1208·1256`, `audit_pptx.py:22`, `make_mockups.py:25`          |
-| recommend_archetypes.py | 라이브러리 — 소비자 1곳(후보 심사 전용)                        | `check_candidates.py:38`                                                        |
-| check_candidates.py     | 파이썬 import 0곳 — CLI(스킬 절차서 배선)                      | deck-compose SKILL:96·108                                                       |
-| render_real_mockups.py  | 파이썬 import 0곳 — CLI(②.5 기본 경로)                         | deck-compose SKILL:99                                                           |
-| make_mockups.py         | render_real_mockups가 부품(CSS·edit_label)만 import — CLI 폴백 | `render_real_mockups.py:20`; deck-compose SKILL:102                             |
-| make_icons.py           | 파이썬 import 0곳 — 일회성 CLI(산출물만 실배선)                | pptx-visuals SKILL:69~70; `visuals.py:24`가 산출물 소비                         |
-
-## 6.8 실증 예시 (walked example) — K-IFRS S6 익스히빗 후보의 여정
-
-K-IFRS 1115 파일럿(상세: `9_KIFRS-PILOT.md`)에서 시각 어휘층이 실제로 굴러간 궤적을 S6(실행 그래프 장) 한 건으로 추적한다.
-
-1. **계약(①)**: 2026-07-14 사용자가 아웃라인 계약 `_workspace_kifrs/01.5_outline.md`를 확정 — 확정 이미지 3종 배치를 계약에 박았다(screenshot_answer.png→S6, knowledge_graph_3d.png+screenshot_graph_node.png→S9).
-2. **후보 사양서(②)**: deck-composer가 `_workspace_kifrs/03_exhibit-candidates.json`에 본문 8장(S4·6·8·9·10·11·13·15) × 3안 = **24후보**를 작성, 각 장 A안 preferred. S6는 A안 `golden.screenshot`(screenshot_answer.png 실물 이미지) 대 B·C 네이티브 대안 구도.
-3. **갤러리(②.5)**: 목업 갤러리 산출물 실물이 `_workspace_kifrs/mockups/gallery.html`로 남아 있다 — 갤러리 단계까지 실행된 물증. 단 gallery.html의 s09 기본 체크는 B(표)인데 계약은 실이미지 확정 — 계약 확정 이전 산출물이거나 갱신 누락(`미검증`).
-4. **확정·빌드(③)**: `_workspace_kifrs/02_deck-spec.json` 16장으로 확정·빌드. (이 spec은 본문 content 미주입 등 별개 결함을 안고 있었다 — 상세: `9_KIFRS-PILOT.md`.)
-5. **결말(④)**: 2026-07-15 check_contract가 계약·spec·pptx 3자 대조에서 **계약 이미지 FAIL 2건(파일 3종: S6 1·S9 2)** — 계약이 S6에 박은 screenshot_answer.png가 최종 pptx에 실리지 않았음을 md5 대조로 검출. QA 총판정 FAIL 17건의 일부로 기록됐고 이후 재빌드 없이 동결 상태다.
-
-교훈: 시각 어휘층의 승인 게이트(②.5)는 "어떤 그림을 쓸지"까지는 확정하지만, 그 채택이 최종 pptx에 관철됐는지는 ④의 계약 대조(check_contract)가 잡는다 — 어휘층과 QA층의 역할 경계가 이 실패 사례에 그대로 드러난다.
-
-## 6.9 알려진 갭 (정직 목록)
-
-| #   | 갭                                                                                                                                                                                                                                                          | 실측 근거                                                                                             |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| 1   | **visual-selection.md B표 하단 3행(process_grid·category_spine_table·mapping)은 렌더러 미실존** — visuals.py grep 0건·L-ID 없음. 이 표를 따른 composer는 빌드 불가 spec을 산출한다. 카탈로그 철칙("모든 행은 렌더러 실존")이 이웃 문서에서 우회된 유일 지점 | `.claude/skills/pptx-visuals/references/visual-selection.md` B표 vs `visuals.py`·archetype-catalog.md |
-| 2   | **SHAPE_RANK 추천 커버리지 35/38** — L15(layers)·L26(table)·L30(bullets)은 어떤 데이터 형상에도 추천되지 않는다(카탈로그에는 있으나 추천 엔진이 밀지 않는 폴백 취급)                                                                                        | `recommend_archetypes.py:66~77` SHAPE_RANK 합집합                                                     |
-| 3   | **다양성 게이트 정의 3곳 중복** — audit_pptx.diversity_checks / render_real_mockups JS(`:195~202`) / 그리디 페널티(`:108~118`)가 별도 구현. 드리프트 위험. 게다가 visual-selection.md C-2는 "3조항·연속 2장 금지"로 낡음(코드는 4종·간격≥3으로 더 엄격)     | notes 실측; `audit_pptx.py:44~65`(코드 정본 4종)                                                      |
-| 4   | **check_candidates SHAPES 죽은 상수** — 형상 10종 정의만 있고 참조 0(shape 값 검증 미구현). 또 시뮬레이션 L100이 `sl["visual_candidates"]` 직접 접근이라 fixed 슬라이드에 키가 없으면 KeyError — 미완 흔적                                                  | `check_candidates.py:22~33`·`:100`                                                                    |
-| 5   | 문서 지연 다발 — SKILL "구현은 3개"(실물 7개)·"다이어그램 2종 YAGNI"(실측 18종), mpl 도크스트링 "7종"(실측 9종), pptmaker SKILL ②.5 기본 도구 서술 낡음(§6.5)                                                                                               | 각 §의 낡은 서술 열 참조                                                                              |
-| 6   | make_mockups 갤러리 크롬 CSS의 accent(#D66E3A)가 brand-kit이 아닌 하드코딩 — 브랜드 변경 시 목업 이미지는 따라가지만 갤러리 UI 색은 안 따라간다                                                                                                             | `make_mockups.py:220~226`                                                                             |
+(A)가 (B)보다 먼저인 이유는 실측이다. 2026-07-25 이전에는 결정표가 장 타입까지만 가리키고 **그 장 안의 도해 문법에는 이름이 없었다.** 그래서 "판정 분기·N→1 수렴·이분 매핑" 같은 실제 무기가 후보에 오르지 못했고, 물성이 조금만 안 맞으면 (B)의 범용 박스+화살표로 떨어졌다. 그 박스+화살표 계열 9종은 같은 날 **전면 폐기**됐다 — 팔레트 전수 렌더에서 "그냥 도형 나열 / 고등학생 ppt"로 반려됐고 실전 사용은 0건이었다.
 
 ---
 
-*이전: `5_PPTX-BUILD.md`(빌더 본체) · 다음: `7_GOLDEN-DECK.md`(골든 덱). 시각 다양성 게이트의 판정 주체는 `8_QA-GATES.md`.*
+# (A) 부품 도구함
+
+## 6.2 왜 생겼나 — 4.0%
+
+골든 11,867줄 중 재사용 가능한 부품은 **479줄(4.0%)**뿐이었다. 도해가 전부 장 함수(`sNN_*.py`) 안에 굳어 있어서 **임의 데이터로 부를 수 없었다.** 그래서 목업으로 찍을 수도, 새 배치에 꺼내 쓸 수도 없었고, 골든에 없는 형태는 손코딩 아니면 범용 박스 폴백으로 샜다. 같은 화살표가 14벌, 같은 소제목이 10벌 만들어진 것도 같은 뿌리다.
+
+## 6.3 3층 분리
+
+| 층           | 실물                         | 무엇을 소유하나                            | 무엇을 소유하지 않나                |
+| ------------ | ---------------------------- | ------------------------------------------ | ----------------------------------- |
+| **1층 원소** | `figures/elements.py`(459줄) | 선·화살표·칩·카드·리본·범례 같은 최소 단위 | 자기 좌표(부르는 쪽이 정한다)       |
+| **2층 도해** | `figures/*.py`(부품 10종)    | `box` 안 **그래픽 하나**                   | 페이지 구성(설명 패널·배너·열) · 글 |
+| **3층 배치** | `frames.py`(틀 6종) · 골든덱 | 어떤 부품을 어디에 얼마나 크게 앉히나      | 도해 자체(2층에서 꺼내 쓴다)        |
+
+1층의 어휘가 곧 골든의 잉크다: `chip` · `card` · `ribbon` · `legend` · `link` · `elbow` · `arrow` · `hairline` · `node_chip` · `badge` · `curve` · `band`. 폭 계산은 글자에서 파생한다 — `CJK_W = 0.8`(한국어 1자 ≈ 0.8 × pt)이 오딧과 같은 자다.
+
+## 6.4 부품 계약 3조건 — 전부 만족해야 부품이다
+
+단일 출처는 `figures/__init__.py`다.
+
+**① 자리 독립** — `draw(slide, box, data, kit)`. `box` 안에서만 그린다. 슬라이드 절대좌표 상수를 모듈에 두지 않는다.
+
+이 조건의 어려운 부분은 "얼마나 늘릴 것인가"다. 눈검증 반려 두 라운드가 그 경계를 정했다.
+
+| 자리에 비례시키면 **안 되는** 것                                                                 | 자리를 **써야 하는** 것                                                                      |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| 글자 크기 · 선 굵기 · 칩 높이 · 마크 지름                                                        | 열 폭 · 행 높이 · 반지름 · 띠 폭                                                             |
+| = **타이포에 묶인 치수**                                                                         | = **배치 치수**                                                                              |
+| 늘리면 내용은 그대로인 채 간격만 벌어져 한 덩어리로 안 읽힌다(1차 반려: 선만 6.8"로 늘어난 매핑) | 상한을 자리보다 훨씬 작게 박으면 화면 한구석의 낙서가 된다(2차 반려: 12.1" 자리에 4.8" 격자) |
+
+남는 자리가 여전히 크면 **정렬로 미루지 말고 정보 층을 얹는다** — 노드에 보조 한 줄, 마크에 범례, 열에 합계. 도해가 초라해 보이는 진짜 원인은 크기가 아니라 **한 겹뿐**이라는 것이다.
+
+**② 개수 파생** — 항목 수에서 좌표를 파생한다(`grid.pitch`·`grid.track`). 좌표 리터럴 리스트를 `zip`으로 물리는 `[고정:N]` 금지. 수용 한계를 넘으면 시끄럽게 죽는다.
+
+**③ 글 무소유** — 문자열 상수 0. 모든 텍스트는 `data`로 들어온다. 골든 글(K-IFRS)이 부품에 남으면 다음 덱으로 새 나간다.
+
+**무손실 증명**: `box` offset 기본값은 골든 장 실측값을 그대로 쓴다. 그래야 장 함수를 부품 호출로 교체해도 `compare_golden` 스냅샷이 **픽셀 동일**로 통과한다 — 부품화가 손실 없음을 증명하는 유일한 방법이다.
+
+## 6.5 부품 전수 10종
+
+각 모듈은 `META`(카탈로그·기계 검증 대상) · `LAYOUT`(box 기준 offset 기본값) · `measure()` · `draw()` · `SAMPLES`를 최상위에 둔다.
+
+| 부품               | 어휘   | 물성                                  | 수용 개수 | 축(sets·flow·order·extra·ends) |
+| ------------------ | ------ | ------------------------------------- | --------- | ------------------------------ |
+| `gate_branch`      | G01    | 판정 하나에서 결과가 갈린다           | 2 고정    | 1 · 1:N · X · O · X            |
+| `fan_in`           | G02    | 원인 N개가 한 곳에서 만난다           | 2~6       | 1 · N:1 · X · O · X            |
+| `n_branch`         | G11    | 갈래 수 자체가 메시지                 | 2~4       | 1 · 1:N · X · O · X            |
+| `hub_spoke`        | 미등재 | 하나에 무엇이 물려 있나               | 3~8       | 1 · 1:N · X · X · X            |
+| `routing_lane`     | G04    | 한 줄로 흐르다 판정에서 일부가 빠진다 | 3~9       | 1 · 순차 · O · O · X           |
+| `numbered_steps`   | G10    | 순서가 메시지인 절차                  | 2~5       | 1 · 순차 · O · X · X           |
+| `layer_stack`      | 미등재 | 층이 몇이고 각 층이 무엇인가          | 2~5       | 1 · 순차 · O · X · **O**       |
+| `bipartite_map`    | G05    | A 집합과 B 집합이 갈라지고 모인다     | 2~9       | **2** · N:M · X · X · X        |
+| `relation_catalog` | G08    | 무엇이 무엇을 잇고 근거가 어디서 왔나 | 2~8       | **2** · N:M · X · O · X        |
+| `card_row`         | 미등재 | 순서 없는 독립 항목 N개를 나란히      | 2~5       | 1 · 없음 · X · O · X           |
+
+**축이 창고를 가른다.** 10종이 이 다섯 축으로 9칸에 갈린다 — 겹치는 것은 `gate_branch`·`n_branch` 한 쌍뿐이고 그건 개수(2 고정 vs 2~4)로 갈린다. 이 분리가 유지되는지는 `verify_selection.py` ②가 검사한다.
+
+**수용 개수는 실측이다.** 처음 선언했을 때 10종 중 9종이 틀렸다 — 주력 밴드(2.16")에 실제로 몇 개가 들어가는지 재보니 달랐다. 지금 값은 재서 고친 것이다.
+
+**계층에 대한 정직한 메모**: `card_row`가 3층 헬퍼 `dense.hero_card`를 부른다 — 계층 역전이다. 카드는 원소 하나가 아니라 배지·제목·태그·배너·아이콘·불릿·칩 **일곱 겹**을 갖는 복합 컴포넌트이고 그 정본이 `dense`에 있기 때문이다. 카드를 두 벌로 만드는 것(골든이 두 벌이라 갈라졌던 그 병)보다 이 역전이 낫다고 판단했다. 카드 컴포넌트를 1층으로 내리는 것은 별 작업이다.
+
+## 6.6 부품에 번호를 붙이지 않는다
+
+부품에 `id: "G22"` 같은 번호를 달았다가 번호 체계가 두 군데서 충돌했다.
+
+```
+archetype-catalog.md   G01~G23 = 골든 문법 어휘 목록
+                       G22 = accent 강조 패널 · G23 = 소제목 + 룰 (도해가 아니라 페이지 요소)
+figures/(옛 상태)      G22 = hub_spoke · G23 = arc_links   ← 같은 번호, 다른 뜻
+```
+
+"카탈로그 다음 번호"라고 생각해 G22부터 이어 붙였는데 그 자리는 이미 점유 중이었다. G24~G28은 카탈로그에 아예 없는 번호였고 그 부품 6종(`arc_links`·`relation_matrix`·`flow_split`·`orbit_rings`·`pillar_base`·`bracket_fan`)은 전부 눈검증 반려로 삭제됐다 — 즉 **번호는 아무것도 식별하지 못한 채 충돌만 만들었다.**
+
+그래서 부품의 유일 키는 **모듈 이름(=파일명)**이다. 카탈로그 어휘와 대응되면 `META["어휘"]`에 그 ID를 적고, 아직이면 `"미등재"`라고 적는다. 새 번호를 발명하지 않는다 — 어휘 등재는 카탈로그의 일이다.
+
+## 6.7 부품을 새로 만드는 절차 — `part-design` 스킬
+
+**이 스킬은 PPT 생성·수정에는 발동하지 않는다.** 창고를 채울 때만 돈다(제작 축).
+
+```
+① 웹에서 실물 확보  →  ② 6~9개를 한 장에 나란히  →  ③ 사용자가 번호로 고름  →  ④ 고른 것만 다듬기
+   (다운로드해 직접 봄)     (렌더 1번 = 선택지 N개)      (내 판정 없음)         (요소 추가 금지)
+```
+
+**왜 이 형태인가.** 부품 1종에 약 6시간·10라운드를 쓰고 산출물이 전부 폐기된 실측이 있다. 원인은 둘이었다.
+
+1. **잉크를 지어냈다.** 검정 채움 원 · 두꺼운 컬러 링 · 진한 파이 · 회색 칩 · 선 끝 도트 · 밑줄 룰 · 비중 막대 · 폴라 막대 · 버블 · 게이지 — 전부 발명한 것이고 전부 반려됐다.
+2. **내 눈이 검수 기준이 됐다.** 매번 "됐다"고 판단해 보냈고 매번 틀렸다. 그런데 한 번에 한 안씩만 내놓으니 반려는 **부호만** 오고 방향이 안 온다. 방향 없는 반려 × 10회 = 제자리.
+
+그래서 이 절차는 두 가지를 금지한다 — **지어내기**와 **1안씩 내놓기**. 실물 원천으로는 실제 컨설팅 리포트 PDF를 쓰고(BCG 직링크는 봇 차단, S3·CDN 사본이 열린다), 템플릿 판매 사이트는 버린다(그라데이션·6색·드롭섀도·클립아트). 못 찾으면 **못 찾았다고 말하고 멈춘다.**
+
+④에서 요소를 더하지 않는 것도 규칙이다 — 허전해 보여도 도트·룰·막대·아이콘을 얹지 않는다. 그 방향은 실측 10회 전부 반려됐다.
+
+## 6.8 부품 검증 — `fig_mockup.py`
+
+```
+uv run python .claude/skills/pptx-build/scripts/fig_mockup.py <부품이름>
+uv run python .claude/skills/pptx-build/scripts/fig_mockup.py --all
+```
+
+부품이 `draw(slide, box, data, kit)` 계약을 지키므로 **임의 데이터로 부를 수 있다** — 장 함수였을 때는 불가능했던 것이고, 그래서 목업이 범용 폴백으로 샜다. 각 슬라이드가 보여주는 것: 샘플 라벨 + 물성 · `box` 경계 가이드(부품이 자리 밖으로 새는지 눈으로 확인) · 항목 수를 바꾼 벌들(최소·골든 실측·밀도·극단). 수용 한계를 넘는 데이터는 `grid.pitch`/`track`이 시끄럽게 죽이고, 러너가 "몇 개에서 죽는지"를 마지막 장에 적는다 — **조용한 절단이 없다는 증거**다.
+
+산출물 9벌이 `results/검토/부품_*.pptx`로 남아 있다.
+
+---
+
+# (B) 범용 어휘 — 차트·다이어그램·아이콘
+
+## 6.9 어휘 인벤토리
+
+| 어휘층          | 종수                        | 목록                                                                                                           | 정본 출처                         |
+| --------------- | --------------------------- | -------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| 네이티브 차트   | **6종**                     | bar · hbar · line · pie · doughnut · stacked_bar (pie ≤5조각)                                                  | `visuals.py` CHART_TYPES          |
+| mpl 확장 차트   | **9종**                     | waterfall · heatmap · dumbbell · slope · funnel · annotated_scatter · histogram · bubble · waffle (220dpi PNG) | `mpl_exhibits.py` MPL_TYPES       |
+| 도형 다이어그램 | **9종**                     | matrix_2x2 · spectrum · harvey_table · check_matrix · venn · timeline · icon_rows · stat_split · split_detail  | `visuals.py` add_diagram 디스패치 |
+| 아이콘          | **24종 × 3색 = 72 PNG**     | Lucide(MIT) 큐레이션, primary/accent/white, 256px, CDN 사전 박제                                               | `make_icons.py`                   |
+| L-ID 카탈로그   | **37종**(L01~L38, L14 결번) | 정량 네이티브 L01~06 · mpl L07~13 · 도형 L15~25 · 텍스트·표 L26~30 · 승격 L31~34 · 컴포지트 L35~38             | `references/archetype-catalog.md` |
+
+네이티브 6종 + 도형 9종 = **PPT에서 직접 편집 가능한 어휘 15종**이 `visuals.py`(807줄) 한 파일에 있고, 여기에 mpl 9종(이미지)을 더한 것이 (B)의 전체 렌더 어휘다.
+
+카탈로그의 철칙은 "**모든 행은 렌더러가 실존한다**" — 렌더러 없는 등재로 빌드 불가 spec이 나오는 것(hollow 카탈로그)을 막는 장치다. 이 철칙은 이제 산문이 아니다: `test_wiring` 통합C가 L-ID 29종 전부의 렌더러 실존과 문서 3종의 선언 토큰을 양방향 대조한다.
+
+## 6.10 폐기 9종 — 무엇이 왜 사라졌나
+
+2026-07-25 사용자 확정 폐기: `flow` · `process_band` · `layers` · `branch` · `cards` · `from_to` · `band_table` · `pro_con` · `contrast_split`.
+
+사유는 하나다 — 팔레트 전수 렌더에서 **전면 반려**("그냥 도형 나열 / 고등학생 ppt"). 노드 문법을 dense로 재작업한 개선판까지 반려됐고, 실전 사용은 0건이었다. 이 물성들의 정본은 (A)로 옮겨갔다: 분기·라우팅 = G01·G04·G09·G11 · 집합 대응 = G05 · 관계 전수 = G08 · 단계 = G10·G14 · 병렬 카드 = `card_row` · 경계 = G19.
+
+폐기와 함께 호출자 0이 된 헬퍼(`_node_box`·`_chip_row`·`node_width`·`node_height`·`_est_lines`·`_tokens`·`NODE_*`)도 삭제돼 `visuals.py`가 1,512 → 807줄이 됐다.
+
+**결정표에서 그 자리를 비우지 않고 취소선으로 남겼다** — 무엇이 있었고 왜 없어졌는지를 모르면 같은 것을 또 만들기 때문이다. 그리고 그 물성에는 이제 **폴백이 없다**. 항목 수가 안 맞으면 `adapted.<layout>`로 변형하는 것이 유일한 길이고, 범용 박스로 도망갈 자리가 사라졌다.
+
+## 6.11 렌더러 세부
+
+### visuals.py — 편집 가능 어휘의 단일 출처
+
+- **단일 소비자는 build_pptx다.** 색·폰트·크기는 인자 brand dict(brand-kit.yaml)에서만 나온다 — hex 하드코딩 0(래칫이 지킨다).
+- **emphasis = BCG 규칙**: emphasis가 있으면 전 시리즈 회색(`GRAY_BASE #C7CBD1`) + 강조만 accent 1색. 없으면 accent→primary→muted 순환. 자동 제목 제거, 데이터 레이블은 bar/hbar/line/stacked_bar만.
+- **add_callouts**: 이미지에 굽지 않는 pptx 도형 콜아웃(영역 밖 탈출 방지 클램프) — 네이티브 경로에서는 주석도 편집 가능 객체다.
+- **add_icon**: 사전 변환 PNG 삽입, 없는 이름은 ValueError — "조용한 누락 금지".
+- **add_diagram은 `layout`이 필수**이고 기본값이 없다. 누락·오타는 ValueError로 빌드 시점에 죽는다 — 조용한 폴백이 어휘를 3종으로 수렴시킨 기계적 원인이었다.
+- 구현 우회의 예: 하비볼 부분 채움은 python-pptx가 노출하지 않는 기능이라 PIE 도형 각도 조정(-90°+90°×score)으로 구현.
+
+### mpl_exhibits.py — 하이브리드 이미지 경로
+
+- 네이티브 차트가 표현 못 하는 9종을 matplotlib 220dpi PNG로 렌더한다. **MPL_TYPES 집합 자체가 라우팅 스위치** — build_pptx는 chart_type이 이 집합에 있으면 이미지 경로로 전환한다. 배선 3곳: 빌더·QA·목업.
+- 스타일 단일 경로: 모든 렌더러가 `_fig()`(폰트·스파인·눈금 강제)로 시작해 `_save()`(콜아웃+각주+220dpi)로 끝나고, 색은 회색 베이스+accent 1색만. "전부 회색, 강조 데이터만 브랜드색 1개 + 콜아웃 주석 + 하단 출처 각주가 BCG 룩의 최대 지렛대".
+- 렌더러별 자동 장치: waterfall은 증감분 입력에 합계 막대 자동 추가+단차 점선, heatmap은 흰색→accent 단색 그라데이션, funnel은 단계 간 전환율 ↓% 표기, slope는 강조 시리즈만 굵은 선. 미지 타입 ValueError. 한글 폰트 우선순위 Pretendard→Malgun Gothic→NanumGothic.
+- 산출물은 이미지라 **수치 편집 불가** — 수정은 deck-spec 경유 재빌드가 공식 경로다.
+
+## 6.12 추천·심사·갤러리 — CLI 4종
+
+이 스크립트들은 배선 형태가 다르다. **build_pptx가 import하는 것은 visuals·mpl_exhibits뿐**이고, 나머지는 스킬 절차서가 실행 명령으로 배선한 **CLI 도구**다. 즉 "자동으로 실행된다"가 아니라 "절차서가 이 시점에 이 명령을 돌리라고 지정한다"가 정확한 현재형이다.
+
+| 스크립트                  | 역할                                                                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `recommend_archetypes.py` | 결정적 추천 — 실데이터 특성 7+1종을 규칙으로 검출해 L-ID 랭킹. **`GRAMMAR_RANK`가 (A)를 1순위로 낸다**(물성이 정성·흐름전환일 때) |
+| `check_candidates.py`     | 후보 사양서 자기 심사(exit 0/1) — 검사 8종 + 게이트 통과 조합 전수 시뮬레이션(≤200,000)                                           |
+| `render_real_mockups.py`  | ②.5 기본 경로 — 실제 build_pptx로 빌드 후 PowerPoint COM PNG 렌더 → 인터랙티브 gallery.html                                       |
+| `make_mockups.py`         | COM 불가 환경 폴백 — mpl 스케치. "차트는 실데이터, 다이어그램은 스케치"                                                           |
+
+`check_candidates` ⑧이 (A) 우선을 exit code로 강제한다: "(A) 후보 0개 + `why_not_golden` 없음"이면 FAIL이고, 일반 `why_not`으로는 갈음이 안 된다(다른 질문의 답이므로). 이 배선이 실제로 도는지는 `test_wiring` 통합H가 양방향 검증한다 — G-ID 15종 전부 등재·registry 실재, (A) 우선 물성 검출 O·오탐 X.
+
+## 6.13 아이콘 파이프라인
+
+```
+Lucide CDN(lucide-static@0.462.0) ─▶ SVG 캐시 ─▶ 브랜드 hex 치환 ─▶ 256px PNG
+                                                                      │
+                      visuals.add_icon(없는 이름 ValueError) ◀─ assets/icons/ 박제 ◀─┘
+```
+
+일회성 CLI로 24종×3색(primary·accent는 brand-kit에서, white 고정)=72 PNG를 사전 박제한다 — 빌드 시 네트워크 의존 제거. **브랜드 색이 바뀌면 이 스크립트만 재실행하는 ripple 단일 경로**다. 실행에는 네트워크가 필요하고, 다운로드 실패 이름은 모아 출력 후 exit 1.
+
+## 6.14 알려진 갭 (정직 목록)
+
+| #   | 갭                                                                                                           | 실측 근거                                   |
+| --- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
+| 1   | **(A)에 어휘가 없는 물성 3건** — 정성 2열 대비 · 편차 · 공간. (B)에서도 폐기·미보유라 그릴 수단이 없다       | `layout-matching.md` B표 ⬜ 3행             |
+| 2   | **부품 백로그 5종** — 카탈로그가 "부품화 필요"로 등재만 해 둔 문법. 아직 `figures/`에 없다                   | `archetype-catalog.md` 부품 백로그          |
+| 3   | **`hub_spoke`·`layer_stack`이 살 틀이 없다** — 세로로 긴 도해인데 틀 6종이 전부 가로 밴드 + 하단 카드 구조다 | `frames.FRAMES` needs 전수                  |
+| 4   | 골든 도해 5종이 아직 장 함수 안 — S9 위계 트리 · S11 판정 트리 · S15 격리 시험 · S16 경계 · S17 미러         | 노드 좌표가 손으로 맞춘 값                  |
+| 5   | `check_candidates` SHAPES 죽은 상수 — 형상 10종 정의만 있고 참조 0(shape 값 검증 미구현)                     | `check_candidates.py`                       |
+| 6   | 다양성 게이트 정의가 3곳에 중복 — `audit_pptx` / 갤러리 JS / 그리디 페널티. 드리프트 위험                    | 2026-07-25 삭제 때 세 곳을 각각 고쳐야 했다 |
+| 7   | make_mockups 갤러리 CSS의 accent가 brand-kit이 아닌 하드코딩 — 브랜드 변경 시 갤러리 UI 색만 안 따라간다     | `make_mockups.py`                           |
+
+**갭 3이 가장 실질적이다.** 부품 2종이 창고에 있는데 앉힐 자리가 없다 — 배치 틀 도구함을 부품 도구함과 같은 방식으로(실물에서 옮겨) 채워야 한다는 뜻이고, 그건 아직 하지 않은 작업이다.
+
+---
+
+*이전: [5_PPTX-BUILD.md](5_PPTX-BUILD.md)(빌더 본체) · 다음: [7_GOLDEN-DECK.md](7_GOLDEN-DECK.md)(골든 덱). 어휘를 고르는 규칙은 [4_DECK-COMPOSE.md](4_DECK-COMPOSE.md), 다양성 게이트의 판정 주체는 [8_QA-GATES.md](8_QA-GATES.md).*

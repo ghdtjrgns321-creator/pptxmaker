@@ -1,9 +1,6 @@
-# 4. DECK-COMPOSE — ② deck-spec 구성 (선별·배치·레이아웃 매칭)
+# 4. DECK-COMPOSE — ② deck-spec 구성 (재료를 세고, 부품을 고르고, 자리를 정한다)
 
-> 파이프라인 두 번째 단계. FINAL-REPORT 재료를 아웃라인 계약대로 B2B 셀링 골격에
-> **선별·배치**해 `02_deck-spec.json`(빌더 입력)을 만든다. 창작이 아니라 배치가
-> 정체성이다 — "콘텐츠는 사용자가 FINAL-REPORT로 이미 확정했다"
-> (`.claude/agents/deck-composer.md`). 규칙 원문: `.claude/skills/deck-compose/SKILL.md`
+> 파이프라인 두 번째 단계. FINAL-REPORT 재료를 아웃라인 계약대로 B2B 셀링 골격에 **선별·배치**해 `02_deck-spec.json`(빌더 입력)을 만든다. 창작이 아니라 배치가 정체성이다 — "콘텐츠는 사용자가 FINAL-REPORT로 이미 확정했다"(`.claude/agents/deck-composer.md`). 규칙 원문: `.claude/skills/deck-compose/SKILL.md`
 
 ## 4.1 파이프라인 내 위치
 
@@ -13,10 +10,9 @@
                                    이 장의 범위 — deck-composer 에이전트(opus) 수행
 ```
 
-입력은 두 가지 — FINAL-REPORT(재료)와 `01.5_outline.md`(계약, `상세: 3_OUTLINE-GRILL.md`).
-출력은 deck-spec.json이며, 그 전에 익스히빗 후보 사양서(`03_exhibit-candidates.json`)를
-내고 ②.5 사용자 승인 게이트를 거친다. 스키마 계약은
-`.claude/skills/pptx-build/references/deck-spec-schema.md`가 단일 출처다.
+입력은 두 가지 — FINAL-REPORT(재료)와 `01.5_outline.md`(계약, `상세: 3_OUTLINE-GRILL.md`). 출력은 deck-spec.json이며, 그 전에 익스히빗 후보 사양서(`03_exhibit-candidates.json`)를 내고 ②.5 사용자 승인 게이트를 거친다. 스키마 계약은 `.claude/skills/pptx-build/references/deck-spec-schema.md`가 단일 출처다.
+
+**이 단계가 생산 축과 제작 축이 만나는 유일한 지점이다**([2_PIPELINE.md](2_PIPELINE.md) §1). 컴포저는 창고(부품 도구함)에서 부품을 꺼내 쓰되, 창고에 없는 물성 앞에서는 그리지 않고 멈춘다.
 
 ## 4.2 내부 흐름 — 재료가 spec이 되기까지
 
@@ -24,14 +20,16 @@
  01.5_outline.md(계약) + FINAL-REPORT(재료)
      │
      ▼
- [1] 장별 물성 한 줄 선언 ── "이 내용 = 비교 / 흐름 / 분해 / 경계 / 실물 화면 / …"
-     │
+ [1] 재료를 **센다** ── scan_material.py: 표 행 수·목록 항목 수·화살표 수·열 수
+     │                   못 센 축은 _ask(물어볼 목록)로 ①에 되돌린다
      ▼
- [2] layout-matching 결정표 매칭(15타입 전수)
+ [2] 부품·틀 선택 ── pick_parts.py: 축 5개로 좁히고 2단 규칙으로 하나
      │
-     ├─ 구조 그대로 일치 ──▶ golden.<layout> + content(DEFAULT 키 전량 교체)
-     ├─ 항목 수·구획 다름 ──▶ adapted.<layout> + 장 스크립트(goldenfab 부품 재사용)
-     └─ 어느 행에도 안 맞음 ─▶ novel + 장 스크립트(골든 렌더 PNG 밀도 앵커)
+     ├─ 부품 후보 있음 ──▶ composed(배치 틀 + 부품)          ← v7 1순위
+     ├─ 골든 장 구조 그대로 ──▶ golden.<layout> + content 전량
+     ├─ 항목 수·구획 다름 ──▶ adapted.<layout> + 장 스크립트
+     ├─ 정량 물성(시계열·구성비·분포…) ──▶ L-ID 차트·표(B 어휘)
+     └─ 어디에도 없음 ──▶ **멈춘다**(exit 1 + 막힌 장 목록 = 만들 부품 목록)
      │
      ▼
  [3] 익스히빗 후보 사양서 03_exhibit-candidates.json(장당 3안)
@@ -43,146 +41,145 @@
  02_deck-spec.json ──▶ ③ pptx-build
 ```
 
-[2]의 3갈래가 2026-07-16 개정의 핵심이다. 사용자가 "텍스트만 갈아 끼운 것"을 기각한
-뒤, 골든은 복제 템플릿이 아니라 **변형 가능한 출발점**으로 재정의됐다
-(`layout-matching.md:39-56`). 안 맞는 내용을 content에 우겨넣는 것이 기각된
-"텍스트 스왑"이고, 그 대신 adapted(장 스크립트 변형)·novel(신규 설계) 출구가 열렸다.
-adapted/novel 장은 build_pptx가 `build(prs, content)` 서명의 장 스크립트를 importlib로
-로드해 실행하며(`build_pptx.py:1367,1439`), 검증은 스냅샷 회귀가 아니라
-audit_deck(전역 오딧+밀도 밴드)+전 장 병렬 채점이 진다(`상세: 8_QA-GATES.md`).
-novel 장의 골든 창고 편입은 덱 완성 후 **사용자가 고른 장만** 한다(골든 1장 =
-유지보수 계약 1개).
+[2]가 2026-07-27 개정의 핵심이다. 그전에는 매칭 결정표가 **장 타입까지만** 가리켰고, 그래서 컴포저가 할 수 있는 일은 골든 장을 통째로 배정하는 것뿐이었다. 결과는 실측으로 드러났다 — 실전 덱의 타입 분포가 골든 `SLIDE_ORDER`와 그대로 겹쳤다. 즉 "장 통째 배정"이 실전 덱을 골든 복제로 만드는 **기계적 원인**이었다. 지금은 도해가 부품(`figures/`)으로 꺼내져 있으므로, 부품을 골라 배치 틀에 앉히는 `composed` 경로가 1순위다.
 
-## 4.3 구조 표 — 이 단계를 구성하는 것들
+## 4.3 부품·틀 선택 — 세는 것과 판정하는 것을 가른다
 
-| 구성요소           | 개수                                         | 출처 파일                                                                        |
-| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------- |
-| 매칭 결정표        | 15타입 전수 + 3갈래 판정                     | `.claude/skills/deck-compose/references/layout-matching.md:8-24`                 |
-| 골든 콘텐츠 계약표 | 10타입 150키(5종은 표 없음)                  | `.claude/skills/deck-compose/references/golden-content-contract.md`              |
-| 구성 원칙          | 6칙                                          | `.claude/skills/deck-compose/SKILL.md`                                           |
-| 익스히빗 후보      | 장당 3안(A/B/C)                              | 산출물 `03_exhibit-candidates.json`                                              |
-| 후보 자기 심사     | 7종 검사(⑦에 조합 시뮬레이션 포함)                   | `.claude/skills/pptx-visuals/scripts/check_candidates.py`                        |
-| 다양성 게이트      | 4종(쿨다운·최소 5종·박스 30%·동일 유형 ≤2회) | `audit_pptx.py:44-65` 구현, ②.5 갤러리 JS가 실시간 채점                          |
-| 밀도 목표          | 슬라이드당 120~200단어                       | `.claude/skills/deck-compose/SKILL.md`; QA 하한 60단어                           |
-| 레거시 견본        | 8장 표준 골격 1식                            | `.claude/skills/deck-compose/assets/standard-deck-spec.json` — 코드 소비 0(§4.6) |
+이 절이 이 장의 본체다. 원칙은 하나다: **컴포저는 재료를 세어 창고의 조건과 비교만 한다.** 산문을 읽고 "이건 흐름 같다"고 판정하는 경로는 없다.
 
-매칭 결정표 15행의 물성→타입 요지(전문은 `layout-matching.md:8-24`):
+### 축 5개 (`goldenfab/select.py` AXES)
 
-| 물성(내용의 실제 형태)                   | 타입                   | 물성(내용의 실제 형태)            | 타입                    |
-| ---------------------------------------- | ---------------------- | --------------------------------- | ----------------------- |
-| 덱의 첫 인상(제목·가치 제안)             | `golden.cover`         | 메커니즘 + 실물 적용 서사         | `golden.tech_mechanism` |
-| 부 목록과 이정표                         | `golden.toc`           | 실물 결과 화면 + 스키마·검증 보조 | `golden.tech_capture`   |
-| 부의 시작 선언                           | `golden.part`          | 구 vs 신 — 같은 입력의 동작 대비  | `golden.ab_simulation`  |
-| 결격·문제의 다구획 해부(원인 4~5개 병렬) | `golden.problem_grid`  | 시험 구성 + 최종 기록 + 실패 해부 | `golden.validation`     |
-| 입력→출력의 분기 있는 실행 흐름          | `golden.exec_graph`    | 축별 좌우 대결(자사 vs 경쟁)      | `golden.mirror_matrix`  |
-| 주장 + 실물 데이터 증거(표·JSON 카드)    | `golden.tech_evidence` | 경계 — 안(보장)과 밖(거절·유보)   | `golden.boundary`       |
-| 위계 구조(트리·fan-out) + 구축 방법      | `golden.tech_tree`     | 덱을 닫는 마침 문장(수미상관)     | `golden.closing`        |
-| 실물 화면(캡처)이 주인공                 | `golden.screenshot`    |                                   |                         |
+| 축      | 무엇을 세나              | 값                            |
+| ------- | ------------------------ | ----------------------------- |
+| `sets`  | 항목이 몇 묶음인가       | 1 · 2                         |
+| `flow`  | 어느 방향으로 걸리나     | 없음 · 1:N · N:1 · N:M · 순차 |
+| `order` | 순서가 메시지인가        | O · X                         |
+| `extra` | 항목마다 부가 열이 붙나  | O · X                         |
+| `ends`  | 양끝(시작·끝)이 특별한가 | O · X                         |
+| (`n`)   | 항목이 몇 개인가         | 부품마다 실측 수용 범위       |
 
-판정 기준은 **주제가 아니라 물성**이다. 두 행에 걸치면 주 물성을 따르고 장을 쪼갠다.
-mirror_matrix는 2026-07-16 개편으로 골든 덱(SLIDE_ORDER)에서는 제외됐지만 registry
-타입으로는 유지된다(실전 덱 창고, `goldenfab/registry.py:20`).
+`shape_of(data)`가 이 여섯을 재료에서 뽑는다. `flow`는 링크에서 **파생**한다 — 왼쪽이 하나면 1:N, 오른쪽이 하나면 N:1, 두 묶음이면 N:M. 링크가 없고 `ordered`면 순차, 아니면 없음. 사람이 "이건 1:N이야"라고 적어 넣는 자리가 없다.
 
-## 4.4 골든 콘텐츠 계약 — content는 선택이 아니라 필수
+### 2단 규칙 (`choose`)
 
-`golden.<layout>` 배정 시 content dict가 골든 DEFAULT 키를 **전부** 덮지 않으면
-빌더가 중단한다(`goldenfab/content_contract.py`, 2026-07-15 신설; `build_pptx.py:1344`가
-assert_content 강제). 부분 주입도 FAIL이다 — 누락 키가 골든 기본값(다른 프로젝트 글)으로
-조용히 메워지는 것이 "계약 0% 이행 덱이 전 게이트 통과" 사고의 본질이었기 때문이다
-(`layout-matching.md:28-31`; 사고 전말은 `상세: 13_TROUBLESHOOTING.md`).
-
-컴포저가 채울 키의 사전이 `golden-content-contract.md`(코드 DEFAULT dict 덤프)다.
-현황 그대로 적으면 — **registry 15타입 중 10타입만 덤프돼 있다**(총 150키):
-
-| 타입           | 키 수 | 타입          | 키 수 |
-| -------------- | ----- | ------------- | ----- |
-| problem_grid   | 18    | tech_capture  | 14    |
-| exec_graph     | 14    | ab_simulation | 15    |
-| tech_evidence  | 12    | validation    | 20    |
-| tech_tree      | 17    | mirror_matrix | 8     |
-| tech_mechanism | 19    | boundary      | 13    |
-
-cover·toc·part·screenshot·closing 5종은 계약표에 표가 없다(DEFAULT dict 보유
-10종만 덤프하는 생성기 구조 — `_workspace_kifrs/dump_contract.py:21-32`). 다만 필수
-키의 **단일 출처는 계약표가 아니라** `goldenfab/content_contract.required_keys()`로,
-이쪽은 15/15 전 타입을 해석한다(`layout-matching.md:34`). 계약표는 사람용 참조
-전용이다. 낡은 표기 1건: 계약표가 안내하는 재생성 명령 경로 `_workspace/dump_contract.py`는
-스테일이고 실물은 `_workspace_kifrs/dump_contract.py`다. cover·toc·part 3종의 명시
-필수 키는 content_contract.py의 EXPLICIT_KEYS가 별도로 든다(cover 5키·toc 4키·part
-4키 — `goldenfab/content_contract.py:22-30`).
-
-## 4.5 구성 원칙·다양성 (세부)
-
-deck-compose SKILL의 구성 원칙 6칙: ① 계약 준수(장 추가·삭제·강조 변경 금지)
-② 창작 금지(재료 얇으면 부풀리지 않고 "재료 부족" 보고) ③ 숫자는 chart/metrics로
-④ 한 메시지 + 120~200단어 ⑤ 개체만 덜렁 금지(commentary 필수) ⑥ 서술 문단 intro.
-시각 타입 선택은 "주장 한 문장 먼저 → visual-selection.md 결정표" 순서이며 기본값
-bar 금지·bullets는 최후 수단이다. 다양성은 게이트 4종(쿨다운 간격≥3장·본문 5장
-이상 시 최소 5종·박스 30% 이하·동일 유형 ≤2회)이 기계 검증한다 —
-"다양성 판단을 모델 디폴트에 맡기지 않는 장치다"(`deck-compose/SKILL.md`).
-게이트 코드는 QA 층 소관이므로 `상세: 8_QA-GATES.md`, 시각 어휘 자체는
-`상세: 6_VISUALS.md`.
-
-②.5 승인 게이트: 후보 사양서는 check_candidates.py의 7종 검사(⑦이 조합 게이트 시뮬레이션까지 겸함)와 게이트 통과 조합
-시뮬레이션을 RESULT: PASS까지 자기 심사한 뒤, render_real_mockups.py(실물 COM 렌더,
-Windows+PowerPoint 전제)가 gallery.html을 만든다 — 폴백은 make_mockups.py(mpl 스케치).
-사용자 회신("s04=A, s06=A, …") 전에는 deck-spec 확정 금지다. K-IFRS 파일럿의 실물
-갤러리(`_workspace_kifrs/mockups/gallery.html`)는 본문 8장 × 3안 = 24후보였다.
-
-## 4.6 standard-deck-spec.json — 코드 소비 0곳의 구세대 견본
-
-`.claude/skills/deck-compose/assets/standard-deck-spec.json`은 "문제→솔루션→증거
-8슬라이드" 표준 골격의 예시 spec이다(cover/toc/bullets/two_column/bullets/table/
-metrics/cta). 실측 현황: **코드 소비자 0곳** — 참조는 deck-compose SKILL.md의 문서
-언급 1건뿐이다(grep 1파일). 즉 어떤 스크립트도 이 파일을 읽지 않으며, "빌더가 이
-견본을 사용한다"는 식의 현재형 서술은 성립하지 않는다. 내용도 골든 계열(golden.*)
-도입 이전의 레거시 타입만 쓰는 구세대 견본이라, 골든 파이프라인(5부 17장)과 병존하는
-채로 갱신 없이 남아 어느 쪽이 "표준"인지 문서 간 위상이 갈린 상태다. 이 보고서는
-현행 표준을 골든 매칭 경로(§4.2)로 서술한다.
-
-## 4.7 실증 예시 (walked example) — K-IFRS slides[12]가 validation에 앉기까지
-
-실물 spec `_workspace_kifrs/02_deck-spec.json`(16장, meta.frame_style "v3")의
-슬라이드 한 건을 추적한다. 이 워크스페이스는 2026-07-15 QA FAIL 후 동결된 스냅샷이며,
-파일 내 경로 표기는 구 `_workspace/` 시절 것이다.
-
-**[1] 계약 행** — 아웃라인 계약 장 목록 #13(부 Ⅳ 검증): "QNA 홀드아웃 + 미재현 분해.
-leave-all-QNA-out 누수 차단(격리 0/92). 결론 재현 78/92, 하드 59.1%(84건), 에러 0.
-미재현 14건 정직 분해"(`_workspace_kifrs/01.5_outline.md:25`). 사용자 확정 조정 ②로
-"검증은 1장 유지"가 계약에 박혔다.
-
-**[2] 물성 선언 → 결정표 매칭** — 이 내용의 물성은 "시험 구성(재료 분해) + 최종
-기록(78/92) + 실패 해부(미재현 14건)"다. 결정표에서 판정 질문 "검증·테스트 결과를
-보고하는 장인가"에 "예"인 행 — `golden.validation`(`layout-matching.md:21`)이
-출발점이 된다. 구획 구성(시험 제작·최종 기록·실패 전수 귀속 3구획)이 골든 구조와
-그대로 맞으므로 3갈래 중 **golden + content**(텍스트 전량 교체) 경로다. adapted나
-novel로 갈 이유가 없는, 결정표의 가장 곧은 경로.
-
-**[3] spec에 앉은 실물** — `02_deck-spec.json` slides[12]:
-
-```json
-{ "type": "golden.validation", "content": { "kicker": "4. 검증" } }
+```
+후보 = 축 5개가 전부 같고 n이 수용 범위 안인 부품
+  ① 이 덱에서 아직 안 쓴 것을 먼저          ← 같은 그림이 반복되는 것을 막는다
+  ② 그중 개수 적합도(수용 범위 중앙 근접)   ← 억지로 늘리거나 줄이지 않는 자리
+후보 0 → None → 멈추고 보고
 ```
 
-kicker override 1건만 주입돼 있다(덱 전체에서 kicker override는 이 장과 slides[14]
-`golden.ab_simulation`의 `"5. 핵심 의사결정"` 2건뿐). ab_simulation 쪽 override는
-골든 기본 kicker "4. 문제와 해결"(구 6부 구성 흔적)을 이 덱의 5부 번호로 덮은 것 —
-계약의 부 번호가 골든과 다를 때 content 주입이 어떻게 쓰이는지 보여주는 실물이다.
+`report()`가 왜 그게 뽑혔는지를 결정 로그로 낸다 — 후보 목록·선택·사유. **선택이 기계였음을 사람이 뒤집어 볼 수 있어야 한다.**
 
-**[4] 현황 그대로 — content 미주입 동결** — 그러나 validation의 계약 키는 20키다
-(§4.4 표). kicker 1키 외 19키가 미주입이고, 본문 8타입 중 6장(slides[3]·[5]·[7]~[10])은
-content 키 자체가 없으며 closing도 없다 — **계약 이행 0/8의 물증이 그대로 동결된
-상태**다. 이 spec으로 빌드된 덱은 2026-07-15 QA에서 골든오염 9장(검증 장 S13=slides[12]에서만 17건,
-ab_simulation S15에서도 17건) 등 계약 위반 17건 FAIL을 받았고, 이후 재작성·재빌드 기록이
-없다. meta.note의 "기본값=K-IFRS 내용"이라는 자기변명은 QA 정정에서 기각됐다("골든
-기본값은 근거가 아니다"). 같은 날 신설된 content_contract 때문에 **지금 이 spec을
-그대로 빌드하면 첫 골든 본문 장인 S4(problem_grid)에서 즉시 중단**된다(gate-repair
-스펙: "현 02_deck-spec.json으로 빌드하면 S4에서 즉시 실패"). 즉 이 파일은 "사고
-이전의 spec이 사고 이후의 게이트에 막히는" 전환점을 박제한 사료다. 전말은
-`상세: 9_KIFRS-PILOT.md`.
+### 창고 현황 (부품 10종 — 실체는 `상세: 6_VISUALS.md`)
+
+| 부품               | 어휘   | 물성                                  | 수용 개수   |
+| ------------------ | ------ | ------------------------------------- | ----------- |
+| `gate_branch`      | G01    | 판정 하나에서 결과가 갈린다           | 갈래 2 고정 |
+| `fan_in`           | G02    | 원인 N개가 한 곳에서 만난다           | 파생        |
+| `routing_lane`     | G04    | 한 줄로 흐르다 판정에서 일부가 빠진다 | 파생        |
+| `bipartite_map`    | G05    | A 집합과 B 집합이 갈라지고 모인다     | 파생        |
+| `relation_catalog` | G08    | 무엇이 무엇을 잇고 근거가 어디서 왔나 | 파생        |
+| `numbered_steps`   | G10    | 순서가 메시지인 절차                  | 파생        |
+| `n_branch`         | G11    | 갈래 수 자체가 메시지                 | 파생        |
+| `hub_spoke`        | 미등재 | 하나에 무엇이 물려 있나(1:N)          | 파생        |
+| `layer_stack`      | 미등재 | 층이 몇이고 각 층이 무엇인가          | 파생        |
+| `card_row`         | 미등재 | 순서 없는 독립 항목 N개를 나란히      | 파생        |
+
+**수용 개수 범위는 전부 실측이다.** 2026-07-27에 처음 선언했을 때는 10종 중 9종이 틀렸다 — 주력 밴드(2.16")에 실제로 몇 개가 들어가는지 재보니 선언값과 달랐다(예: `fan_in` 6→4, `n_branch` 4→9, `routing_lane` 9→7). 지금 값은 재서 고친 것이고, 다시 재는 방법(`verify_selection.py`)이 코드로 남아 있다.
+
+### 배치 틀 6종 (`goldenfab/frames.py`)
+
+자리는 부품이 정하지 않는다. 틀이 정한다 — 전부 골든 실측에서 뽑은 것이다.
+
+| 틀                   | 골든 출처 | 재료가 성립시켜야 하는 것   |
+| -------------------- | --------- | --------------------------- |
+| `twin_top_cards`     | S8·S9·S11 | 도해 2 + 카드 3~5           |
+| `wide_top_cards`     | S16       | 도해 1 + 카드 2~5           |
+| `stacked_bands`      | S4        | 도해 2 + 소제목 2           |
+| `figure_and_columns` | S6        | 도해 1 + 열 3~4             |
+| `split_grid`         | S12       | 도해 1 + 카드 2~4(2열 격자) |
+| `mirror_split`       | S14       | 도해 2 + 제목 2             |
+
+공통 좌표도 실측이다 — 카드 띠 `CARD_Y 3.62 · CARD_H 3.32`는 S8·S9·S11이 **같은 값**을 쓴다. 본문 구간은 `BODY_TOP 1.05 ~ BODY_BOTTOM 6.60`이고, 틀마다 골든에서 잰 실제 본문 하단(`foot`)을 따로 들고 있다.
+
+**채움률 하한 `FILL_MIN = 0.96`.** 골든 본문 장들이 실제로 채우는 비율의 최솟값이다(96~114%). 이보다 덜 차면 "비어 보인다"는 반려가 실제로 나왔던 구간이라, 틀 후보를 고를 때와 빌드할 때 두 번 건다.
+
+### 후보 0이면 멈춘다
+
+`pick_parts.py`는 막힌 장이 있으면 `exit 1`과 함께 목록을 낸다.
+
+```
+■ 창고에 없는 물성 N건 — 멈춤: [...]
+  part-design으로 실물 레퍼런스를 찾아 부품을 신설한다(지어내지 않는다).
+```
+
+가장 가까운 부품으로 때우지 않는 이유는 재사용성이다 — 억지로 붙여 만든 도해는 다음 덱이 상속하지 못하고 한 번 쓰고 버려진다. **막힌 목록이 곧 만들 부품 목록**이고, 그래서 창고는 상상이 아니라 수요로 자란다.
+
+### 회귀 검증 — 규칙이 사람의 선택을 재현하나
+
+```
+uv run python .claude/skills/pptx-build/scripts/verify_selection.py
+```
+
+세 검사가 돈다(실측 PASS).
+
+1. **재현** — 골든 8장에서 사람이 손으로 골랐던 도해를, 재료를 세는 규칙만으로 다시 고른다. **8/8 일치.**
+2. **분리** — 부품 10종이 축 5개로 **9칸**에 갈린다. 겹침 1개(`gate_branch`·`n_branch`)는 개수 범위로 해소된다. 부품이 늘어 축이 창고를 못 가르게 되면 이 검사가 알려준다.
+3. **멈춤** — 창고에 없는 물성 2건이 후보 0으로 멈춘다. 억지 매칭 0.
+
+## 4.4 매칭 결정표 — 부품이 안 걸리는 자리의 두 번째 경로
+
+`layout-matching.md`는 물성 → 골든 문법 → 장 타입의 결정표다. 부품 선택이 1순위가 된 뒤에도 남아 있는 이유는 셋이다: ① 도해가 없는 장 골격(표지·목차·간지·클로징), ② 아직 부품으로 안 꺼낸 골든 문법, ③ (A)에 어휘가 없는 정량 물성.
+
+| 표  | 무엇                                | 규모                     |
+| --- | ----------------------------------- | ------------------------ |
+| A   | 구조·정성·실물 물성 → 골든 문법(G)  | 16행                     |
+| A-2 | 장 골격 물성 → 장 타입(15타입 전수) | 15행                     |
+| B   | (A)에 어휘가 없는 물성 → L-ID       | 16행(⬜ 미보유 3행 포함) |
+
+**(A)가 (B)보다 먼저다.** 같은 물성에 둘 다 있으면 (A)를 쓰고, (B)를 고르려면 왜 (A)가 안 되는지를 적어야 한다. 이 순서는 산문이라 자동 경로가 계속 (B)만 올리던 문제가 있었고, 그래서 기계화됐다 — `recommend_archetypes.GRAMMAR_RANK`가 추천 1순위로 (A)를 내고, `check_candidates` ⑧이 "(A) 후보 0 + `why_not_golden` 없음"을 FAIL로 잡는다. 일반 `why_not`으로는 갈음이 안 된다(다른 질문의 답이므로).
+
+**B 표에는 빈칸이 3개 있다** — 정성 2열 대비 · 편차 · 공간. (A)에도 (B)에도 없는 물성이고, 표가 스스로 "미보유 → §검색"이라고 적어 둔다. 없는 것을 있는 척하지 않는 것이 이 표의 규율이다.
+
+**항목 수 계약을 먼저 본다.** "고정"인 문법에 항목 수가 다른 내용을 넣으면 초과분이 조용히 사라진다(`zip` 절단). 그때가 `adapted.<layout>`로 내려가 장 스크립트를 변형할 자리다. "파생"인 문법은 개수가 좌표를 정하므로 조용히 안 깨지고, 실측 상한을 넘으면 `grid.pitch`/`track`이 시끄럽게 죽는다.
+
+**낡은 서술 1건**: `deck-compose/SKILL.md`의 v7 절이 배치 틀을 "5종"으로 적고 있으나 `frames.FRAMES`는 6종이다(`split_grid` 추가분 미반영). 코드가 정본이다.
+
+## 4.5 콘텐츠 계약 — content는 선택이 아니라 필수
+
+`golden.<layout>` 배정 시 content dict가 골든 DEFAULT 키를 **전부** 덮지 않으면 빌더가 중단한다(`goldenfab/content_contract.py`). 부분 주입도 FAIL이다 — 누락 키가 골든 기본값(다른 프로젝트 글)으로 조용히 메워지는 것이 "계약 0% 이행 덱이 전 게이트 통과" 사고의 본질이었기 때문이다(사고 전말은 `상세: 13_TROUBLESHOOTING.md`).
+
+`adapted.`/`novel`에도 2026-07-25에 문이 생겼다. 그전에는 `_render_scripted`가 `assert_content`를 부르지 않아 계약 검사 **밖**이었고, 그래서 실전 덱을 `adapted.`로 만들면 골든 글이 남아도 전 게이트가 green이었다. 지금은 `assert_scripted_content`가 **"그 스크립트가 실제로 읽는 골든 기본값 키"**를 요구한다. DEFAULT 전량이 아닌 이유는 실측이다 — 정본 장이 주입해도 안 읽는 키가 22건 있어, 전량을 요구하면 즉시 상시 적색이 된다. 그 구멍 수는 `test_wiring` 통합F가 **감소 전용 래칫**으로 고정한다(늘면 FAIL).
+
+명시 필수 키는 정형 3종에만 별도로 든다 — `cover` 5키·`toc` 4키·`part` 4키(`content_contract.EXPLICIT_KEYS`). 나머지 12종은 레이아웃 모듈의 DEFAULT dict 키 전량이다. 사람이 읽을 사전은 `golden-content-contract.md`(코드 DEFAULT 덤프)이고, **필수 키의 단일 출처는 그 문서가 아니라** `content_contract.required_keys()`(15/15 해석)다.
+
+남는 눈검증 몫도 있다: 안 읽히는 22키 자리에 박힌 모듈 상수(골든 글)는 기계가 못 잡는다. 그 자리는 dense 파라미터화로만 닫힌다.
+
+## 4.6 구성 원칙·다양성
+
+deck-compose SKILL의 구성 원칙: ① 계약 준수(장 추가·삭제·강조 변경 금지) ② 창작 금지(재료 얇으면 부풀리지 않고 "재료 부족" 보고) ③ 숫자는 chart/metrics로 ④ 한 메시지 + 120~200단어 ⑤ 개체만 덜렁 금지(commentary 필수) ⑥ 서술 문단 intro.
+
+다양성은 게이트가 기계 검증한다 — 쿨다운(동일 유형 간격 ≥3장) · 최소 5종(본문 5장 이상) · 동일 유형 ≤2회. 박스 비율 30% 조항은 2026-07-25에 삭제됐다: 대상 어휘(박스+화살표 9종)가 전부 폐기돼 계수가 항상 0인 **hollow 검사**가 됐기 때문이고, 그 게이트가 막던 위험(빈 박스에 라벨 두 단어)은 `goldenfab.audit.check_adhoc_card`가 진다. 게이트 코드는 QA 층 소관이므로 `상세: 8_QA-GATES.md`, 시각 어휘 자체는 `상세: 6_VISUALS.md`.
+
+②.5 승인 게이트: 후보 사양서는 `check_candidates.py`의 검사 8종을 RESULT: PASS까지 자기 심사한 뒤, `render_real_mockups.py`(실물 COM 렌더, Windows+PowerPoint 전제)가 gallery.html을 만든다 — 폴백은 `make_mockups.py`(mpl 스케치). 사용자 회신("s04=A, s06=A, …") 전에는 deck-spec 확정 금지다.
+
+## 4.7 실증 — 골든 S8이 부품 선택으로 재현되는 과정
+
+`verify_selection.py` ①(재현)이 실제로 무엇을 하는지 한 장으로 추적한다.
+
+**[1] 재료를 센다.** 골든 S8(용어사전)의 내용은 "실무어 여러 개가 기준서 개념 여러 개에 걸린다"는 대응 관계다. 사람이 그림을 떠올리기 전에 세는 값은 이것뿐이다 — 항목 수, 묶음 2개, 링크 목록, 순서 없음, 부가 열 있음, 양끝 특별하지 않음.
+
+**[2] 축으로 환산한다.** `shape_of`가 링크에서 파생한다: 두 묶음이므로 `flow = "N:M"`, `sets = 2`, `order = False`, `ends = False`. 이 환산에 "이건 이분 매핑이다"라는 사람의 판정이 끼어드는 자리가 없다.
+
+**[3] 후보를 좁힌다.** 축 5개가 전부 일치하고 항목 수가 수용 범위 안인 부품만 남는다. 여기서는 `bipartite_map` 하나다 — `sets=2`를 받는 부품이 창고에 그것뿐이기 때문이다.
+
+**[4] 대조한다.** 골든 S8이 실제로 쓰는 도해는 `bipartite_map`이다. 일치. 같은 절차를 골든 8장에 돌려 **8/8**이 나온다.
+
+이 실증의 의미는 "규칙이 골든을 베꼈다"가 아니다. 골든은 사람이 손으로 깎으면서 매번 다르게 판단한 결과물인데, **그 판단들이 사후에 재료를 세는 규칙 하나로 전부 설명된다**는 뜻이다. 설명되지 않았다면 그 축은 실제 판단 근거가 아니었을 것이다.
+
+반대편 실증이 ③(멈춤)이다. 창고에 없는 물성 2건은 가장 가까운 부품이 있는데도 후보 0으로 떨어진다 — 축이 하나라도 다르면 통과시키지 않기 때문이다. 규칙이 관대해지는 순간 이 파이프라인은 다시 "아무거나 갖다 붙이는" 상태로 돌아간다.
 
 ## 4.8 경계
 
-이 장은 ② 배치와 ②.5 승인까지다. spec을 pptx로 굽는 빌더는 `상세: 5_PPTX-BUILD.md`,
-골든 15타입의 실체와 adapted/novel 렌더 경로는 `상세: 7_GOLDEN-DECK.md`,
-content_contract·audit_deck·다양성 게이트의 코드는 `상세: 8_QA-GATES.md`.
+이 장은 ② 배치와 ②.5 승인까지다. spec을 pptx로 굽는 빌더는 `상세: 5_PPTX-BUILD.md`, 부품 10종·틀 6종의 실체와 3층 계약은 `상세: 6_VISUALS.md`, 골든 덱이 조합 사례로서 무엇을 보여주는지는 `상세: 7_GOLDEN-DECK.md`, content_contract·audit_deck·다양성 게이트의 코드는 `상세: 8_QA-GATES.md`.
