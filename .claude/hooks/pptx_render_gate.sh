@@ -146,22 +146,36 @@ fi
 # 그래서 armed 경로를 종류별로 가르고 **실전 덱이 하나라도 있을 때만** 검사 ③을 건다.
 # 골든은 무조건 면제가 아니다 — compare 결과가 그 pptx보다 **새롭고 불일치 0건**일 때만이다.
 # 시각을 바꾸는 골든 재작업은 compare가 빨개져 이 문을 못 지나고 deck-smith 요구로 되돌아간다.
+# 훅은 <프로젝트>/.claude/hooks/ 에 있다 — 상대경로 해석의 기준점(소스 arm 유무와 무관).
+SELF_ROOT=$(to_unix "$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)")
 NEED_AGENT=0
 if [[ -f "$PPTX" ]]; then
   while IFS=$'	' read -r _ns gpath; do
-    gpath="${gpath%$''}"
+    gpath="${gpath%$''}"  # CRLF 방어 — 이스케이프로 쓴다(원문 CR 바이트는 안 먹는다)
     [[ -n "$gpath" ]] || continue
     gu=$(to_unix "$gpath")
-    case "$gu" in
-      */results/검토/부품_*.pptx)  # 부품 목업 — 덱이 아니다
+    base="${gu##*/}"
+    # arm은 명령에서 뽑은 **그대로** 적는다 — 상대경로도 절대경로도 온다. 그래서 파일명으로 가른다.
+    case "$base" in
+      .pptx)          # 경로를 못 뽑은 신호(파일명 없음) — 덱이 저장됐다는 증거가 아니다
         continue ;;
-      */golden/golden-deck.pptx)   # 골든 회귀 — green일 때만 면제
-        CMP="${gu%/golden/golden-deck.pptx}/golden/variants/compare_full.md"
-        if [[ -f "$CMP" && "$CMP" -nt "$gu" ]] && grep -q '불일치 0건' "$CMP" 2>/dev/null; then
+      부품_*.pptx)    # 부품 목업 — 덱이 아니라 부품 한 종의 SAMPLES 렌더
+        continue ;;
+      golden-deck.pptx)
+        # 상대경로면 훅 자기 위치에서 루트를 뽑는다 — 소스 arm(PROJ)은 없을 수도 있다.
+        if [[ "$gu" == /* ]]; then GROOT="${gu%/golden/golden-deck.pptx}"; else GROOT="$SELF_ROOT"; fi
+        CMP="$GROOT/golden/variants/compare_full.md"
+        if [[ -n "$GROOT" && -f "$CMP" && "$CMP" -nt "$GROOT/golden/golden-deck.pptx" ]]            && grep -q '불일치 0건' "$CMP" 2>/dev/null; then
           continue
         fi
         NEED_AGENT=1 ;;
-      *)                           # 실전 덱
+      *)
+        # 실전 덱 후보 — 다만 **실제로 파일이 있어야** 센다. arm은 명령 텍스트에서 뽑은
+        # 토큰이라 셸 변수가 안 풀린 문자열($HOME/...)이나 조사용 가짜 경로도 들어온다
+        # (2026-07-26 실측: 게이트를 조사하는 명령 자체가 게이트를 무장시켰다).
+        # 진짜 덱은 디스크에 있다 — 없는 경로는 저장의 증거가 아니다.
+        if [[ "$gu" == /* ]]; then ABS="$gu"; else ABS="$SELF_ROOT/$gu"; fi
+        [[ -f "$ABS" ]] || continue
         NEED_AGENT=1 ;;
     esac
   done < "$PPTX"
