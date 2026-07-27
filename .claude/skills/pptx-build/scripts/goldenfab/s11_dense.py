@@ -12,14 +12,75 @@
 
 from pptx.enum.lang import MSO_LANGUAGE_ID
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
-from pptx.util import Inches, Pt
+from pptx.util import Pt
 
 from . import dense as D
 from . import grid as G
 from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, set_shape_text
-from .s11_variants import DEFAULT, STEPS
+from .figures import Box
+from .figures import n_branch as NBRANCH
+from .figures import numbered_steps as STEPS
 
 K = load_kit()
+
+KICKER = "3. 기술 설명 — TECH 03 · Generate"
+
+SOURCE = (
+    "출처: data/ontology/judgment_trees.json(트리 41 · 사용자 검수 완료) · "
+    "3_KNOWLEDGE-GRAPH.md §3.3 · 4_SEARCH-PIPELINE.md L72·78"
+)
+
+NARRATIVES = [  # §8d 서사 3칼럼 — 두괄식 볼드 헤드 + 완전 문장
+    (
+        "왜 필요한가",
+        "하나의 회계 판단이 문단 32·35·36·37과 B9~B13에 흩어져 있다. "
+        "문단을 조각으로 검색해서는 판단의 순서가 복원되지 않는다.",
+    ),
+    (
+        "파이프라인에서의 역할",
+        "Generate 직전에 주입되는 답변의 골격. 질문에 걸린 트리가 "
+        "판단 순서를 제공하므로 AI가 순서를 창작하지 않는다.",
+    ),
+    (
+        "어떻게 만들었나",
+        "기준서 본문의 조건-분기만 원문 앵커(문단 번호)와 함께 옮겨 "
+        "41개를 미리 조립 — AI 창작 아님, 전 트리 사용자 검수 완료.",
+    ),
+]
+
+# content_contract 계약 키 — golden.tech_mechanism의 필수 키 출처.
+# 2026-07-26 `s11_variants`(sparse 시안)에서 이관 + 부품화로 나온 글(steps·branches)을 추가.
+DEFAULT = {  # 텍스트 내용만(좌표·색·크기·도형은 코드 고정). c=None이면 골든 기본값.
+    "kicker": KICKER,
+    "headline": "판단트리 41개 — 흩어진 조건-분기를 판단 순서로 미리 조립",
+    "narratives": NARRATIVES,
+    "steps_head": "트리는 이렇게 걸린다 — 주제기반 다중주입",
+    "branch_label": "주입 뒤 — 답변은 질문 성격에 따라 세 갈래로 갈린다",
+    "flow_head": "적용 실물 — 질문에서 트리 분기까지",
+    "question": "“볼륨디스카운트 조항이 있는 계약은…”",
+    "topic_label": "주제 지목 — 변동대가",
+    "tree_chip": "「변동대가 (추정)」 걸림",
+    "diamond": "변동금액 포함?",
+    "diamond_anchor": "문단 51",
+    "method1_head": "기댓값",
+    "method1_sub": "확률 가중 합",
+    "method2_head": "가능성 최고 금액",
+    "method2_sub": "단일 결과치",
+    "flow_foot": "문단 53 — 더 잘 예측하는 방법 하나를 일관 적용(문단 54)",
+    "bar": "질문이 여러 판단에 걸치면 걸린 절차를 모두 넣는다 — 트리 41개, 전부 원문 앵커",
+    "source": SOURCE,
+    "steps": [
+        {"head": "주제 지목", "body": "35개 주제에서 최대 3개 지목 — 개념 80개를 직접 고르지 않는다"},
+        {"head": "직속 개념 매칭", "body": "직속 개념이 트리 발동 개념과 겹치면 걸린다 — 배경 개념 제외"},
+        {"head": "걸린 트리 전부 주입", "body": "1개만 고르지 않고 걸린 절차 모두 주입 — 없으면 진입 개념 폴백"},
+    ],
+    "branch_source": "주입된 질문",
+    "branches": [
+        {"label": "사실관계 부족", "desc": " 되물음 — 부족한 사실을 묻는다"},
+        {"label": "산술 필요", "desc": " 계산을 확인한 뒤 답변"},
+        {"label": "그 외", "desc": " 확정 또는 조건부 답변"},
+    ],
+}
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
 # 카드 주제 = 판단트리의 고유 성질 (제네릭 왜/역할/구축 대신)
@@ -183,81 +244,28 @@ def _decision_tree(slide, c, x0, x1):
 
 
 # 3단계 — 번호 배지 + 텍스트 흐름(박스 없음 → 빈 여백 자체가 안 생긴다). 문구는 원본 사실 보존.
-STEPS_SHORT = [
-    ("주제 지목", "35개 주제에서 최대 3개 지목 — 개념 80개를 직접 고르지 않는다"),
-    ("직속 개념 매칭", "직속 개념이 트리 발동 개념과 겹치면 걸린다 — 배경 개념 제외"),
-    ("걸린 트리 전부 주입", "1개만 고르지 않고 걸린 절차 모두 주입 — 없으면 진입 개념 폴백"),
-]
-BRANCH = [
-    ("사실관계 부족", " 되물음 — 부족한 사실을 묻는다"),
-    ("산술 필요", " 계산을 확인한 뒤 답변"),
-    ("그 외", " 확정 또는 조건부 답변"),
-]
-# 갈래 행이 쓸 수 있는 세로 밴드 — 라벨(2.26) 밑 ~ 세로 구분선 끝(3.41) 안쪽. 갈래가 이 밴드에
-# 안 들어가면 `grid.pitch`가 시끄럽게 죽는다(현 기하 수용 한계 = 4갈래).
-BR_BAND_TOP, BR_BAND_BOTTOM = 2.46, 3.46
+# ── 주입 흐름·갈래 자리 (골든 실측) ────────────────────────────────────────────
+# 도해는 `figures.numbered_steps`·`figures.n_branch`가 그린다. 이 장은 자리만 정한다.
+# 글(단계·갈래 문구)은 2026-07-26 부품화로 content로 나갔다 — 모듈 상수로 두면 실전 덱에
+# 골든 글이 그대로 새 나간다(계약 ③).
+STEPS_DY = 1.28  # 소제목 밑 첫 배지 top
+BR_BAND_TOP, BR_BAND_BOTTOM = 2.46, 3.46  # 갈래가 쓸 수 있는 세로 밴드
 
 
 def _inject_and_branch(slide, c, x0, x1):
-    """주제기반 다중주입(G10 번호 배지 흐름) + 주입 뒤 N갈래 분기(G11) — 원본 좌하 전량 수납.
-
-    2026-07-25 항목 수 파생: 칼럼 폭·갈래 y가 리터럴(`/3`·`[2.54, 2.84, 3.14]`)이라 단계·갈래가
-    하나 늘면 마지막이 조용히 사라지거나 칸을 넘었다. 이제 `grid.track`·`grid.pitch`로 파생하고
-    수용 한계를 넘으면 시끄럽게 죽는다(§F). 갈래 블록은 주입 박스 세로중심에 정렬한다.
-    """
+    """주제기반 다중주입(번호 흐름) + 주입 뒤 N갈래 분기 — 둘 다 개수 파생 부품이다."""
     tw = x1 - x0
     _subhead(slide, x0, 0.82, tw, c["steps_head"])
-    gap = 0.30
-    cw = G.track(len(STEPS_SHORT), x0, x1, gap, 1.30, what="주입 단계")
-    for i, (head, body) in enumerate(STEPS_SHORT):
-        cxi = x0 + i * (cw + gap)
-        badge = add_box(slide, cxi, 1.28, 0.26, 0.26, fill=C["primary"], shape="oval")
-        set_shape_text(badge, str(i + 1), S["foot"], F["head"], C["bg"], bold=True)
-        add_text(
-            slide,
-            cxi + 0.34,
-            1.26,
-            cw - 0.34,
-            0.30,
-            head,
-            S["caption"],
-            F["head"],
-            C["primary"],
-            bold=True,
-            anchor=MSO_ANCHOR.MIDDLE,
-        )
-        add_text(
-            slide, cxi, 1.66, cw, 0.62, body, S["foot"], F["body"], C["muted"], line_spacing=1.18
-        )
-        if i < len(STEPS_SHORT) - 1:
-            D.arrow(slide, cxi + cw + 0.04, 1.41, cxi + cw + gap - 0.04, 1.41, C["muted"])
-    # ── 주입 뒤 세 갈래 (주입된 질문 → 3 갈래로 갈린다) ──
+    STEPS.draw(slide, Box(x0, STEPS_DY, tw, 1.00), {"steps": c["steps"]}, K)
     add_text(
         slide, x0, 2.26, tw, 0.2, c["branch_label"], S["foot"], F["head"], C["primary"], bold=True
     )
-    qw, qh, qy = 1.35, 0.44, 2.74
-    qb = add_box(slide, x0, qy, qw, qh, fill=C["primary"], shape="round")
-    set_shape_text(qb, "주입된 질문", S["foot"], F["head"], C["bg"], bold=True)
-    rows_x = x0 + qw + 0.5
-    # 갈래 행 y = 갈래 수에서 파생 → 블록을 주입 박스 세로중심(2.96)에 맞춘다(부채꼴 축 정렬)
-    n_br, row_h = len(BRANCH), 0.24
-    br_pitch = G.pitch(n_br, BR_BAND_TOP, BR_BAND_BOTTOM, row_h, cap=0.30, what="분기 갈래")
-    br_top = (qy + qh / 2) - ((n_br - 1) * br_pitch + row_h) / 2
-    for i, (lab, desc) in enumerate(BRANCH):
-        ry = br_top + i * br_pitch
-        D.arrow(slide, x0 + qw, qy + qh / 2, rows_x - 0.06, ry + 0.11, C["muted"])
-        add_text(
-            slide,
-            rows_x,
-            ry,
-            x1 - rows_x,
-            0.24,
-            [[(lab, {"bold": True, "color": C["primary"]}), (" " + desc, {})]],
-            S["foot"],
-            F["body"],
-            C["muted"],
-            anchor=MSO_ANCHOR.MIDDLE,
-        )
+    NBRANCH.draw(
+        slide,
+        Box(x0, BR_BAND_TOP, tw, BR_BAND_BOTTOM - BR_BAND_TOP),
+        {"source": c["branch_source"], "branches": c["branches"]},
+        K,
+    )
 
 
 def build(prs, c=None):

@@ -50,12 +50,12 @@
 | G02 | `cause_fanin`           | 여러 원인이 결국 한 곳에서 만나나(N→1 수렴)      | `goldenfab/figures/fan_in.py:draw`          | `goldenfab/s04_dense.py:build`              | `c:band2_head` `c:limits` `c:gate` `c:converge_mark` `c:converge_note`                                                                                    | `[파생]`       | `golden.problem_grid`    | **없음**                         |
 | G04 | `routing_band`          | 정상 경로와 거절 경로가 어디서 갈리나            | `goldenfab/figures/routing_lane.py:draw`     | `goldenfab/s06_variants.py:variant_c`       | `c:node_names` `c:node_tags` `c:in_label` `c:out_label` `c:reject_box` `c:reject_desc`                                                                    | `[파생]`       | `golden.exec_graph`      | ~~L20 process_band~~       |
 | G05 | `bipartite_map`         | A 집합과 B 집합이 어떻게 갈라지고 모이나(N:M)    | `goldenfab/figures/bipartite_map.py:draw`    | `goldenfab/s08_dense.py:build`              | `c:terms` `c:map_head` `c:map_caption` `c:map_legend`                                                                                                     | `[파생]`       | `golden.tech_evidence`   | ~~L19 from_to~~(열위)      |
-| G09 | `applied_decision_tree` | 실제 질문 하나가 시스템 안에서 어떻게 갈리나     | `goldenfab/s11_variants.py:variant_d`       | `goldenfab/s11_dense.py:_decision_tree`     | `c:flow_head` `c:question` `c:topic_label` `c:tree_chip` `c:diamond` `c:diamond_anchor` `c:method1_head` `c:method1_sub` `c:method2_head` `c:method2_sub` | `[고정:2]`     | `golden.tech_mechanism`  | ~~L16 branch~~(열위)       |
-| G11 | `n_branch`              | 하나가 몇 갈래로 갈리나(분기 수가 메시지)        | `goldenfab/s11_branch_snap.py:build_branch` | `goldenfab/s11_dense.py:_inject_and_branch` | `c:branch_label` `const:BRANCHES` `const:BRANCH`                                                                                                          | `[파생]`(≤4)   | `adapted.tech_mechanism` | ~~L16 branch~~             |
+| G09 | `applied_decision_tree` | 실제 질문 하나가 시스템 안에서 어떻게 갈리나     | `goldenfab/s11_dense.py:_decision_tree`     | `goldenfab/s11_dense.py:build`              | `c:flow_head` `c:question` `c:topic_label` `c:tree_chip` `c:diamond` `c:diamond_anchor` `c:method1_head` `c:method1_sub` `c:method2_head` `c:method2_sub` | `[고정:2]`     | `golden.tech_mechanism`  | ~~L16 branch~~(열위)       |
+| G11 | `n_branch`              | 하나가 몇 갈래로 갈리나(분기 수가 메시지)        | `goldenfab/figures/n_branch.py:draw`        | `goldenfab/s11_dense.py:build`              | `c:branch_label` `c:branch_source` `c:branches`                                                                                                          | `[파생]`(≤4)   | `adapted.tech_mechanism` | ~~L16 branch~~             |
 | G15 | `isolation_flow`        | 무엇을 주고 무엇을 막았나(시험의 공정성)         | `goldenfab/s15_dense.py:build`              | (승격 완료 — 출처와 동일)                   | `c:dests`                                                                                                                                                 | `[고정:3]`     | `golden.validation`      | ~~L16 branch~~(열위)       |
 | G19 | `boundary_containment`  | 어디까지 하고 어디서 멈추나(경계=상자·차단=충돌) | `goldenfab/s16_dense.py:build`              | (승격 완료 — 출처와 동일)                   | `c:outside_label` `c:inside_title` `c:inside_policy` `c:limits`                                                                                           | `[고정:밖1+1 · 파생:한계≤4]` | `golden.boundary`        | ~~L34 pro_con~~(다른 주장) |
 
-G11 기하 오라클: `goldenfab/s11_branch_snap.py:audit`(분기 각·중심 검산) — 변형 시 그대로 재사용한다.
+G11 기하 오라클: 부품 `n_branch`가 `grid.pitch`로 갈래 y를 파생하고 밴드를 넘으면 죽는다 (2026-07-26 부품화 전에는 `s11_branch_snap.py:audit`이 그 검산을 맡았다).
 
 ### A-2 구조·위계 (4종)
 
@@ -63,7 +63,7 @@ G11 기하 오라클: `goldenfab/s11_branch_snap.py:audit`(분기 각·중심 �
 | --- | ------------------ | --------------------------------------------- | ----------------------------------------- | ------------------------------------------- | ----------------------------------------------------------- | ------------ | ----------------------- | ------------------------------------------ |
 | G06 | `node_class`       | 이 상자는 어떤 종류인가(색 대신 모양+채움)    | `goldenfab/figures/elements.py:node_chip`  | `goldenfab/s09_dense.py:_tree`              | `c:root` `c:concepts` `c:paras` `c:term_chip` `c:case_chip` | `[고정:5종]` | `golden.tech_tree`      | **없음**((B) 노드는 단일 스타일이었다)          |
 | G08 | `relation_catalog` | 무엇이 무엇을 잇고 그 근거는 어디서 왔나      | `goldenfab/figures/relation_catalog.py:draw` | `goldenfab/s09_dense.py:build`              | `c:cat_rows` `c:cat_title`                                  | `[파생]`     | `golden.tech_tree`      | ~~L21 band_table~~·L26 표(관계 뭉갬) |
-| G10 | `numbered_steps`   | 절차가 몇 단계인가(박스 없이 · 죽은 여백 0)   | `goldenfab/s11_variants.py:variant_d`     | `goldenfab/s11_dense.py:_inject_and_branch` | `c:steps_head` `c:steps` `const:STEPS_SHORT`                | `[파생]`(골든≤3·dense≤4) | `golden.tech_mechanism` | ~~L35 icon_rows~~(진행 화살표 없음)  |
+| G10 | `numbered_steps`   | 절차가 몇 단계인가(박스 없이 · 죽은 여백 0)   | `goldenfab/figures/numbered_steps.py:draw` | `goldenfab/s11_dense.py:build`              | `c:steps_head` `c:steps`                | `[파생]`(골든≤3·dense≤4) | `golden.tech_mechanism` | ~~L35 icon_rows~~(진행 화살표 없음)  |
 | G14 | `evidence_chain`   | 결론에 어떻게 도달했나(도달 경로 자체가 근거) | `goldenfab/s14_variants.py:variant_c`     | `goldenfab/s14_dense.py:build`              | `c:steps` `c:right_title` `c:right_note`                    | `[파생]`(≤4) | `golden.ab_simulation`  | ~~L15 layers~~(주석열 없음)          |
 
 `node_class`는 **원소 문법**이다 — 트리·카탈로그가 공용하며 노드를 그리는 길은 `_node_chip` 하나뿐이다
@@ -80,7 +80,7 @@ G11 기하 오라클: `goldenfab/s11_branch_snap.py:audit`(분기 각·중심 �
 
 | ID  | 문법명             | 물성 — 답하는 질문                          | 골든 출처(정본 렌더러)                  | dense 기준작                   | 데이터 계약                                | 항목 수                 | 변형 경로           | (B) 대응 |
 | --- | ------------------ | ------------------------------------------- | --------------------------------------- | ------------------------------ | ------------------------------------------ | ----------------------- | ------------------- | -------- |
-| G21 | `capture_with_ops` | 정말 돌아가나(캡처 + 캡처가 못 증명하는 것) | `goldenfab/s10_screenshot.py:variant_a` | `goldenfab/s10_dense.py:build` | `c:img` `c:points` `c:caption` `const:OPS` | `[고정:4]`(폭은 n 파생) | `golden.screenshot` | **없음** |
+| G21 | `capture_with_ops` | 정말 돌아가나(캡처 + 캡처가 못 증명하는 것) | `goldenfab/s10_dense.py:build` | `goldenfab/s10_dense.py:build` | `c:img` `c:points` `const:OPS` | `[고정:4]`(폭은 n 파생) | `golden.screenshot` | **없음** |
 
 `img`는 자산(캡처 파일)이 필수다 — 없으면 이 문법을 고를 수 없다(§F 경계: 다이어그램이 증명 못 하는
 것만 곁들인다).

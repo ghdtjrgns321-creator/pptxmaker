@@ -14,14 +14,38 @@ s10의 고유 역할은 하나 — "이 그래프가 **실제로 돌아가는 �
 
 from . import dense as D
 from . import grid as G
-from . import s10_screenshot as S10
 from .kit import SLIDE_H, SLIDE_W, add_box, add_text, fit_picture, load_kit
 
 K = load_kit()
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
+IMG_3D = r"C:\Users\ghdtj\workspace\portfolio\k-ifrs-1115\images\knowledge_graph_3d.png"
+
 # content_contract 계약 키 — registry가 이 dense를 golden.screenshot으로 부를 때 필수 키 출처.
-DEFAULT = S10.SHOT_DEFAULTS
+# content_contract 계약 키 — golden.screenshot의 필수 키 출처.
+# 2026-07-26 `s10_screenshot`(sparse 시안)에서 이관. 골든 전용 글이다.
+DEFAULT = {
+    "kicker": "3. 기술 설명 — TECH 02 · Retrieve",
+    "headline": "노드 929개가 하나의 구조로 — 지식그래프 3D 뷰어",
+    "img": IMG_3D,
+    "caption": "실제 운영 화면 — 지식그래프 3D 뷰어 (초기 V1 스냅샷, 수치 표기는 그래프 v14 기준)",
+    # 골든 기본 4포인트. **DEFAULT 밖(함수 몸통)에 두지 말 것** — 2026-07-15 제3자 반증에서
+    # `"points": None` + 함수 내 `c["points"] or [리터럴]` 조합이 두 게이트를 동시에 실명시켰다:
+    # ① assert_content는 키가 있으니 통과 ② golden_strings가 DEFAULT만 걷어 리터럴을 못 봐
+    # 오염 검사도 통과. 계약 content를 다 채워도 골든 원문이 나갔다(원사고와 동일 클래스).
+    "points": [
+        ("큰 파란 노드 = 개념", "기준서 소제목 80개 — 클수록·밝을수록 상위 계층이다."),
+        (
+            "작은 점 = 문단·사례",
+            "회색은 문단 250, 색 점은 QNA·감리·IE 사례 188 — 전부 개념 아래 매달린다.",
+        ),
+        (
+            "선 = 관계 간선",
+            "회색 계층(목차) · 노랑 상호참조(E3) · 빨강 선행판단(E2) — 검색이 걷는 길이 그대로 보인다.",
+        ),
+        ("고립 노드 0", "모든 노드가 최소 하나의 경로로 본문에 닿는다 — 감사로 확인."),
+    ],
+}
 
 SOURCE = "출처: 3_KNOWLEDGE-GRAPH.md · knowledge_graph_3d.png (실운영 초기 V1 스냅샷 · 수치는 그래프 v14) · 그래프 설계·규모는 S9"
 

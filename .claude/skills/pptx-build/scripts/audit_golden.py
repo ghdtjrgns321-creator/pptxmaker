@@ -301,12 +301,12 @@ def selftest():
     ok.append(("P4⑤ 산문 오탐 0", hit_p, msg_p, n_p))
 
     # 그림 침범 — 구 s10 방식(height만 지정 → 비율이 폭을 정함)을 재현하면 잡아야
-    import goldenfab.s10_screenshot as S10
+    import goldenfab.s10_dense as S10
 
     prs2 = Presentation()
     prs2.slide_width, prs2.slide_height = Inches(13.333), Inches(7.5)
     sl2 = prs2.slides.add_slide(prs2.slide_layouts[6])
-    sl2.shapes.add_picture(S10.SHOT_DEFAULTS["img"], Inches(0.6), Inches(1.8), height=Inches(4.75))
+    sl2.shapes.add_picture(S10.DEFAULT["img"], Inches(0.6), Inches(1.8), height=Inches(4.75))
     tb2 = sl2.shapes.add_textbox(Inches(8.6), Inches(1.8), Inches(4.1), Inches(0.3))
     tb2.text_frame.paragraphs[0].add_run().text = "이 화면에서 보이는 것"
     hit, msg, n = A.check_picture_overlap(list(sl2.shapes))
