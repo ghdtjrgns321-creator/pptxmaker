@@ -135,7 +135,39 @@ fi
 # (is_error:true / "The user doesn't want to proceed" …)도 무응답(미완료)도 아닐 때만 경유 인정.
 # 실증(2026-07-24): 거부된 deck-smith 호출도 tool_use JSON은 transcript에 남아 옛 grep이
 # 거짓통과했다(사용자 tool use rejected). 페어링은 그 거부를 걸러낸다.
+# ── 산출물 분류 (2026-07-26 사용자 승인) ──────────────────────────────────────────
+# 게이트가 보는 신호는 ".pptx가 저장됐다" 하나뿐이라 **덱이 아닌 산출물**까지 덱 작업으로
+# 오판했다. 실측된 오판 2종:
+#   ① 골든 회귀 확인 — 부품화(장에 굳은 도해를 figures/로 꺼내기)는 시각을 바꾸지 않는 구조
+#      이관이고, 무손실 증명이 골든덱을 다시 찍어 compare_golden 픽셀 동일로 대조하는 것이다.
+#      이 재빌드가 덱 수정으로 잡혀 남은 12회차를 전부 막았다(2026-07-26 s04 회차 실측).
+#   ② 부품 목업 — fig_mockup이 results/검토/부품_*.pptx를 찍는다. 덱이 아니라 부품 한 종의
+#      SAMPLES 렌더인데 확장자가 같아 매 세션 종료가 막히고 백스톱에 의존했다.
+# 그래서 armed 경로를 종류별로 가르고 **실전 덱이 하나라도 있을 때만** 검사 ③을 건다.
+# 골든은 무조건 면제가 아니다 — compare 결과가 그 pptx보다 **새롭고 불일치 0건**일 때만이다.
+# 시각을 바꾸는 골든 재작업은 compare가 빨개져 이 문을 못 지나고 deck-smith 요구로 되돌아간다.
+NEED_AGENT=0
 if [[ -f "$PPTX" ]]; then
+  while IFS=$'	' read -r _ns gpath; do
+    gpath="${gpath%$''}"
+    [[ -n "$gpath" ]] || continue
+    gu=$(to_unix "$gpath")
+    case "$gu" in
+      */results/검토/부품_*.pptx)  # 부품 목업 — 덱이 아니다
+        continue ;;
+      */golden/golden-deck.pptx)   # 골든 회귀 — green일 때만 면제
+        CMP="${gu%/golden/golden-deck.pptx}/golden/variants/compare_full.md"
+        if [[ -f "$CMP" && "$CMP" -nt "$gu" ]] && grep -q '불일치 0건' "$CMP" 2>/dev/null; then
+          continue
+        fi
+        NEED_AGENT=1 ;;
+      *)                           # 실전 덱
+        NEED_AGENT=1 ;;
+    esac
+  done < "$PPTX"
+fi
+
+if [[ -f "$PPTX" && "$NEED_AGENT" -eq 1 ]]; then
   TR_RAW=$(printf '%s' "$INPUT" | python -c "import json,sys;print(json.load(sys.stdin).get('transcript_path','').replace(chr(92),'/'))" 2>/dev/null)
   TR=$(to_unix "$TR_RAW")
   if [[ -n "$TR" && -f "$TR" ]]; then
