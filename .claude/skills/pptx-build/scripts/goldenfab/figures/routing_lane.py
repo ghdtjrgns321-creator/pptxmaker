@@ -24,13 +24,15 @@ from pptx.enum.text import PP_ALIGN
 
 from ..kit import add_box, add_text, set_shape_text
 from . import elements as E
-from . import merged, require
+from . import Box, merged, require
 
 META = {
     "name": "routing_lane",
     "어휘": "G04",  # archetype-catalog 등재 어휘(routing_band)와 대응
     "물성": "한 줄로 흐르다 도중 판정에서 일부가 본선 밖으로 빠진다(통과 경로 vs 거절 경로)",
     "arity": "파생 — 노드 폭은 종류에서, 간격은 남는 자리에서 나온다",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 1, 'flow': '순차', 'order': True, 'extra': True, 'n': (3, 9), 'ends': False},
     "keys": ["nodes"],
     "optional": ["branch", "in_label"],
 }
@@ -74,6 +76,7 @@ def measure(data, kit, layout=None):  # noqa: ARG001 — 계약 시그니처 고
 
 def draw(slide, box, data, kit, layout=None):
     require(data, META["keys"], META["name"])
+    box = Box(*box)  # 4튜플도 받는다 — 목업 러너·장이 둘 다 쓴다
     L = merged(LAYOUT, layout)
     C, S, F = kit["rgb"], kit["sizes"], kit["fonts"]
     nodes = data["nodes"]

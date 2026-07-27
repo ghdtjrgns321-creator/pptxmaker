@@ -311,7 +311,7 @@ def test_no_orphan_modules():
     구멍이다: dense census(①)의 분모가 `s*_dense.py` glob이라 `sNN_pilot`·`_proto_f`·`_mid`
     같은 이름은 **어떤 census에도 안 걸렸다**. 안 물린 모듈은 다음 사람이 헛짚는 재료가 되고
     (거기서 좌표·색을 베낀다), 죽은 채로 규칙 부채가 된다 — 그래서 분모를 이름 규칙이 아니라
-    `goldenfab/s*.py` **전수**로 놓고, 허용을 도달성으로 증명한다.
+    `goldenfab/sNN_*.py`(장 모듈) **전수**로 놓고, 허용을 도달성으로 증명한다.
 
     도달성 = registry LAYOUTS 모듈에서 시작한 전이 import 폐포 ∪ dense census 분모. 어디에도
     없으면 FAIL — EXEMPT/DEBT에 올리려면 같은 커밋에서 상수를 건드려야 하므로 고아 유입이
@@ -319,7 +319,7 @@ def test_no_orphan_modules():
     from goldenfab.registry import LAYOUTS
 
     pkg = HERE / "goldenfab"
-    denom = sorted(p.stem for p in pkg.glob("s*.py"))
+    denom = sorted(p.stem for p in pkg.glob("s[0-9][0-9]_*.py"))  # 장 모듈만 — sNN_ 형태
     dense = {p.stem for p in pkg.glob("s*_dense.py")}  # ①과 같은 분모(중복 정의 아님, 참조)
     seeds = {fn.__module__.rsplit(".", 1)[-1] for fn in LAYOUTS.values()} | dense
     reach, queue = set(), sorted(seeds)
@@ -340,11 +340,11 @@ def test_no_orphan_modules():
     if stale:  # 해소됐는데 상수에 남은 항목 — 상수가 실물과 갈라지면 다음 고아를 덮는다
         probs.append(f"유령 면제(파일 없음): {stale}")
     check(
-        "⑦ goldenfab 고아 모듈 census (분모=s*.py 전수 · 허용=registry 폐포∪dense∪면제)",
+        "⑦ goldenfab 고아 모듈 census (분모=sNN_*.py 전수 · 허용=registry 폐포∪dense∪면제)",
         not probs,
         "; ".join(probs)
         if probs
-        else f"s*.py {len(denom)}개 = 도달 {len(reach & set(denom))}"
+        else f"sNN_*.py {len(denom)}개 = 도달 {len(reach & set(denom))}"
         f"(registry 폐포 {len((reach & set(denom)) - dense)} + dense {len(dense)})"
         f" + 면제 {len(ORPHAN_EXEMPT)} + 부채 {n_debt}/{ORPHAN_DEBT_CAP} · 고아 0",
     )

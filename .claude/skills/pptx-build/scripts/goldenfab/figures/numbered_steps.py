@@ -19,13 +19,15 @@ from pptx.enum.text import MSO_ANCHOR
 
 from ..kit import add_box, add_text, set_shape_text
 from . import elements as E
-from . import merged, require
+from . import Box, merged, require
 
 META = {
     "name": "numbered_steps",
     "어휘": "G10",  # archetype-catalog 등재 어휘(numbered_steps)와 대응
     "물성": "절차가 몇 단계이고 순서 자체가 메시지다(박스 없는 번호 흐름)",
     "arity": "파생 — 칼럼 폭이 단계 수에서 나온다. 최소 폭 미달이면 시끄럽게 죽는다",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 1, 'flow': '순차', 'order': True, 'extra': False, 'n': (2, 5), 'ends': False},
     "keys": ["steps"],
     "optional": [],
 }
@@ -57,6 +59,7 @@ def draw(slide, box, data, kit, layout=None):
     from .. import grid as G
 
     require(data, META["keys"], META["name"])
+    box = Box(*box)  # 4튜플도 받는다 — 목업 러너·장이 둘 다 쓴다
     L = merged(LAYOUT, layout)
     C, S, F = kit["rgb"], kit["sizes"], kit["fonts"]
     steps, gap, d = data["steps"], L["gap"], L["badge_d"]

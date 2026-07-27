@@ -36,6 +36,8 @@ META = {
     "어휘": "미등재",  # 카탈로그 G07(계층 트리)과는 물성이 다르다 — 아래 설명 참조
     "물성": "층이 몇이고 각 층이 무엇인가(1→N→1 · 위는 정의 · 아래에서 다시 모인다)",
     "arity": "파생",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 1, 'flow': '순차', 'order': True, 'extra': False, 'n': (2, 5), 'ends': True},
     "keys": ["band", "tiers", "base"],
     "optional": ["band_note", "base_note", "rail", "note", "soft"],
 }

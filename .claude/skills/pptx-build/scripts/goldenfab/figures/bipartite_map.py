@@ -24,6 +24,8 @@ META = {
     "어휘": "G05",  # archetype-catalog.md 등재 어휘와 대응(유일하게 정합한 건)
     "물성": "A 집합과 B 집합이 어떻게 갈라지고 모이나(N:M 대응·수렴)",
     "arity": "파생",  # 좌·우 항목 수 모두 파생. 상한은 pitch가 시끄럽게 알린다
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 2, 'flow': 'N:M', 'order': False, 'extra': False, 'n': (2, 9), 'ends': False},
     "keys": ["pairs"],
     "optional": ["soft"],  # pairs[i].soft = 점선+accent(불확실·위임 판단)
 }

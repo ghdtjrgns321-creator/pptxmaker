@@ -22,13 +22,15 @@ from pptx.enum.text import PP_ALIGN
 
 from ..kit import add_box, add_text, mix
 from . import elements as E
-from . import merged, require
+from . import Box, merged, require
 
 META = {
     "name": "gate_branch",
     "어휘": "G01",  # archetype-catalog 등재 어휘(gate_causality)와 대응
     "물성": "같은 입력이 판정 하나에서 갈리고, 갈래마다 결말이 다르다(하나는 종착·하나는 복귀)",
     "arity": "갈래 2 고정(의미 고정) · 갈래 뒤 3단계는 자리 파생",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 1, 'flow': '1:N', 'order': False, 'extra': True, 'n': (2, 2), 'ends': False},
     "keys": ["question", "gate", "branch_ok", "branch_lack", "ok_chip", "lack_chip", "rows"],
     "optional": ["ok_note", "back_label"],
 }
@@ -69,6 +71,7 @@ def measure(data, kit, layout=None):  # noqa: ARG001 — 계약 시그니처 고
 
 def draw(slide, box, data, kit, layout=None):
     require(data, META["keys"], META["name"])
+    box = Box(*box)  # 4튜플도 받는다 — 목업 러너·장이 둘 다 쓴다
     L = merged(LAYOUT, layout)
     C, S, F = kit["rgb"], kit["sizes"], kit["fonts"]
     ink_note = mix(C["muted"], C["primary"], 0.55)

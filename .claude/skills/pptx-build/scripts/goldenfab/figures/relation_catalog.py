@@ -24,13 +24,15 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 
 from ..kit import add_text
 from . import elements as E
-from . import merged, require
+from . import Box, merged, require
 
 META = {
     "name": "relation_catalog",
     "어휘": "G08",  # archetype-catalog 등재 어휘(relation_catalog)와 대응
     "물성": "무엇이 무엇을 잇고 그 근거가 어디서 왔나(관계 종류 전수 + 출처)",
     "arity": "파생 — 행 수가 피치를 정한다. 자리를 넘으면 시끄럽게 죽는다",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 2, 'flow': 'N:M', 'order': False, 'extra': True, 'n': (2, 8), 'ends': False},
     "keys": ["rows"],
     "optional": [],
 }
@@ -70,6 +72,7 @@ def draw(slide, box, data, kit, layout=None):
     from .. import grid as G
 
     require(data, META["keys"], META["name"])
+    box = Box(*box)  # 4튜플도 받는다 — 목업 러너·장이 둘 다 쓴다
     L = merged(LAYOUT, layout)
     C, S, F = kit["rgb"], kit["sizes"], kit["fonts"]
     rows, h, pt = data["rows"], L["row_h"], kit["sizes"]["foot"]

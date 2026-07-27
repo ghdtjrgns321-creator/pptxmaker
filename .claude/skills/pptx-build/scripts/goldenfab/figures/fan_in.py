@@ -25,13 +25,15 @@ from pptx.enum.text import MSO_ANCHOR
 
 from ..kit import add_box, add_text, mix
 from . import elements as E
-from . import merged, require
+from . import Box, merged, require
 
 META = {
     "name": "fan_in",
     "어휘": "G02",  # archetype-catalog 등재 어휘(cause_fanin)와 대응
     "물성": "원인·항목 N개가 한 점에서 만나 하나로 수렴한다(관계가 선으로 드러난다)",
     "arity": "파생 — 항목 수가 세로 자리를 정한다. 자리를 넘으면 시끄럽게 죽는다",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 1, 'flow': 'N:1', 'order': False, 'extra': True, 'n': (2, 6), 'ends': False},
     "keys": ["items", "target"],
     "optional": ["mark", "note", "soft"],
 }
@@ -97,6 +99,7 @@ def _item(slide, kit, x, y, w, L, label, sub):
 
 def draw(slide, box, data, kit, layout=None):
     require(data, META["keys"], META["name"])
+    box = Box(*box)  # 4튜플도 받는다 — 목업 러너·장이 둘 다 쓴다
     L = merged(LAYOUT, layout)
     C, S, F = kit["rgb"], kit["sizes"], kit["fonts"]
     items = data["items"]

@@ -24,13 +24,15 @@ from pptx.enum.text import MSO_ANCHOR
 
 from ..kit import add_box, add_text, set_shape_text
 from . import elements as E
-from . import merged, require
+from . import Box, merged, require
 
 META = {
     "name": "n_branch",
     "어휘": "G11",  # archetype-catalog 등재 어휘(n_branch)와 대응
     "물성": "하나가 몇 갈래로 갈리나(갈래 수 자체가 메시지 · 갈래는 나란히 편다)",
     "arity": "파생 — 갈래 수가 피치를 정한다. 밴드를 넘으면 시끄럽게 죽는다",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 1, 'flow': '1:N', 'order': False, 'extra': True, 'n': (2, 4), 'ends': False},
     "keys": ["source", "branches"],
     "optional": [],
 }
@@ -60,6 +62,7 @@ def draw(slide, box, data, kit, layout=None):
     from .. import grid as G
 
     require(data, META["keys"], META["name"])
+    box = Box(*box)  # 4튜플도 받는다 — 목업 러너·장이 둘 다 쓴다
     L = merged(LAYOUT, layout)
     C, S, F = kit["rgb"], kit["sizes"], kit["fonts"]
     branches, row_h = data["branches"], L["row_h"]

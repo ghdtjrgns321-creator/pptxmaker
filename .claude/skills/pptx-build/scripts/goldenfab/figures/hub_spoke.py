@@ -62,6 +62,8 @@ META = {
     "어휘": "미등재",  # 카탈로그 G22는 'accent 강조 패널'이다 — 그 번호를 쓰면 안 된다
     "물성": "하나에 무엇이 물려 있나(1:N 소속 · 동등·동시 · 중심이 주장)",
     "arity": "파생",
+    # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
+    "accepts": {'sets': 1, 'flow': '1:N', 'order': False, 'extra': False, 'n': (3, 8), 'ends': False},
     "keys": ["hub", "spokes"],
     "optional": ["hub_note", "hub_metric", "metric", "soft"],
 }
