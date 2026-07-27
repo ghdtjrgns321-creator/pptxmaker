@@ -47,6 +47,25 @@ LEFT = G.MARGIN_L  # 0.60
 RIGHT = G.RIGHT_EDGE  # 12.733
 
 
+# ── 채움률 기준 (2026-07-27 골든 실측) ──────────────────────────────────────────
+# 골든 본문 10장이 본문 구간(y 1.05~6.60)을 세로로 얼마나 쓰나:
+#   S4 106% · S6 114% · S8 111% · S9 105% · S10 108% · S11 110% · S12 113% ·
+#   S14 101% · S15 105% · S16 96%   → 최소 96% · 중앙 108%
+# 즉 이 공장의 장은 본문 구간을 **거의 다 쓴다**. 100%를 넘는 것은 헤더 룰 위·출처 줄 아래로
+# 조금씩 걸치기 때문이고, 비어 보이는 장이 하나도 없다는 뜻이다.
+#
+# 이 값을 지어내지 않고 실측에서 가져오는 이유: 2026-07-27에 부품 수용 범위 10종 중 9종과
+# 카드 최소 폭이 전부 **내가 추측한 값이라 틀렸다**. 밀도 기준까지 같은 실수를 하면 게이트가
+# 거짓말을 하게 된다. 다시 재려면 `verify_selection.py --fill`.
+BODY_TOP, BODY_BOTTOM = 1.05, 6.60
+FILL_MIN = 0.96  # 골든 최소 — 이보다 덜 차면 "비어 보인다"는 반려가 실제로 나왔던 구간
+
+
+def fill_rate(top, bottom):
+    """본문 구간 대비 세로 채움률. 조립 장이 골든 밀도에 닿는지 재는 단일 자."""
+    return (bottom - top) / (BODY_BOTTOM - BODY_TOP)
+
+
 def _cards(n, y=CARD_Y, h=CARD_H, gap=CARD_GAP, floor=2.2):
     """카드 띠 — 폭은 장수에서 파생한다. 안 들어가면 `grid.track`이 시끄럽게 죽는다."""
     w = G.track(n, LEFT, RIGHT, gap, floor, what="카드")
@@ -79,12 +98,14 @@ def _split(band, sizes, gutter=0.30):
 #   figures — 도해 자리 수 · cards — 카드 장수 범위 · panel/columns — 보조 재료
 FRAMES = {
     "twin_top_cards": {
+        "foot": 6.94,  # 이 틀의 고정 요소가 닿는 본문 하단(출처 장 실측)
         "설명": "상단에 도해 둘을 나란히, 하단에 카드 띠. 이 공장의 주력.",
         "출처": "골든 S8(매핑+JSON) · S9(트리+카탈로그) · S11(흐름+트리)",
         "needs": {"figures": 2, "cards": (3, 5)},
         "band": Box(LEFT, FIG_TOP, FULL_W, CARD_Y - FIG_TOP - 0.32),
     },
     "wide_top_cards": {
+        "foot": 6.46,  # 이 틀의 고정 요소가 닿는 본문 하단(출처 장 실측)
         "설명": "상단 도해 하나가 전폭을 쓰고 하단에 카드 띠.",
         "출처": "골든 S16(경계 캔버스 + 한계 카드)",
         "needs": {"figures": 1, "cards": (2, 5)},
@@ -93,6 +114,7 @@ FRAMES = {
         "cards_h": 3.00,
     },
     "stacked_bands": {
+        "foot": 6.78,  # 이 틀의 고정 요소가 닿는 본문 하단(출처 장 실측)
         "설명": "도해 둘을 위아래로. 각 밴드에 소제목이 붙는다.",
         "출처": "골든 S4(판정 갈림 + 한계 수렴)",
         "needs": {"figures": 2, "band_heads": 2},
@@ -100,6 +122,7 @@ FRAMES = {
         "panel": Box(8.55, 4.30, RIGHT - 8.55, 2.36),  # 우하단 보조 패널(선택)
     },
     "figure_and_columns": {
+        "foot": 7.05,  # 이 틀의 고정 요소가 닿는 본문 하단(출처 장 실측)
         "설명": "도해가 전폭을 쓰고 그 아래 설명 칼럼 N개.",
         "출처": "골든 S6(실행 레인 + 핵심 기술 4칼럼)",
         "needs": {"figures": 1, "columns": (3, 4)},
@@ -109,6 +132,7 @@ FRAMES = {
         "col_gap": 0.35,
     },
     "split_grid": {
+        "foot": 7.08,  # 이 틀의 고정 요소가 닿는 본문 하단(출처 장 실측)
         "설명": "좌에 도해 하나, 우에 카드 격자(전체 높이). 항목이 한 줄에 안 들어갈 때.",
         "출처": "골든 S12(실물 답변 화면 + 스키마 카드 2x2)",
         "needs": {"figures": 1, "cards": (2, 4)},  # 2열 격자 실측 수용(골든 s12와 같은 4장)
@@ -117,6 +141,7 @@ FRAMES = {
         "grid_cols": 2,
     },
     "mirror_split": {
+        "foot": 6.72,  # 이 틀의 고정 요소가 닿는 본문 하단(출처 장 실측)
         "설명": "좌우 대칭 대비 — 같은 문법을 두 벌 나란히 놓아 차이만 보이게.",
         "출처": "골든 S14(A/B 시뮬레이션)",
         "needs": {"figures": 2, "titles": 2},
@@ -126,10 +151,37 @@ FRAMES = {
 }
 
 
-def candidates(material):
+def predict_fill(name, fig_h):
+    """이 틀에 높이 `fig_h`짜리 도해를 넣으면 본문 구간을 얼마나 채우게 되나.
+
+    빌드 뒤에 재는 것과 **같은 자**를 선택 시점에 미리 대 본다. 그래야 얕은 조합이 후보에
+    오르지 않는다 — 검사만 있으면 매번 빌드했다가 죽는다(상시 적색 게이트는 무시당한다).
+    """
+    f = FRAMES[name]
+    band = f.get("band") or f["bands"][0]
+    # 위는 항상 본문 구간 시작이다 — 헤더 위쪽은 전 장 공통이라 틀마다 다르지 않다.
+    top = BODY_TOP
+    bottom = band.y + min(band.h, fig_h) if fig_h else band.y + band.h
+    if "bands" in f:  # 위아래로 쌓는 틀은 아래 밴드 끝까지
+        bottom = max(b.y + b.h for b in f["bands"])
+    if f.get("grid"):
+        bottom = max(bottom, f["grid"].y + f["grid"].h)
+    elif "cards_y" in f:
+        # 카드는 도해가 덜 쓰면 **위로 당겨진다** — 그래서 아래가 빈다. 그 결과를 미리 잰다.
+        bottom = max(bottom, min(f["cards_y"], bottom + 0.30) + f["cards_h"])
+    elif f["needs"].get("cards"):
+        bottom = max(bottom, min(CARD_Y, bottom + 0.30) + CARD_H)
+    else:
+        # 카드가 없는 틀은 고정 요소(설명 칼럼·결론 바 등)가 자리를 지킨다 — 당겨지지 않는다.
+        bottom = max(bottom, f["foot"])
+    return fill_rate(top, bottom)
+
+
+def candidates(material, fig_h=None):
     """재료로 성립하는 틀만 고른다 — 산문 해석 없이 `needs`와 개수를 비교만 한다.
 
     material = {"figures": n, "cards": n, "columns": n, "band_heads": n, "titles": n, ...}
+    `fig_h`(도해의 measure 높이)를 주면 **얕은 조합을 미리 떨어뜨린다**(골든 최소 채움률).
     """
     out = []
     for name, f in FRAMES.items():
@@ -140,6 +192,8 @@ def candidates(material):
                 ok &= want[0] <= have <= want[1]
             else:
                 ok &= have == want
+        if ok and fig_h and predict_fill(name, fig_h) < FILL_MIN:
+            ok = False
         if ok:
             out.append(name)
     return out

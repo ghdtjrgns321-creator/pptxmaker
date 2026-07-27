@@ -176,6 +176,15 @@ def main(argv=None):
             blocked.append(sl.get("title") or sl.get("no"))
         r["no"] = sl.get("no")
         r["title"] = sl.get("title")
+        # 고른 부품이 요구하는 높이를 틀 후보 선정에 넘긴다 — 얕은 조합을 미리 떨어뜨린다
+        fig_h = None
+        if r["pick"]:
+            import importlib as _il
+
+            from .kit import load_kit as _lk
+
+            _m = _il.import_module(f"goldenfab.figures.{r['pick']}")
+            fig_h = _m.measure(sl.get("part_data") or {"items": sl.get("items") or []}, _lk())[1]                 if sl.get("part_data") else None
         r["frames"] = FR.candidates(
             {
                 "figures": sl.get("figures", 1),
@@ -183,7 +192,8 @@ def main(argv=None):
                 "columns": sl.get("columns", 0),
                 "band_heads": sl.get("band_heads", 0),
                 "titles": sl.get("titles", 0),
-            }
+            },
+            fig_h=fig_h,
         )
         out.append(r)
 

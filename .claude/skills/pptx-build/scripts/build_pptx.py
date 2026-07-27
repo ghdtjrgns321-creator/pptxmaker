@@ -1044,6 +1044,25 @@ class Deck:
         if sl.get("source"):
             D.source_line(slide, sl["source"])
         self._flatten(slide)
+
+        # ── 밀도 검사 — 조립 결과가 골든만큼 차나 (골든 실측 최소 96%) ──
+        # 부품·틀이 각자 정상이어도 **조합이 얕으면** 장이 비어 보인다(2026-07-27 첫 조립
+        # 시험: 도해가 밴드 2.20" 중 1.00"만 써서 하단이 통째로 비었다). 그 판정을 눈에
+        # 맡기지 않는다 — 골든이 실제로 채우는 비율이 기준이다.
+        spans = [
+            (sh.top / 914400, (sh.top + sh.height) / 914400)
+            for sh in slide.shapes
+            if sh.top is not None and sh.height is not None and (sh.width or 0) / 914400 < 13
+        ]
+        inside = [(t, b) for t, b in spans if b >= FR.BODY_TOP and t <= FR.BODY_BOTTOM + 0.15]
+        if inside:
+            rate = FR.fill_rate(min(t for t, _ in inside), max(b for _, b in inside))
+            if rate < FR.FILL_MIN:
+                raise ValueError(
+                    f"s{slide_no}: 조립 결과가 본문 구간의 {rate:.0%}만 채운다 "
+                    f"(골든 최소 {FR.FILL_MIN:.0%}) — 틀 {name!r}과 이 부품 조합이 얕다. "
+                    "밴드가 얕은 틀로 바꾸거나, 부품에 정보 층을 얹거나, 장을 합친다."
+                )
         return slide
 
     @staticmethod
