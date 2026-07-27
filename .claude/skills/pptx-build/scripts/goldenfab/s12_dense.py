@@ -11,15 +11,67 @@
 콘텐츠는 s12_variants.VARIANT_B_DEFAULTS 원문 그대로.
 """
 
+from pathlib import Path
+
 from pptx.enum.text import MSO_ANCHOR
-from pptx.util import Inches, Pt
 
 from . import dense as D
 from . import grid as G
-from .kit import SLIDE_H, SLIDE_W, add_box, add_text, fit_picture, load_kit, set_shape_text
-from .s12_variants import IMG_CROP, VARIANT_B_DEFAULTS
+from .kit import SLIDE_H, SLIDE_W, add_box, add_text, fit_picture, load_kit
 
 K = load_kit()
+
+KICKER = "3. 기술 설명 — TECH 04 · Generate"
+SOURCE = "출처: app/agents.py (ClarifyOutput · output_validator) · 5_INTERFACE.md · 7_JOURNEY.md"
+
+NARRATIVES = [
+    (
+        "왜 필요한가",
+        "같은 질문에 매번 다른 형식으로 답하면 정량 평가가 불가능하다. "
+        "자유형 텍스트를 폐기하고 답변의 칸을 고정해야 한다.",
+    ),
+    (
+        "파이프라인에서의 역할",
+        "Generate의 출력 계약. 모든 답변이 결론·인용·후속질문의 같은 칸으로 "
+        "나오므로 화면 배치와 채점이 기계적으로 가능해진다.",
+    ),
+    (
+        "어떻게 만들었나",
+        "답변 형식을 코드(스키마)로 선언하고, 검증기가 빈 인용·빈 분기를 "
+        "거부해 자동 재시도 — 형식 미달 답변은 화면에 도달하지 못한다.",
+    ),
+]
+
+# content_contract 계약 키 — golden.tech_capture의 필수 키 출처.
+# 2026-07-26 `s12_variants`(sparse 시안)에서 이관. 골든 전용 글이다.
+IMG_CROP = str(
+    Path(__file__).resolve().parents[5] / "golden" / "ref" / "s12_answer_crop.png"
+)  # 508×382 발췌 — 비율은 fit_picture가 파일에서 읽는다(주석은 참고용, 계산에 안 씀)
+
+VARIANT_B_DEFAULTS = {
+    "kicker": KICKER,
+    "headline": "구조화 출력 — 답변의 형식을 코드가 강제한다",
+    "narratives": NARRATIVES,
+    "mid_subhead": "실물 답변 화면 — 발췌",
+    "caption": "전체 답변 중 [확인 질문]·[조건부 결론 Case 1·2] 발췌 — 본인 vs 대리인 질의",
+    "schema_subhead": "출력 스키마 — ClarifyOutput",
+    "glosses": [
+        ("selected_branches", "고른 결론 분기"),
+        ("answer", "답변 본문 (마크다운)"),
+        ("cited_paragraphs", "인용 문단 — 비면 거부"),
+        ("cited_cases", "인용 질의회신·감리 ID"),
+        ("cited_ie", "인용 적용사례 번호"),
+        ("follow_up_questions", "확인 질문 3개"),
+        ("is_conclusion", "결론 포함 — 항상 True"),
+    ],
+    "validate_subhead": "형식 검증 — 거부와 자동 재시도",
+    "flow_generate": "답변 생성",
+    "diamond": "스키마\n검사",
+    "flow_display": "화면 표시",
+    "reject_note": "거부 — 자동 재시도: 인용 0개 · 분기 0개 · 결론 없는 단정",
+    "bar": "형식을 지키지 못한 답변은 화면에 도달하지 못한다 — 스키마 선언 + 검증기 자동 재시도",
+    "source": SOURCE,
+}
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
 # 카드 주제 = 구조화 출력의 고유 성질 (제네릭 왜/역할/구축 대신)

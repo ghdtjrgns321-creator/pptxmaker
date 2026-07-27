@@ -64,7 +64,7 @@ G11 기하 오라클: 부품 `n_branch`가 `grid.pitch`로 갈래 y를 파생하
 | G06 | `node_class`       | 이 상자는 어떤 종류인가(색 대신 모양+채움)    | `goldenfab/figures/elements.py:node_chip`  | `goldenfab/s09_dense.py:_tree`              | `c:root` `c:concepts` `c:paras` `c:term_chip` `c:case_chip` | `[고정:5종]` | `golden.tech_tree`      | **없음**((B) 노드는 단일 스타일이었다)          |
 | G08 | `relation_catalog` | 무엇이 무엇을 잇고 그 근거는 어디서 왔나      | `goldenfab/figures/relation_catalog.py:draw` | `goldenfab/s09_dense.py:build`              | `c:cat_rows` `c:cat_title`                                  | `[파생]`     | `golden.tech_tree`      | ~~L21 band_table~~·L26 표(관계 뭉갬) |
 | G10 | `numbered_steps`   | 절차가 몇 단계인가(박스 없이 · 죽은 여백 0)   | `goldenfab/figures/numbered_steps.py:draw` | `goldenfab/s11_dense.py:build`              | `c:steps_head` `c:steps`                | `[파생]`(골든≤3·dense≤4) | `golden.tech_mechanism` | ~~L35 icon_rows~~(진행 화살표 없음)  |
-| G14 | `evidence_chain`   | 결론에 어떻게 도달했나(도달 경로 자체가 근거) | `goldenfab/s14_variants.py:variant_c`     | `goldenfab/s14_dense.py:build`              | `c:steps` `c:right_title` `c:right_note`                    | `[파생]`(≤4) | `golden.ab_simulation`  | ~~L15 layers~~(주석열 없음)          |
+| G14 | `evidence_chain`   | 결론에 어떻게 도달했나(도달 경로 자체가 근거) | `goldenfab/s14_dense.py:build`            | `goldenfab/s14_dense.py:build`              | `c:steps` `c:right_title` `c:right_note`                    | `[파생]`(≤4) | `golden.ab_simulation`  | ~~L15 layers~~(주석열 없음)          |
 
 `node_class`는 **원소 문법**이다 — 트리·카탈로그가 공용하며 노드를 그리는 길은 `_node_chip` 하나뿐이다
 (2026-07-15 제3자 채점 FAIL의 원인: 같은 회색이 좌에선 내부 노드, 우에선 사례를 뜻했다).
@@ -73,7 +73,7 @@ G11 기하 오라클: 부품 `n_branch`가 `grid.pitch`로 갈래 y를 파생하
 
 | ID  | 문법명              | 물성 — 답하는 질문                          | 골든 출처(정본 렌더러)                | dense 기준작                   | 데이터 계약                                                                                                              | 항목 수      | 변형 경로              | (B) 대응                              |
 | --- | ------------------- | ------------------------------------------- | ------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ------------ | ---------------------- | ------------------------------------- |
-| G13 | `rank_cut_reject`   | 점수 순위가 정답을 어떻게 버리나(컷선 아래) | `goldenfab/s14_variants.py:variant_c` | `goldenfab/s14_dense.py:build` | `c:question` `c:rank_labels` `c:surface_card` `c:cut_label` `c:reject_mark` `c:reject_card` `c:left_title` `c:left_note` | `[고정:3]`   | `golden.ab_simulation` | **없음**(컷·기각 어휘 부재)           |
+| G13 | `rank_cut_reject`   | 점수 순위가 정답을 어떻게 버리나(컷선 아래) | `goldenfab/s14_dense.py:build`        | `goldenfab/s14_dense.py:build` | `c:question` `c:rank_labels` `c:surface_card` `c:cut_label` `c:reject_mark` `c:reject_card` `c:left_title` `c:left_note` | `[고정:3]`   | `golden.ab_simulation` | **없음**(컷·기각 어휘 부재)           |
 | G17 | `asymmetric_blocks` | 폭 자체가 비대칭을 말한다(13 vs 1)          | **없음**(dense 전용)                  | `goldenfab/s15_dense.py:build` | `c:miss_head` `c:unfix_head` `c:unfix` `c:fix_head` `c:fix_lead` `c:fix_points`                                          | `[고정:4+2]` | `adapted.validation`   | ~~L37 contrast_split~~(균등 폭) |
 
 ### A-4 실물 증거 (1종)

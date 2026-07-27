@@ -19,21 +19,125 @@
 """
 
 from pptx.enum.shapes import MSO_CONNECTOR
-from pptx.enum.text import PP_ALIGN
+from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.oxml.ns import qn
 from pptx.util import Inches, Pt
 
 from . import dense as D
 from . import grid as G
-from . import s14_variants as V
 from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, mix
 
 K = load_kit()
+
+KICKER = "4. 문제와 해결"
+SOURCE = "출처: 7_JOURNEY.md §7.3·§7.4 (재구축 여정) · 00_factsheet.md §A'·§D"
+CHAIN_TOP, CHAIN_BOTTOM, CHAIN_H = 3.20, 5.30, 0.46
+CHAIN_PITCH_CAP = 0.78  # 여유 있을 때의 골든 리듬(3단 = 3.20·3.98·4.76)
+
+def chain_layout(n):
+    """근거 체인 n단의 `(y, fill, color, border)` 리스트.
+
+    2026-07-25 항목 수 파생: 전엔 `step_y = [3.2, 3.98, 4.76]`과 `step_style` 3줄 리스트를
+    `zip(c["steps"], …)`으로 물렸다 — 단계가 4개면 **4번째가 조용히 사라지고** 2개면 아래가
+    비었다. 이제 y는 `grid.pitch`로, 강조 인코딩은 규칙으로 파생한다:
+    **마지막 = accent 테두리(도달점), 중간 = 다크 채움(전환점), 나머지 = 헤어라인.**
+    좌표·강조가 개수에서 나오므로 단계가 늘어도 "도달 경로가 근거"라는 물성이 유지된다.
+    """
+    p = G.pitch(n, CHAIN_TOP, CHAIN_BOTTOM, CHAIN_H, cap=CHAIN_PITCH_CAP, what="근거 단계")
+    dark = (n - 1) // 2  # n=3 → 1(가운데). n=1이면 마지막과 겹치므로 accent가 우선한다.
+    out = []
+    for i in range(n):
+        if i == n - 1:
+            style = (C["bg"], C["primary"], C["accent"])
+        elif i == dark:
+            style = (C["primary"], C["bg"], None)
+        else:
+            style = (C["bg"], C["primary"], C["muted"])
+        out.append((CHAIN_TOP + i * p, *style))
+    return out
+
+def _solid_arrow(slide, x1, y1, x2, y2):
+    from pptx.enum.shapes import MSO_CONNECTOR
+    from pptx.oxml.ns import qn
+
+    conn = slide.shapes.add_connector(
+        MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2)
+    )
+    conn.line.color.rgb = C["primary"]
+    conn.line.width = Pt(1.75)
+    ln = conn.line._get_or_add_ln()
+    ln.append(ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "med", "len": "med"}))
+    return conn
+
+# content_contract 계약 키 — golden.ab_simulation의 필수 키 출처.
+# 2026-07-26 `s14_variants`(sparse 시안)에서 이관. 골든 전용 글이다.
+_GOLDEN_TEXT = {  # 이관해온 골든 원문 — 계약 dict가 아니라 DEFAULT의 재료
+
+    "headline": "같은 질문, 두 시스템 — 점수는 떨어뜨리고, 경로는 도달한다",
+    "kicker": KICKER,
+    "left_title": "리랭커 — 점수가 근거다, 그런데 점수엔 근거가 없다",
+    "question": "“볼륨디스카운트 조항이 있는 계약은…”",
+    "rank_labels": ["1위", "2위", "3위"],
+    "surface_card": "표면 단어가\n비슷한 문단",
+    "cut_label": "상위 컷 — 아래는 버려진다",
+    "reject_mark": "✕",
+    "reject_card": "전문가 큐레이션 문단 — 정답인데 표면 유사도가 낮다",
+    "left_note": "실측 — 전문가 배정 큐레이션 문서가 표면 유사도가 낮아 105건 중 103건 탈락(98%). 이미 bypass로 우회 중이었다 — 유사도 필터가 정답을 거른다는 신호.",
+    "right_title": "지식그래프 — 경로가 근거다",
+    "steps": [
+        ("용어사전 매칭 — 볼륨디스카운트 → 변동대가", "사람이 전수 검수한 색인 (등재 423)"),
+        ("개념 노드 — 변동대가", "목차 위계의 그 자리 — 측정 > 거래가격 산정 > 변동대가"),
+        ("관할 문단 50~54 — 변동대가 추정", "개념에 배정된 문단으로 — 간선 자체가 근거 ✓"),
+    ],
+    "right_note": "탈락시킬 점수가 없다 — 연결이 있으면 도달하고, 어떤 간선을 지났는지가 그대로 답변의 근거가 된다.",
+    # 구 S17(7축 비교) 삭제 후 그 주장을 이 바가 진다(2026-07-16) — 검색뿐 아니라 전 축이 같은 치환
+    "bar": "이 한 축이 아니라 검색·근거·판단·검증·재현 전부 — 확률 신호 자리마다 기준서의 구조가 들어가 있다",
+    "source": SOURCE,
+}
+
+# ── 이 장이 쓰는 도해 원소 (2026-07-26 `s14_variants`에서 이관) ─────────────────
+def _dash_arrow(slide, x1, y1, x2, y2):
+    """점선 화살표 — 확률 신호(불확실) 표기용."""
+    from pptx.enum.shapes import MSO_CONNECTOR
+    from pptx.oxml.ns import qn
+
+    conn = slide.shapes.add_connector(
+        MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2)
+    )
+    conn.line.color.rgb = C["muted"]
+    conn.line.width = Pt(1.25)
+    ln = conn.line._get_or_add_ln()
+    ln.append(ln.makeelement(qn("a:prstDash"), {"val": "dash"}))
+    ln.append(ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "sm", "len": "sm"}))
+    return conn
+
+def _chip(slide, x, y, w, h, text, fill, color, border=None, bold=True, size=None):
+    from pptx.enum.lang import MSO_LANGUAGE_ID
+
+    box = add_box(slide, x, y, w, h, fill=fill, line=border, line_w=1.25, shape="round")
+    tf = box.text_frame
+    tf.word_wrap = True
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.margin_left = tf.margin_right = Inches(0.06)
+    p = tf.paragraphs[0]
+    p.alignment = PP_ALIGN.CENTER
+    p._p.get_or_add_pPr().set("eaLnBrk", "0")
+    r = p.add_run()
+    r.text = text
+    r.font.name = F["head"] if bold else F["body"]
+    r.font.bold = bold
+    r.font.size = Pt(size or S["caption"])
+    r.font.color.rgb = color
+    r.font.language_id = MSO_LANGUAGE_ID.KOREAN
+    return box
+
+
+# 콘텐츠 기본값(골든 내용) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색·도형 고정)
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
-KICKER = V.DEFAULT["kicker"]
-HEADLINE = V.DEFAULT["headline"]
-SOURCE = V.DEFAULT["source"]
+KICKER = _GOLDEN_TEXT["kicker"]
+HEADLINE = _GOLDEN_TEXT["headline"]
+SOURCE = _GOLDEN_TEXT["source"]
 SUBLEAD = "확률 신호가 있던 자리마다 기준서의 구조가 들어간다 — 임베딩·가중치·리랭커 없이 온톨로지 그래프로 동작한다"
 
 # 두 패널 note 보강 — 나머지 균열/구조를 텍스트로(카드 아님). 원문 근거(7_JOURNEY §7.3).
@@ -50,7 +154,7 @@ RIGHT_NOTE = (
 
 # content_contract 계약 키 — registry가 이 dense를 golden.ab_simulation으로 부를 때 필수 키 출처.
 # dense가 덧대는 left_note/right_note도 골든 텍스트라 계약 키에 포함(누락 시 타 프로젝트에 K-IFRS 누출).
-DEFAULT = {**V.DEFAULT, "left_note": LEFT_NOTE, "right_note": RIGHT_NOTE}
+DEFAULT = {**_GOLDEN_TEXT, "left_note": LEFT_NOTE, "right_note": RIGHT_NOTE}
 
 # ── affine 세로 변환: 위치(ty)+높이(sh) 둘 다 스케일(§8) — 골든 [1.85,6.35] → dense [1.12,6.72] ──
 _A = (6.72 - 1.12) / (6.35 - 1.85)
@@ -103,7 +207,7 @@ def build(prs, c=None):
     )
     q_w = 3.7
     q_x = lx + (lw - q_w) / 2
-    V._chip(
+    _chip(
         slide,
         q_x,
         ty(2.42),
@@ -121,7 +225,7 @@ def build(prs, c=None):
     qcx = lx + lw / 2
     for cx, lab in zip(card_xs, c["rank_labels"]):
         ccx = cx + card_w / 2
-        V._dash_arrow(slide, qcx, ty(2.84), ccx, ty(cards_y))
+        _dash_arrow(slide, qcx, ty(2.84), ccx, ty(cards_y))
         add_text(
             slide,
             (qcx + ccx) / 2 - 0.25,
@@ -135,7 +239,7 @@ def build(prs, c=None):
             bold=True,
             align=PP_ALIGN.CENTER,
         )
-        V._chip(
+        _chip(
             slide,
             cx,
             ty(cards_y),
@@ -184,7 +288,7 @@ def build(prs, c=None):
         C["primary"],
         bold=True,
     )
-    V._chip(
+    _chip(
         slide,
         px + 0.85,
         ty(4.82),
@@ -228,7 +332,7 @@ def build(prs, c=None):
     )
     chain_w = 3.55
     ccx = rx + 0.35 + chain_w / 2
-    V._chip(
+    _chip(
         slide,
         rx + 0.35,
         ty(2.42),
@@ -243,10 +347,10 @@ def build(prs, c=None):
     # 스텝 y·강조는 골든 정본 chain_layout에 위임(단계 수 파생) — dense는 ty/sh affine만 얹는다
     prev_bottom = 2.84
     for (text, note), (syb, fill, color, border) in zip(
-        c["steps"], V.chain_layout(len(c["steps"]))
+        c["steps"], chain_layout(len(c["steps"]))
     ):
-        V._solid_arrow(slide, ccx, ty(prev_bottom), ccx, ty(syb))
-        V._chip(slide, rx + 0.35, ty(syb), chain_w, sh(V.CHAIN_H), text, fill, color, border=border)
+        _solid_arrow(slide, ccx, ty(prev_bottom), ccx, ty(syb))
+        _chip(slide, rx + 0.35, ty(syb), chain_w, sh(CHAIN_H), text, fill, color, border=border)
         add_text(
             slide,
             rx + 0.35 + chain_w + 0.15,
@@ -259,7 +363,7 @@ def build(prs, c=None):
             C["muted"],
             line_spacing=1.2,
         )
-        prev_bottom = syb + V.CHAIN_H
+        prev_bottom = syb + CHAIN_H
     add_text(
         slide,
         qx,
