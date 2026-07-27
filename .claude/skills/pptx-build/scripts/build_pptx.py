@@ -962,6 +962,96 @@ class Deck:
         "cta": cta,
     }
 
+    def _render_composed(self, sl, slide_no="?"):
+        """type "composed" — 배치 틀 + 부품으로 한 장을 조립한다 (2026-07-27 신설).
+
+        골든 장 통째 배정(`golden.<layout>`)이 실전 덱을 골든 복제로 만든 기계적 원인이었다
+        (실전 덱 타입 분포 = 골든 SLIDE_ORDER 실측). 이 경로는 그 대안이다 — 자리는 틀이,
+        그림은 부품이 맡고 장 전체를 통째로 가져오지 않는다.
+
+        spec 예:
+            {"type": "composed", "frame": "twin_top_cards",
+             "kicker": "...", "headline": "...", "source": "...",
+             "figures": [{"part": "bipartite_map", "data": {...}},
+                         {"part": "relation_catalog", "data": {...}}],
+             "cards": {"part": "card_row", "data": {"cards": [...]}}}
+
+        틀·부품 이름은 `goldenfab.frames.FRAMES` / `goldenfab.select.PARTS`가 단일 출처다.
+        모르는 이름이면 조용히 넘기지 않고 시끄럽게 죽는다 — 조용한 폴백이 어휘를 3종으로
+        수렴시킨 원인이었다.
+        """
+        import importlib
+
+        from goldenfab import dense as D
+        from goldenfab import frames as FR
+        from goldenfab.kit import SLIDE_H, SLIDE_W, add_box, load_kit
+
+        K = load_kit()
+        name = sl.get("frame")
+        if name not in FR.FRAMES:
+            raise ValueError(
+                f"s{slide_no}: 모르는 배치 틀 {name!r} — 등록: {sorted(FR.FRAMES)}"
+            )
+        figs = sl.get("figures") or []
+        if not figs:
+            raise ValueError(f"s{slide_no}: composed 장에 figures가 없다 — 그릴 것이 없다")
+
+        mods = []
+        for f in figs:
+            try:
+                mods.append(importlib.import_module(f"goldenfab.figures.{f['part']}"))
+            except ModuleNotFoundError as e:
+                raise ValueError(f"s{slide_no}: 모르는 부품 {f['part']!r}") from e
+
+        cards = sl.get("cards")
+        n_cards = len((cards or {}).get("data", {}).get("cards", []))
+        need = [m.measure(f["data"], K) for m, f in zip(mods, figs, strict=True)]
+        sizes = [w for w, _h in need]
+        slots = FR.slots(name, sizes=sizes if len(figs) == 2 else None, n_cards=n_cards or 4)
+
+        boxes = slots["figures"]
+        if len(boxes) < len(figs):
+            raise ValueError(
+                f"s{slide_no}: 틀 {name}는 도해 자리가 {len(boxes)}개인데 {len(figs)}개가 왔다"
+            )
+
+        # ── 자리 조이기 — 틀이 준 밴드는 **상한**이고 실제 높이는 부품이 안다(measure).
+        # 안 조이면 부품이 안 쓴 자리가 그대로 빈칸으로 남는다(2026-07-27 첫 조립 시험에서
+        # 도해가 2.20" 자리에 1.00"만 써서 가운데가 통째로 비었다). 부품은 자리에 비례해
+        # 늘어나지 않으므로(계약 ①) 자리를 줄이는 쪽이 맞다 — 남는 만큼 카드가 올라간다.
+        used_h = max((h for _w, h in need), default=0.0)
+        if used_h > 0:
+            boxes = [b.__class__(b.x, b.y, b.w, min(b.h, used_h)) for b in boxes]
+
+        slide = self.prs.slides.add_slide(self.prs.slide_layouts[6])
+        add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=K["rgb"]["bg"])
+        D.compact_header(slide, sl["kicker"], sl["headline"])
+        for band_head, box in zip(sl.get("band_heads") or [], boxes, strict=False):
+            D.band_head(slide, box.y - 0.49, band_head)  # 소제목 + 룰(룰 밑 0.13에 도해)
+        for m, f, box in zip(mods, figs, boxes, strict=False):
+            m.draw(slide, box, f["data"], K)
+        if cards:
+            cm = importlib.import_module(f"goldenfab.figures.{cards['part']}")
+            cbox = slots["cards"][0] if len(slots["cards"]) == 1 else self._card_band(slots)
+            # 도해가 자리를 덜 썼으면 카드를 **위로 당긴다. 두껍게 하지는 않는다.**
+            # 두껍게 했더니 카드 안이 헐거워졌다(불릿이 벌어지고 아이콘 둘레가 빔 — 2026-07-27
+            # 조립 시험 2차). 카드 높이는 글자·겹 수에 묶인 치수라 자리에 비례시키면 안 된다
+            # (계약 ①). 남는 자리는 아래쪽 공기로 두고, 그래도 크면 정보 층을 얹을 자리다.
+            fig_bottom = max(b.y + b.h for b in boxes)
+            if cbox.y > fig_bottom + 0.30:
+                cbox = cbox.__class__(cbox.x, fig_bottom + 0.30, cbox.w, cbox.h)
+            cm.draw(slide, cbox, cards["data"], K, {"cols": slots["cols"]} if "cols" in slots else None)
+        if sl.get("source"):
+            D.source_line(slide, sl["source"])
+        self._flatten(slide)
+        return slide
+
+    @staticmethod
+    def _card_band(slots):
+        """틀이 카드를 장당 자리로 쪼개 줬을 때 다시 하나의 띠로 — 장수 파생은 부품이 한다."""
+        cs = slots["cards"]
+        return cs[0].__class__(cs[0].x, cs[0].y, cs[-1].x + cs[-1].w - cs[0].x, cs[0].h)
+
     def _render_golden(self, sl, slide_no="?"):
         """type "golden.<layout>" — goldenfab registry 호출.
 
@@ -1073,6 +1163,10 @@ class Deck:
                 # 골든 엔진(goldenfab) 디스패치 — 골든 장은 헤더·결론바·출처를 자체 포함하므로
                 # 레거시 푸터 스탬프·배너를 적용하지 않는다. compare_golden.py가 회귀 게이트.
                 self._render_golden(sl, i)
+                continue
+            if sl["type"] == "composed":
+                # 틀 + 부품 조립 — 골든 장을 통째로 가져오지 않는 경로(복제 차단).
+                self._render_composed(sl, i)
                 continue
             if sl["type"].startswith("adapted.") or sl["type"] == "novel":
                 # 장 스크립트 디스패치 — 골든을 출발점으로 변형(adapted) / 신규 물성(novel).
