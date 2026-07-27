@@ -20,11 +20,12 @@ from pptx.util import Inches, Pt
 
 from . import grid as G
 from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, set_shape_text
-from .s08_variants import (
-    chip_w,
-)  # 칩 폭 파생식 단일 출처 — 두 장이 같은 자를 쓴다(피치는 grid.pitch)
+from .figures.elements import chip_w  # 칩 폭 파생식 단일 출처(1층 원소). 피치는 grid.pitch
 
 K = load_kit()
+
+# 칩 어휘 — 글자 좌우 여백·최소 폭. 옛 s08_variants 기본 인자를 명시로 옮긴 것(같은 값).
+CHIP_INSET, CHIP_FLOOR = 0.44, 0.95
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
 # 콘텐츠 기본값(골든 내용) — c=None이면 이 값, override 시 텍스트만 교체(좌표·색 고정)
@@ -301,8 +302,8 @@ def build_catalog(slide, rows):
             C["muted"],
             anchor=MSO_ANCHOR.MIDDLE,
         )
-        wa = chip_w(a, S["foot"])
-        wb = min(chip_w(b, S["foot"]), B_MAX_W)
+        wa = chip_w(a, S["foot"], CHIP_INSET, CHIP_FLOOR)
+        wb = min(chip_w(b, S["foot"], CHIP_INSET, CHIP_FLOOR), B_MAX_W)
         _node_chip(slide, A_RIGHT - wa, y, wa, a, ka)  # A는 우변 고정
         _node_chip(slide, B_LEFT, y, wb, b, kb)  # B는 좌변 고정
         _arrow(slide, A_RIGHT, cy, B_LEFT, cy)

@@ -73,15 +73,20 @@ def air_pairs_problem_grid():
 
 
 def air_pairs_tech_evidence():
-    """S8 이분 매핑 — 소제목 룰 → 첫 칩, 마지막 칩 → 캡션. 좌표는 모듈 상수에서 파생."""
-    import goldenfab.s08_variants as S8
+    """S8 이분 매핑 — 소제목 룰 → 첫 칩, 마지막 칩 → 캡션. 좌표는 장(배치) 상수에서 파생.
+
+    2026-07-26까지 이 검사는 폐기된 sparse(`s08_variants`) 좌표를 재고 있었다(S4와 같은 형태의
+    hollow 검사 — 렌더되지 않는 좌표는 통과해도 아무것도 보증하지 못한다). 부품화하면서 실제로
+    그려지는 자리에서 파생하도록 옮겼다.
+    """
+    import goldenfab.s08_dense as S8
 
     n_concepts = len({c for _t, _g, cs in S8.DEFAULT_C["terms"] for c in cs})
     pitch = G.pitch(n_concepts, S8.MAP_TOP, S8.MAP_BOTTOM, S8.MAP_H)
     last_bottom = S8.MAP_TOP + (n_concepts - 1) * pitch + S8.MAP_H
     return [
-        ("매핑 룰 → 첫 칩", S8.MAP_HEAD_Y + S8.MAP_RULE_DY + 0.012, S8.MAP_TOP),
-        ("마지막 칩 → 캡션", last_bottom, 6.09),
+        ("매핑 룰 → 첫 칩", S8.MAP_HEAD_Y + 0.34 + 0.012, S8.MAP_TOP),  # _subhead 룰 dy
+        ("마지막 칩 → 캡션", last_bottom, 3.36),  # build의 map_caption y
     ]
 
 

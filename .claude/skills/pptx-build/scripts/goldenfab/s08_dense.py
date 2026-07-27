@@ -11,16 +11,87 @@
 매핑 지오메트리(MAP_*)만 이 파일에서 재정의 — 로직은 원본과 동일(설계 주석은 s08_variants 참조).
 """
 
-from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
-from pptx.oxml.ns import qn
-from pptx.util import Inches, Pt
+from pptx.enum.text import PP_ALIGN
 
 from . import dense as D
 from . import grid as G
-from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, set_shape_text
-from .s08_variants import DEFAULT_C
+from .figures import Box
+from .figures import bipartite_map as BIMAP
+from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit
 
 K = load_kit()
+
+# content_contract 계약 키 — registry가 이 장을 golden.tech_evidence로 부를 때 필수 키 출처.
+# 2026-07-26 `s08_variants`(sparse 시안)에서 이관. 골든 전용 글이므로 실전 덱은 content로
+# 전량 덮어야 하고, 안 덮으면 공장 문이 빌드를 중단한다.
+DEFAULT_C = {
+    "headline": "용어사전 — 실무 언어를 기준서 개념에 잇는 진입 색인",
+    "kicker": "3. 기술 설명 — TECH 01 · Analyze",
+    # 상단 3칼럼 서사 (head, body) — 번호 접두는 코드에서 위치로 생성
+    "narratives": [
+        (
+            "왜 필요한가",
+            "실무는 '리베이트'라 말하고 기준서는 '고객에게 지급할 대가'라 쓴다. 이 언어 간극을 잇지 않으면 검색이 시작조차 되지 않는다.",
+        ),
+        (
+            "파이프라인에서의 역할",
+            "Analyze 단계의 진입 관문. 질문에 등재 용어가 문자 그대로 나타나면 연결 개념으로 그래프에 진입한다 — 유사도 점수 없이, 사람이 승인한 경로로만.",
+        ),
+        (
+            "어떻게 만들었나",
+            "사람 1차 자료 3종(질의 매핑 288 · 사례 제목 123 · 부록A 정의 9)에서 AI가 초안을 내고 사람이 전수 검수해 423개 등재 — 신규 창작 0건.",
+        ),
+    ],
+    # 소제목은 **짧게** — 15pt로 31자를 쓰면 5.2"라 범례(4.75 시작)를 덮어 글자가 뭉갠다
+    # (2026-07-15 렌더 실측). 발췌 건수·등급 분해는 아래 캡션이 진다.
+    "map_head": "실무가 쓰는 말 → 기준서가 쓰는 말",
+    # 실물 엔트리 (data/ontology/aliases.json 실측 — 축약만, 창작 0).
+    # (용어, 등급, [연결 개념]) — **우열 개념은 코드가 이 목록에서 파생**한다(등장순 dedup).
+    # 그래서 N:1 수렴(`고객에게 지급할 대가` ← 리베이트+상품권)이 손으로 적는 게 아니라
+    # 데이터에서 나온다. 등급 문자열도 aliases.json 원문 그대로("위임판단" 아님).
+    "terms": [
+        ("리베이트", "자동", ["고객에게 지급할 대가"]),
+        ("밀어내기", "자동", ["위탁약정"]),
+        ("볼륨디스카운트", "자동", ["변동대가", "변동대가 추정치를 제약함"]),
+        ("상품권", "자동(위임판단)", ["고객에게 지급할 대가", "고객이 행사하지 아니한 권리"]),
+        ("반품의 회계처리", "자동", ["반품권이 있는 판매", "본인 대 대리인의 고려사항"]),
+    ],
+    # 범례는 **형태 언어만**, 수치는 캡션만. 2026-07-15 제3자 채점 FAIL(#3): "자동 316"·
+    # "자동(위임판단) 86"이 범례와 캡션에 글자 그대로 두 번 있었다.
+    "map_legend": "실선 = 자동    점선 = 자동(위임판단) — AI가 판단, 사람이 승인",
+    "map_caption": "등재 423 중 발췌 5건 — 423 = 자동 316 + 자동(위임판단) 86 + 검토 18 + 사용자 확정 1 + 제외 2",
+    "json_title": "aliases.json — 실제 엔트리",
+    "json_lines": [  # 상품권 엔트리 실물 축약
+        '{ "term": "상품권",',
+        '  "sources": ["query-mapping"],',
+        '  "grade": "자동(위임판단)",',
+        '  "concepts": [',
+        '    "고객에게 지급할 대가",',
+        '    "고객이 행사하지 아니한 권리" ],',
+        '  "decision": {',
+        '    "by": "AI 위임 판단",',
+        '    "reason": "미행사 상품권 =',
+        '        B44~47 정면 조항" } }',
+    ],
+    "json_caption": "모든 엔트리가 결정 로그(누가·왜)를 갖는다 — 전건 추적.",
+    "bar": "AI가 만드는 것은 색인 하나 — 틀려도 1종(놓침)으로 드러나는 자리에만 둔다",
+    "source": "출처: 2_DATA-TAXONOMY.md §2.6 · 4_SEARCH-PIPELINE.md (00_factsheet.md §C·§D)",
+}
+
+
+# ── 이분 매핑 GRID (표를 걷어낸 자리 — 2026-07-15 사용자 반려 "이해가 안 가는 시각화") ──
+#
+# 물성 선언(design-rules P1): **잇기(N:M)**. 용어사전이 하는 일은 실무 언어를 기준서 언어에
+#   잇는 것이다. 표는 그 관계를 4열 나열로 바꿔 쉼표 하나로 뭉갰다 — 한 용어가 여러 개념으로
+#   갈라지는 것(1:N)도, 여러 용어가 한 개념으로 모이는 것(N:1)도 안 보였다. 그게 본질인데.
+#   게다가 죽은 열이 절반이었다: `원천` 5행 중 4행이 같은 값, `등급` 4행이 "자동".
+#   → 좌열(실무어) ─선─▶ 우열(기준서 개념). 갈래와 수렴이 **선의 모양 그 자체**로 보인다.
+#   §6 "숫자·항목 단독 나열 금지 — 관계 인코딩과 결합" / §6 "나열은 도형에 가두기".
+#
+# 색(P4⑩): accent 예산은 **1**뿐이다 — 3칼럼 번호(01·02·03) 런이 이미 3을 쓴다(오딧 상한 4).
+#   그 1을 `자동(위임판단)` 칩 테두리에 준다. 이 장의 결론 바가 "AI가 만드는 것은 색인 하나"이므로
+#   **AI가 판단한 자리**가 accent를 가져가는 게 맞다. 선은 muted — 선까지 accent면 예산 초과다.
+#   §5 점선 = 불확실 → 위임판단 매핑은 점선.
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
 # 서사 3칼럼 — 원문(DEFAULT_C narratives)을 아이콘 카드용 2단 불릿으로 압축 (사실 보존)
@@ -113,79 +184,32 @@ MAP_H = 0.24
 DELEGATED = "자동(위임판단)"
 
 
-def chip_w(text, pt=None, inset=CHIP_INSET, floor=CHIP_FLOOR):
-    pt = pt or S["caption"]
-    return max(len(text.strip()) * pt * 0.8 / 72 + inset, floor)
+# ── 이분 매핑 자리 (2026-07-26 부품화) ──────────────────────────────────────────
+# 도해는 `figures.bipartite_map`이 그린다. 이 장이 정하는 것은 **자리**뿐이고, 자리는
+# 골든 실측 좌표에서 역산한다 — 좌칩 우변이 MAP_L_RIGHT, 우칩 좌변이 MAP_R_X에 오도록.
+#
+# 부품은 좌열 폭을 글자에서 파생하므로 box의 좌변은 "MAP_L_RIGHT − 좌열 폭"이다.
+# `halign=left`·`valign=top`으로 부품의 자동 정렬을 끄고 골든 좌표를 그대로 쓴다
+# (정렬을 켜면 남는 자리만큼 도해가 밀려 픽셀 동일이 깨진다).
+MAP_GAP = MAP_R_X - MAP_L_RIGHT  # 선 길이 2.30"
+MAP_LAYOUT = {"gap": MAP_GAP, "halign": "left", "valign": "top", "chip_h": MAP_H}
 
 
-def _map_line(slide, x1, y1, x2, y2, *, dashed=False):
-    conn = slide.shapes.add_connector(2, Inches(x1), Inches(y1), Inches(x2), Inches(y2))
-    conn.line.color.rgb = C["muted"]
-    conn.line.width = Pt(1.0)
-    ln = conn.line._get_or_add_ln()
-    if dashed:
-        ln.append(ln.makeelement(qn("a:prstDash"), {"val": "dash"}))
-    ln.append(ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "sm", "len": "sm"}))
+def _map_data(terms):
+    """골든 terms(3튜플) → 부품 계약. `자동(위임판단)`이 점선·accent 테두리를 켠다."""
+    return {"pairs": [{"left": t, "right": cs, "soft": g == DELEGATED} for t, g, cs in terms]}
 
 
 def bipartite_map(slide, terms):
-    """실무어 → 기준서 개념 이분 매핑 (s08_variants 로직 이식, 지오메트리만 재정의)."""
-    concepts = []
-    for _t, _g, cs in terms:
-        for c_ in cs:
-            if c_ not in concepts:
-                concepts.append(c_)
-    r_pitch = G.pitch(len(concepts), MAP_TOP, MAP_BOTTOM, MAP_H, what="연결 개념")
-    r_y = {c_: MAP_TOP + i * r_pitch for i, c_ in enumerate(concepts)}
-    r_span = (len(concepts) - 1) * r_pitch
-    l_pitch = G.pitch(len(terms), MAP_TOP, MAP_BOTTOM, MAP_H, what="용어")
-    l_span = (len(terms) - 1) * l_pitch
-    l_top = MAP_TOP + (r_span - l_span) / 2
-    l_y = {t: l_top + i * l_pitch for i, (t, _g, _cs) in enumerate(terms)}
-    fan_in = {}
-    for _t, _g, cs in terms:
-        for c_ in cs:
-            fan_in[c_] = fan_in.get(c_, 0) + 1
-    slot = dict.fromkeys(fan_in, 0)
-    for t, g, cs in terms:
-        for c_ in cs:
-            n_in = fan_in[c_]
-            off = (slot[c_] + 1) / (n_in + 1) if n_in > 1 else 0.5
-            slot[c_] += 1
-            _map_line(
-                slide,
-                MAP_L_RIGHT,
-                l_y[t] + MAP_H / 2,
-                MAP_R_X,
-                r_y[c_] + MAP_H * off,
-                dashed=(g == DELEGATED),
-            )
-    for t, g, _cs in terms:
-        deleg = g == DELEGATED
-        w = chip_w(t)
-        b = add_box(
-            slide,
-            MAP_L_RIGHT - w,
-            l_y[t],
-            w,
-            MAP_H,
-            fill=C["bg"],
-            line=C["accent"] if deleg else C["muted"],
-            line_w=1.25 if deleg else 0.75,
-            shape="round",
-        )
-        set_shape_text(b, t, S["caption"], F["head"], C["primary"], bold=True)
-    for c_ in concepts:
-        b = add_box(
-            slide,
-            MAP_R_X,
-            r_y[c_],
-            min(chip_w(c_), MAP_R_MAX - MAP_R_X),
-            MAP_H,
-            fill=C["bg_alt"],
-            shape="round",
-        )
-        set_shape_text(b, c_, S["caption"], F["body"], C["primary"])
+    data = _map_data(terms)
+    _, _, l_w, r_w = BIMAP.measure(data, K, MAP_LAYOUT)  # 열 폭은 글자에서 나온다
+    box = Box(
+        MAP_L_RIGHT - l_w,                 # 좌칩 우변이 MAP_L_RIGHT에 오도록 역산
+        MAP_TOP,
+        l_w + MAP_GAP + r_w,
+        MAP_BOTTOM - MAP_TOP + MAP_H,      # 마지막 칩 top이 MAP_BOTTOM
+    )
+    return BIMAP.draw(slide, box, data, K, MAP_LAYOUT)
 
 
 def _subhead(slide, x, y, w, text):
