@@ -141,3 +141,64 @@ def report(shape, used=(), parts=None):
         "pick": pick,
         "why": f"{why} → 개수 적합도 {_fit(shape['n'], parts[pick]['accepts']['n'])}",
     }
+
+
+def main(argv=None):
+    """CLI — 재료 JSON을 읽어 장별 부품·틀을 고른다(결정 로그 포함).
+
+        uv run python .claude/skills/pptx-build/scripts/pick_parts.py <재료.json>
+
+    재료 JSON = {"slides": [{"no", "title", "items", "sets", "links", "ordered",
+                             "extra", "head", "tail", "cards", "columns", ...}, ...]}
+    출력 = 장별 {shape, candidates, pick, frame_candidates, why}. 후보 0이면 `pick: null`이고
+    러너가 **비어 있는 장 목록**을 마지막에 모아 보고한다 — 그게 만들 부품 목록이다.
+    """
+    import argparse
+    import json
+    from pathlib import Path
+
+    from . import frames as FR
+
+    ap = argparse.ArgumentParser()
+    ap.add_argument("material")
+    ap.add_argument("--json", action="store_true", help="사람용 표 대신 JSON으로")
+    a = ap.parse_args(argv)
+
+    spec = json.loads(Path(a.material).read_text(encoding="utf-8"))
+    parts, used, out, blocked = catalog(), [], [], []
+    for sl in spec["slides"]:
+        shape = shape_of(sl)
+        r = report(shape, used=used, parts=parts)
+        if r["pick"]:
+            used.append(r["pick"])
+        else:
+            blocked.append(sl.get("title") or sl.get("no"))
+        r["no"] = sl.get("no")
+        r["title"] = sl.get("title")
+        r["frames"] = FR.candidates(
+            {
+                "figures": sl.get("figures", 1),
+                "cards": sl.get("cards", 0),
+                "columns": sl.get("columns", 0),
+                "band_heads": sl.get("band_heads", 0),
+                "titles": sl.get("titles", 0),
+            }
+        )
+        out.append(r)
+
+    if a.json:
+        print(json.dumps({"slides": out, "blocked": blocked}, ensure_ascii=False, indent=2))
+    else:
+        for r in out:
+            s = r["shape"]
+            axes = (
+                f"n{s['n']}·묶음{s['sets']}·{s['flow']}·순서{'O' if s['order'] else 'X'}"
+                f"·부가{'O' if s['extra'] else 'X'}·양끝{'O' if s['ends'] else 'X'}"
+            )
+            print(f"s{r['no']:>3} {(r['title'] or '')[:24]:24s} [{axes}]")
+            print(f"      부품 {r['candidates']} → {r['pick']}  ({r['why']})")
+            print(f"      틀   {r['frames'] or '후보 0 — 재료가 어느 틀에도 안 맞는다'}")
+        if blocked:
+            print(f"\n■ 창고에 없는 물성 {len(blocked)}건 — 멈춤: {blocked}")
+            print("  part-design으로 실물 레퍼런스를 찾아 부품을 신설한다(지어내지 않는다).")
+    return 1 if blocked else 0

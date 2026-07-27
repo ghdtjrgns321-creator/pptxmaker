@@ -663,6 +663,51 @@ def test_golden_grammar_axis():
     )
 
 
+# ── 통합 I: 부품 선택 규칙 배선 (선언 ↔ 창고 ↔ 스킬 ↔ 회귀검증 양방향) ──────────
+# 왜 있나(2026-07-27): 이 프로젝트는 "기계가 고른다"고 **선언**해놓고 기계는 다른 걸 보던
+# 사고를 겪었다(결정표가 "(A) 먼저"라고 적었는데 판정 기계는 (B)만 후보로 올렸다). 그래서
+# 선택 규칙은 네 지점이 동시에 물려 있어야 한다:
+#   ① 창고 전수 = select.PARTS (부품 파일이 늘면 목록도 늘어야 — 손 목록이 뒤처지면 유령)
+#   ② 부품마다 accepts 선언 (축 전수 · 개수 범위)
+#   ③ 스킬이 러너를 부른다 (산문만 있으면 그 길로 안 간다 — 이 프로젝트의 반복 실패)
+#   ④ 회귀 검증이 존재하고 통과한다 (골든이 손으로 고른 선택을 재현)
+def test_selection_wired():
+    from goldenfab import frames as FR
+    from goldenfab import select as SEL
+
+    pkg = HERE / "goldenfab" / "figures"
+    on_disk = {
+        p.stem for p in pkg.glob("*.py") if p.stem not in ("__init__", "elements")
+    }
+    ghost = sorted(set(SEL.PARTS) - on_disk)      # 목록에 있는데 파일 없음
+    orphan = sorted(on_disk - set(SEL.PARTS))     # 파일 있는데 목록에 없음(선택에서 영영 빠진다)
+    cat = SEL.catalog()
+    no_acc = sorted(n for n, m in cat.items() if not m.get("accepts"))
+    bad_axis = sorted(
+        n for n, m in cat.items()
+        if m.get("accepts") and set(SEL.AXES) - set(m["accepts"])
+    )
+    skill = _read(".claude/skills/deck-compose/SKILL.md")
+    wired = "pick_parts.py" in skill and "verify_selection.py" in skill
+    runner = (HERE / "pick_parts.py").exists() and (HERE / "verify_selection.py").exists()
+    # 회귀 검증을 실제로 돌린다 — 존재만 확인하면 hollow다
+    import subprocess
+    rc = subprocess.run(
+        [sys.executable, str(HERE / "verify_selection.py")], capture_output=True
+    ).returncode
+    frames_ok = bool(FR.FRAMES) and all("needs" in f for f in FR.FRAMES.values())
+    ok = not (ghost or orphan or no_acc or bad_axis) and wired and runner and rc == 0 and frames_ok
+    check(
+        "통합I 부품 선택 규칙 배선 (창고 census · accepts 전수 · 스킬 호출 · 회귀 green)",
+        ok,
+        f"부품 {len(cat)}종 census 일치 · accepts 축 {len(SEL.AXES)}개 전수 · "
+        f"틀 {len(FR.FRAMES)}종 needs 선언 · 스킬 배선={wired} · verify rc={rc}"
+        if ok
+        else f"유령 {ghost} · 고아 {orphan} · accepts 없음 {no_acc} · 축 누락 {bad_axis} · "
+        f"스킬배선={wired} · 러너={runner} · verify rc={rc}",
+    )
+
+
 # ── 통합 F: dense 계약 구멍 래칫 (주입해도 무시되는 키 — 골든 글 유출 경계 고정) ──────
 # 왜 있나(2026-07-25 통합E 작업 중 실측): registry에 물린 sparse 골든 모듈은 DEFAULT 키를 **전부**
 # 읽는데(미사용 0/21), dense 기준작은 일부 키를 무시하고 **모듈 상수를 그린다**. 그래서 dense를
@@ -979,6 +1024,7 @@ def main():
         test_legacy_gate_wired,
         test_grammar_first_wired,
         test_no_new_hardcoded_hex,
+        test_selection_wired,
     ):
         try:
             t()
