@@ -18,6 +18,7 @@ from . import dense as D
 from . import grid as G
 from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, set_shape_text
 from .figures import Box
+from .figures import card_row as CARDS_ROW
 from .figures import n_branch as NBRANCH
 from .figures import numbered_steps as STEPS
 
@@ -84,6 +85,8 @@ DEFAULT = {  # 텍스트 내용만(좌표·색·크기·도형은 코드 고정)
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
 
 # 카드 주제 = 판단트리의 고유 성질 (제네릭 왜/역할/구축 대신)
+CARD_KEYS = ("num", "title", "tag", "ic", "banner", "items", "chips")
+
 CARDS = [
     (
         "1",
@@ -280,12 +283,13 @@ def build(prs, c=None):
     _inject_and_branch(slide, c, 6.6, G.RIGHT_EDGE)
 
     # ── 하단: s06 표준 hero_card 4장 ──
-    card_w = (D.FULL_W - 3 * 0.18) / 4
-    for i, (num, title, tag, ic, banner, items, chips) in enumerate(CARDS):
-        cx = G.MARGIN_L + i * (card_w + 0.18)
-        D.hero_card(
-            slide, cx, 3.62, card_w, 3.32, num, title, tag, ic, banner, items, chips, hero=0.44
-        )
+    # 카드 띠 — 부품 호출(figures.card_row). 장은 자리만 정하고 장수 파생은 부품이 한다.
+    CARDS_ROW.draw(
+        slide,
+        Box(G.MARGIN_L, 3.62, D.FULL_W, 3.32),
+        {"cards": [dict(zip(CARD_KEYS, c, strict=True)) for c in CARDS]},
+        K,
+    )
     # 결론("걸린 절차를 모두 주입 · 전부 원문 앵커")은 카드1·3에 흡수 — 하단 한줄평 바 금지(§8).
     D.source_line(slide, c["source"])
     return slide

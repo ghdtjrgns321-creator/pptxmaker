@@ -108,6 +108,14 @@ FRAMES = {
         "col_h": 1.05,
         "col_gap": 0.35,
     },
+    "split_grid": {
+        "설명": "좌에 도해 하나, 우에 카드 격자(전체 높이). 항목이 한 줄에 안 들어갈 때.",
+        "출처": "골든 S12(실물 답변 화면 + 스키마 카드 2x2)",
+        "needs": {"figures": 1, "cards": (2, 4)},  # 2열 격자 실측 수용(골든 s12와 같은 4장)
+        "band": Box(LEFT, 1.14, 7.76, 3.30),  # 좌 도해
+        "grid": Box(8.70, 0.82, RIGHT - 8.70, 6.18),  # 우 카드 격자 — 전체 높이
+        "grid_cols": 2,
+    },
     "mirror_split": {
         "설명": "좌우 대칭 대비 — 같은 문법을 두 벌 나란히 놓아 차이만 보이게.",
         "출처": "골든 S14(A/B 시뮬레이션)",
@@ -156,6 +164,8 @@ def slots(name, sizes=None, n_cards=4):
             Box(LEFT + i * (w + f["col_gap"]), f["col_y"], w, f["col_h"]) for i in range(n_cards)
         ]
         return {"figures": [f["band"]], "columns": cols}
+    if name == "split_grid":
+        return {"figures": [f["band"]], "cards": [f["grid"]], "cols": f["grid_cols"]}
     if name == "mirror_split":
         b = f["band"]
         half = (b.w - 0.30) / 2

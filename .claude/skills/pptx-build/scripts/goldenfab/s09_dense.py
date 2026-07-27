@@ -18,6 +18,7 @@ from pptx.util import Inches, Pt
 from . import dense as D
 from . import grid as G
 from .figures import Box
+from .figures import card_row as CARDS_ROW
 from .figures import elements as E
 from .figures import relation_catalog as RELCAT
 from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit
@@ -228,6 +229,8 @@ C, S, F = K["rgb"], K["sizes"], K["fonts"]
 # 하단 카드 4 = s06 표준 hero_card (배지·태그·중앙 배너·히어로 아이콘·불릿·칩)
 # (번호, 제목, 태그, 히어로 아이콘, 배너, 불릿3[(리드,설명)], 칩3[(아이콘,강조,라벨)])
 # 카드 주제 = 지식그래프의 고유 성질 (제네릭 왜/역할/구축 대신, 각 장 내용에 맞춤)
+CARD_KEYS = ("num", "title", "tag", "ic", "banner", "items", "chips")
+
 CARDS = [
     (
         "1",
@@ -436,12 +439,13 @@ def build(prs, c=None):
     RELCAT.draw(slide, CAT_BOX, {"rows": [_cat_row(r) for r in c["cat_rows"]]}, K)
 
     # ── 하단: s06 표준 hero_card 4장 ──
-    card_w = (D.FULL_W - 3 * 0.18) / 4
-    for i, (num, title, tag, ic, banner, items, chips) in enumerate(CARDS):
-        cx = G.MARGIN_L + i * (card_w + 0.18)
-        D.hero_card(
-            slide, cx, 3.62, card_w, 3.32, num, title, tag, ic, banner, items, chips, hero=0.44
-        )
+    # 카드 띠 — 부품 호출(figures.card_row). 장은 자리만 정하고 장수 파생은 부품이 한다.
+    CARDS_ROW.draw(
+        slide,
+        Box(G.MARGIN_L, 3.62, D.FULL_W, 3.32),
+        {"cards": [dict(zip(CARD_KEYS, c, strict=True)) for c in CARDS]},
+        K,
+    )
     # 결론("법적 이웃을 구조로 검색")은 카드1에 흡수 — 하단 전폭 한줄평 바 금지(§8).
     D.source_line(slide, c["source"])
     return slide

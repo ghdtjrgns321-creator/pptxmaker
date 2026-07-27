@@ -50,6 +50,7 @@ PARTS = (
     "layer_stack",
     "bipartite_map",
     "relation_catalog",
+    "card_row",
 )
 AXES = ("sets", "flow", "order", "extra", "ends")
 

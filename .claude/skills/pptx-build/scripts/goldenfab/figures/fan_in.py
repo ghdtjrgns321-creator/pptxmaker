@@ -32,6 +32,8 @@ META = {
     "어휘": "G02",  # archetype-catalog 등재 어휘(cause_fanin)와 대응
     "물성": "원인·항목 N개가 한 점에서 만나 하나로 수렴한다(관계가 선으로 드러난다)",
     "arity": "파생 — 항목 수가 세로 자리를 정한다. 자리를 넘으면 시끄럽게 죽는다",
+    # n 범위는 **실측**이다(주력 밴드 2.16" 실측) — 지어낸 값이 아니다. 다시 재려면
+    # `verify_selection.py --measure`. 실제 자리에서의 정확한 한계는 draw가 다시 본다.
     # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
     "accepts": {'sets': 1, 'flow': 'N:1', 'order': False, 'extra': True, 'n': (2, 6), 'ends': False},
     "keys": ["items", "target"],

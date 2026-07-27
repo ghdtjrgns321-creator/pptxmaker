@@ -24,6 +24,8 @@ META = {
     "어휘": "G05",  # archetype-catalog.md 등재 어휘와 대응(유일하게 정합한 건)
     "물성": "A 집합과 B 집합이 어떻게 갈라지고 모이나(N:M 대응·수렴)",
     "arity": "파생",  # 좌·우 항목 수 모두 파생. 상한은 pitch가 시끄럽게 알린다
+    # n 범위는 **실측**이다(주력 밴드 2.16" 실측) — 지어낸 값이 아니다. 다시 재려면
+    # `verify_selection.py --measure`. 실제 자리에서의 정확한 한계는 draw가 다시 본다.
     # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
     "accepts": {'sets': 2, 'flow': 'N:M', 'order': False, 'extra': False, 'n': (2, 9), 'ends': False},
     "keys": ["pairs"],

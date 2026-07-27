@@ -31,6 +31,8 @@ META = {
     "어휘": "G08",  # archetype-catalog 등재 어휘(relation_catalog)와 대응
     "물성": "무엇이 무엇을 잇고 그 근거가 어디서 왔나(관계 종류 전수 + 출처)",
     "arity": "파생 — 행 수가 피치를 정한다. 자리를 넘으면 시끄럽게 죽는다",
+    # n 범위는 **실측**이다(주력 밴드 2.16" 실측) — 지어낸 값이 아니다. 다시 재려면
+    # `verify_selection.py --measure`. 실제 자리에서의 정확한 한계는 draw가 다시 본다.
     # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
     "accepts": {'sets': 2, 'flow': 'N:M', 'order': False, 'extra': True, 'n': (2, 8), 'ends': False},
     "keys": ["rows"],

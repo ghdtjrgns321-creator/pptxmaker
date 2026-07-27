@@ -31,6 +31,8 @@ META = {
     "어휘": "G04",  # archetype-catalog 등재 어휘(routing_band)와 대응
     "물성": "한 줄로 흐르다 도중 판정에서 일부가 본선 밖으로 빠진다(통과 경로 vs 거절 경로)",
     "arity": "파생 — 노드 폭은 종류에서, 간격은 남는 자리에서 나온다",
+    # n 범위는 **실측**이다(주력 밴드 2.16" 실측) — 지어낸 값이 아니다. 다시 재려면
+    # `verify_selection.py --measure`. 실제 자리에서의 정확한 한계는 draw가 다시 본다.
     # 셀 수 있는 선택 조건 — 컴포저는 재료를 세어 이것과 **비교만** 한다(산문 해석 없음).
     "accepts": {'sets': 1, 'flow': '순차', 'order': True, 'extra': True, 'n': (3, 9), 'ends': False},
     "keys": ["nodes"],
