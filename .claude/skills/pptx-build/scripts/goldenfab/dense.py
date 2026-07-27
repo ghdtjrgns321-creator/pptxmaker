@@ -52,6 +52,20 @@ def arrow(slide, x1, y1, x2, y2, color, w=1.5):
     return conn
 
 
+BAND_RULE_DY = 0.36
+
+
+def band_head(slide, y, text):
+    """밴드 소제목 + 풀폭 룰 — 한 장 안의 구획을 여백이 아니라 장치로 나눈다.
+
+    페이지 요소다(도해가 아니다). 2층 부품은 이걸 소유하지 않는다 — 부품은 box 안 그래픽
+    하나만 그리고, 구획을 나눌지는 장이 정한다.
+    """
+    w = G.RIGHT_EDGE - G.MARGIN_L
+    add_text(slide, G.MARGIN_L, y, w, 0.32, text, S["head"], F["head"], C["primary"], bold=True)
+    add_box(slide, G.MARGIN_L, y + BAND_RULE_DY, w, 0.012, fill=C["muted"])
+
+
 def compact_header(slide, kicker, headline):
     """s06 압축 헤더 — 키커(8pt) + 헤드라인(14pt) + 굵은 룰. 상단 의식 ~0.7\"."""
     add_text(

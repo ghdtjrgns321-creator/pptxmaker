@@ -535,7 +535,9 @@ GOLDEN_GRAMMAR_IDS = {  # 등재 확정 15종. census 분모 — 추가·삭제�
 # 2026-07-25 G10·G11·G14 추가(3단계 선행 작업) — 자는 `grid.pitch`/`grid.track` 단일 출처이고
 # 수용 한계 초과는 시끄럽게 죽는다. G19는 한계 카드만 파생(밖 1+1은 좌우 대칭 차단 = 문법 자체 ·
 # 캔버스 1.9"에 칩 0.66 2단이 안 들어간다는 실측) → 여기 없음.
+# 2026-07-26 G02 추가 — `fan_in` 부품으로 꺼내면서 항목 4 고정(zip 절단)이 pitch 파생이 됐다.
 ARITY_DERIVED = {
+    "G02",
     "G05",
     "G08",
     "G10",
@@ -547,7 +549,9 @@ GRAMMAR_TABLE = ".claude/skills/deck-compose/references/layout-matching.md"
 # 등재가 아닌 언급(제외 판정·부품 백로그·창고)은 줄 단위로 제외 — 통합C의 취소선 제외와 같은 규율.
 _GSKIP = ("백로그", "제외", "승격 금지", "폐기")
 _GID = re.compile(r"\bG\d{2}\b")
-_GSRC = re.compile(r"`goldenfab/([A-Za-z0-9_]+)\.py:([A-Za-z_][A-Za-z0-9_]*)`")
+# 하위 패키지 허용(2026-07-26 부품화) — 도해가 `goldenfab/figures/<부품>.py`로 나가기 시작했고
+# 슬래시를 막아두면 부품으로 꺼낸 문법이 등재될 자리가 없어 카탈로그가 옛 자리를 가리킨 채 굳는다.
+_GSRC = re.compile(r"`goldenfab/((?:[A-Za-z0-9_]+/)*[A-Za-z0-9_]+)\.py:([A-Za-z_][A-Za-z0-9_]*)`")
 _GKEY = re.compile(r"`c:([a-z0-9_]+)`")
 _GCONST = re.compile(r"`const:([A-Z][A-Z0-9_]*)`")
 _GARITY = re.compile(r"`\[(파생|고정:[^\]`]+)\]`")
@@ -666,7 +670,9 @@ def test_golden_grammar_axis():
 # `bar`·`narratives`는 dense 개편의 의도된 폐지(§8 전폭 바 금지·서술행 제거)이고, 나머지가 실구멍이다.
 DENSE_CONTRACT_HOLES = {
     # headline·kicker는 2026-07-26 dense 승격에서 메웠다(PARAM 오라클이 잡은 이식 누락)
-    "s04_dense": {"bar", "converge_note", "limits", "source"},
+    # converge_note·limits는 2026-07-26 fan_in 부품화로 메웠다 — 부품이 글을 소유하지 않으므로
+    # 모듈 상수(LIMITS)가 사라지고 주입한 값이 실제로 그려진다.
+    "s04_dense": {"bar", "source"},
     "s08_dense": {"bar", "narratives"},
     "s09_dense": {"bar", "narratives"},
     "s10_dense": {"caption", "points"},

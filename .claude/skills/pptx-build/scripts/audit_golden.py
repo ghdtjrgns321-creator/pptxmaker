@@ -38,17 +38,35 @@ def render(name):
 
 
 def air_pairs_problem_grid():
-    import goldenfab._variant_k as VK
+    """S4 공기 검사 — 좌표는 장(배치) + 부품(LAYOUT)에서 파생한다.
 
+    2026-07-26까지 이 검사는 폐기된 sparse(`_variant_k`) 좌표를 재고 있었다. 골든이 dense로
+    승격된 뒤로는 **렌더되지 않는 좌표를 검사하는 hollow 검사**였다 — 통과해도 아무것도
+    보증하지 못한다. 부품화하면서 실제로 그려지는 자리에서 파생하도록 옮겼다.
+    """
+    import goldenfab.dense as D
+    import goldenfab.s04_dense as S4
+    from goldenfab.figures.fan_in import LAYOUT as FAN
+    from goldenfab.figures.gate_branch import LAYOUT as GATE
+
+    rule = D.BAND_RULE_DY + 0.012  # 소제목 top → 룰 bottom
+    gy = S4.GATE_BOX.y
+    row1 = gy + GATE["row1_dy"]
+    row_pitch = GATE["row_h"] + GATE["cap_dy"] + GATE["cap_h"] + GATE["row_air"]
+    fy, n = S4.FAN_BOX.y, len(S4.DEFAULT["limits"])
     return [
-        ("밴드1 룰 → 첫 행", VK.B1_HEAD_Y + VK.BAND_RULE_DY + 0.012, VK.ROW_A_Y),
-        ("2종 캡션 → 1종 행", VK.ROW_B_Y + VK.ROW_BC_H + VK.CAP_DY + VK.CAP_H, VK.ROW_C_Y),
-        ("1종 행 → 복귀 호 라벨", VK.ROW_C_Y + VK.ROW_BC_H, VK.BACK_LABEL_Y),
-        ("복귀 호 → 밴드2 라벨", VK.BACK_Y, VK.B2_HEAD_Y),
-        ("밴드2 룰 → 한계 첫 칩", VK.B2_HEAD_Y + VK.BAND_RULE_DY + 0.012, VK.LIM_TOP),
+        ("밴드1 룰 → 첫 행", S4.BAND1_HEAD_Y + rule, gy + GATE["ok_dy"]),
+        (
+            "2종 캡션 → 1종 행",
+            row1 + GATE["row_h"] + GATE["cap_dy"] + GATE["cap_h"],
+            row1 + row_pitch,
+        ),
+        ("1종 행 → 복귀 호 라벨", row1 + row_pitch + GATE["row_h"], gy + GATE["back_label_dy"]),
+        ("복귀 호 → 밴드2 라벨", gy + GATE["back_dy"], S4.BAND2_HEAD_Y),
+        ("밴드2 룰 → 한계 첫 칩", S4.BAND2_HEAD_Y + rule, fy),
         (
             "한계 마지막 칩 → 하한",
-            VK.LIM_TOP + VK.LIM_PITCH * 3 + VK.LIM_H,
+            fy + (n - 1) * FAN["item_pitch"] + FAN["item_h"],
             A.CONTENT_BOTTOM + A.AIR_MIN,
         ),
     ]

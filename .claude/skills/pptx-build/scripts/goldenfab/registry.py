@@ -18,7 +18,6 @@
 # 승격으로 sparse 기준선은 폐기했다. 회귀 스냅샷(`golden-snapshot.json`)·장별 기하 오라클
 # (`audit_golden.SPECS`)은 dense 좌표로 재수립했다.
 # exec_graph(S6)만 dense 기준작이 미승인이라 sparse 렌더러를 유지한다(부채 1건, 아래 주석).
-from ._variant_k import variant_k as problem_grid_sparse  # noqa: F401  (S4 sparse — 참조 보존)
 from .layouts import cover, part, toc
 from .s04_dense import build as problem_grid
 from .s06_variants import variant_c as exec_graph  # dense 미승인 — s06_mid가 기준작 후보

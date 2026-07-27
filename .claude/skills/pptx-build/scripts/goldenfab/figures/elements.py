@@ -276,6 +276,79 @@ def elbow(slide, kit, x1, y1, x2, y2, *, width=0.75, dashed=False, dot=True):
     return pts
 
 
+# ── 골든 그리기 어휘 (2026-07-26 이관) ───────────────────────────────────────────
+# 위의 `link`·`elbow`와 **다르게 그린다** — 골든은 1.5pt·화살촉 med·꺾임은 ELBOW 커넥터
+# 한 개이고, `elbow()`는 직선 3개 + 접점 흰 원이라 도형 개수부터 다르다. 골든 장을 부품으로
+# 꺼낼 때 `link`로 갈아타면 `compare_golden` 픽셀 동일이 깨지므로 골든판을 따로 둔다.
+#
+# **부채**: 어휘가 두 벌이다. 승인된 쪽은 골든이고 `link`·`elbow`는 눈검증 미완 부품
+# (`hub_spoke`·`layer_stack`) 전용이다. 골든 13종을 전부 꺼낸 뒤 어느 쪽으로 통합할지
+# 판정한다 — 지금 통합하면 부품화 무손실 증명 수단이 사라진다.
+
+
+def arrow(slide, kit, x1, y1, x2, y2, *, elbow=False, color=None):
+    """방향 화살표 — 화살촉은 항상 **끝점**(x2, y2). 골든 전 장이 쓰는 확정 어휘."""
+    from pptx.enum.shapes import MSO_CONNECTOR
+    from pptx.oxml.ns import qn
+    from pptx.util import Inches, Pt
+
+    conn = slide.shapes.add_connector(
+        MSO_CONNECTOR.ELBOW if elbow else MSO_CONNECTOR.STRAIGHT,
+        Inches(x1),
+        Inches(y1),
+        Inches(x2),
+        Inches(y2),
+    )
+    conn.line.color.rgb = color or kit["rgb"]["muted"]
+    conn.line.width = Pt(1.5)
+    ln = conn.line._get_or_add_ln()
+    ln.append(ln.makeelement(qn("a:tailEnd"), {"type": "triangle", "w": "med", "len": "med"}))
+    return conn
+
+
+def hairline(slide, kit, x1, y1, x2, y2):
+    """화살촉 없는 가는 선 — 수렴 대각선용.
+
+    N갈래에 화살촉을 다 붙이면 한 점에서 뭉개진다. 방향은 수렴점 뒤의 화살표 하나가 진다.
+    """
+    from pptx.enum.shapes import MSO_CONNECTOR
+    from pptx.util import Inches, Pt
+
+    conn = slide.shapes.add_connector(
+        MSO_CONNECTOR.STRAIGHT, Inches(x1), Inches(y1), Inches(x2), Inches(y2)
+    )
+    conn.line.color.rgb = kit["rgb"]["muted"]
+    conn.line.width = Pt(1.0)
+    return conn
+
+
+def dashed_edge(shp):
+    """테두리 점선화 — 형태 언어: 점선 = 확률·불확실(못 세운 판정), 실선 = 결정."""
+    from pptx.enum.dml import MSO_LINE_DASH_STYLE
+
+    shp.line.dash_style = MSO_LINE_DASH_STYLE.DASH
+    return shp
+
+
+def center_text(box, kit, text, size, color, *, bold=True):
+    """도형 안 가운데 정렬 한 줄 — 노드 라벨의 단일 출처."""
+    from pptx.util import Inches, Pt
+
+    tf = box.text_frame
+    tf.word_wrap = True
+    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.margin_top = tf.margin_bottom = Inches(0)
+    tf.margin_left = tf.margin_right = Inches(0.06)
+    p = tf.paragraphs[0]
+    p._p.get_or_add_pPr().set("eaLnBrk", "0")
+    p.alignment = PP_ALIGN.CENTER
+    r = p.add_run()
+    r.text = text
+    r.font.name, r.font.bold = kit["fonts"]["head"], bold
+    r.font.size = Pt(size)
+    r.font.color.rgb = color
+
+
 def badge(slide, kit, cx, cy, text, *, d=0.24, on_dark=False):
     """번호 배지 — 도해의 노드와 옆 설명표의 행을 **같은 번호**로 잇는다.
 
