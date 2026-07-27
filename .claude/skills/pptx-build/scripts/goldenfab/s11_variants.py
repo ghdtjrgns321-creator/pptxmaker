@@ -819,13 +819,20 @@ def variant_d(prs, c=None):
         )
         if i < 2:
             add_box(slide, nx + nar_w + 0.2, G.CONTENT_TOP, 0.012, 1.2, fill=C["bg_alt"])
-    # ── 하단 좌: 진입 규칙 3단계 ──
+    # ── 하단 좌: 진입 규칙 단계(G10 numbered_steps) — 폭은 단계 수에서 파생 ──
     lx, lw = G.MARGIN_L, 7.5
     _subhead(slide, lx, 3.05, lw, c["steps_head"])
-    step_w, gap = 2.3, 0.3
+    steps = c["steps"]
+    gap = 0.3
+    # 최소 폭 2.30 = 이 상자(h 1.1)가 실제로 수용하는 폭. 렌더 실측(2026-07-25): 폭 1.725"로
+    # 좁히면 12pt 헤드가 2줄, 9pt 본문이 5줄이 되어 필요 높이 1.33" > 상자 1.1" — 텍스트가
+    # 아래로 흘러 이웃을 덮는다. `check_text_overflow`는 글자폭을 0.62×pt로 근사해 **한글에서
+    # 이 넘침을 못 잡는다**(미탐 실측). 그래서 기하 상한으로 막고, 4단 이상은 세로 나열이나
+    # adapted 변형으로 내려보낸다 — 조용히 깨진 4단을 내놓지 않는다.
+    step_w = G.track(len(steps), lx, lx + lw, gap, 2.30, what="진입 단계")
     from pptx.enum.lang import MSO_LANGUAGE_ID
 
-    for i, (head, body) in enumerate(c["steps"]):
+    for i, (head, body) in enumerate(steps):
         sx = lx + i * (step_w + gap)
         box = add_box(slide, sx, 3.6, step_w, 1.1, fill=C["bg"], line=C["muted"], line_w=1.0)
         tf = box.text_frame
@@ -854,7 +861,7 @@ def variant_d(prs, c=None):
         rb.font.color.rgb = C["muted"]
         for r in (rn, rh, rb):
             r.font.language_id = MSO_LANGUAGE_ID.KOREAN
-        if i < 2:
+        if i < len(steps) - 1:
             _arrow(slide, sx + step_w, 4.15, sx + step_w + gap, 4.15)
     # ── 하단 좌 아래: 주입 뒤 — 답변 세 갈래, 1:3 flat tree (스냅 스펙 dy=+0.80) ──
     add_text(

@@ -1,6 +1,6 @@
 ---
 name: pptx-visuals
-description: PPTX 안의 네이티브 차트(bar/line/pie)와 다이어그램(flow/layers 도형 DSL)을 생성·수정하는 레시피 단일 출처. pptx-builder가 차트·다이어그램 슬라이드를 렌더할 때, 또는 "차트 수치 바꿔/다이어그램 수정/그래프 추가/시각자료 손봐" 요청 시 반드시 사용.
+description: PPTX 안의 네이티브 차트(bar/line/pie)와 다이어그램(timeline/matrix_2x2/venn 등 도형 DSL 9종)을 생성·수정하는 레시피 단일 출처. pptx-builder가 차트·다이어그램 슬라이드를 렌더할 때, 또는 "차트 수치 바꿔/다이어그램 수정/그래프 추가/시각자료 손봐" 요청 시 반드시 사용.
 ---
 
 # pptx-visuals — 차트·다이어그램 단일 출처
@@ -56,8 +56,11 @@ PPT 시각자료의 생성·수정 레시피를 박제한 스킬. 구현은 `scr
 ## 다이어그램 (도형 DSL — python-pptx에 다이어그램 객체가 없어 도형+화살표로 렌더)
 
 - `add_diagram(slide, spec, brand, x, y, w, h)` — deck-spec의 `diagram` 슬라이드를 렌더.
-- 레이아웃 2종(YAGNI — 필요 시 추가):
-  - `flow`: 노드 좌→우 + accent 화살표. 프로세스·파이프라인 흐름용. 노드 3~5개 권장.
+- 대표 레이아웃(전종은 `references/archetype-catalog.md`가 단일 출처):
+  - (셰브런 단계 밴드·적층·분기·카드·From→To·그룹 밴드 표는 2026-07-25 폐기 — 사용자 전면 반려.
+    단계·분기·병렬 물성의 정본은 (A) 골든 도해다: `deck-compose/references/layout-matching.md` 표 A)
+    단계 3~6개. 라벨만 필요하면 `details`를 생략한다 — **별도 어휘를 쓰지 않는다**
+    (옛 `flow`는 이것과 렌더 동일이라 2026-07-25 폐기).
   - `layers`: 노드 상→하 적층. 아키텍처 레이어용. 노드 2~5개 권장.
 - 노드: `{"label": "굵은 제목", "sub": "설명 한 줄(선택)"}`. 스키마 상세는
   `pptx-build/references/deck-spec-schema.md`.

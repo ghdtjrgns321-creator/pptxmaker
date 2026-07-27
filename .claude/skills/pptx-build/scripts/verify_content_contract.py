@@ -96,5 +96,54 @@ if leaky:
 else:
     print("  잔존 0건 OK (기본값은 DEFAULT dict에만 → 오염 검사가 볼 수 있다)")
 
+# ── 케이스 ⑥: adapted./novel 장 스크립트 문(2026-07-25 신설) ──
+# 왜: `_render_scripted`에 계약 검사가 없어 골든 출발 스크립트의 K-IFRS 글이 그대로 나갈 수 있었다.
+# 임계는 "DEFAULT 키 ∩ 실제 읽는 키"라 오탐 0(안 읽히는 구멍 키는 요구하지 않는다).
+print("\n=== 케이스 ⑥: 장 스크립트(adapted./novel) 계약 — dense 기준작 전수 ===")
+from goldenfab.content_contract import (  # noqa: E402
+    assert_scripted_content,
+    scripted_required_keys,
+)
+
+pkg = Path(__file__).resolve().parent / "goldenfab"
+import importlib  # noqa: E402
+
+ok6 = n6 = 0
+for p in sorted(pkg.glob("s*_dense.py")):
+    mod = importlib.import_module(f"goldenfab.{p.stem}")
+    src = p.read_text(encoding="utf-8")
+    req = scripted_required_keys(mod, src)
+    n6 += 1
+    if not req:
+        print(f"  {p.stem:14} 요구 0키 (DEFAULT 없음/미독) — 유출 위험 없음, 통과")
+        ok6 += 1
+        continue
+    # 완비 → 통과(오탐 0)
+    try:
+        assert_scripted_content(f"adapted.{p.stem}", mod, src, {k: "X" for k in req}, 1)
+    except Exception as e:
+        print(f"  {p.stem:14} 오탐! {str(e)[:60]}")
+        fails.append(f"스크립트오탐({p.stem})")
+        continue
+    # content 없음 → FAIL(골든 글 유출 차단)
+    try:
+        assert_scripted_content(f"adapted.{p.stem}", mod, src, None, 1)
+        print(f"  {p.stem:14} 미검출! content 없이 통과 → 골든 글 {len(req)}키 유출")
+        fails.append(f"스크립트미검출({p.stem})")
+        continue
+    except ValueError:
+        pass
+    # 빈 값 → FAIL
+    try:
+        assert_scripted_content(f"adapted.{p.stem}", mod, src, {k: None for k in req}, 1)
+        print(f"  {p.stem:14} 빈값 미검출!")
+        fails.append(f"스크립트빈값({p.stem})")
+        continue
+    except ValueError:
+        pass
+    print(f"  {p.stem:14} 요구 {len(req):2}키 · 완비통과·미주입FAIL·빈값FAIL OK")
+    ok6 += 1
+print(f"장 스크립트 문 {ok6}/{n6}")
+
 print("\n" + ("VERIFY PASS" if not fails else f"VERIFY FAIL: {fails}"))
 sys.exit(1 if fails else 0)

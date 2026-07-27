@@ -393,29 +393,6 @@ MAP_H = 0.24  # 칩 높이 — 계열 균일(P4⑧)
 DELEGATED = "자동(위임판단)"  # aliases.json grade 원문. 이 값만 점선+accent
 
 
-def _pitch(n, top, bottom, h, cap=0.42, *, what="항목"):
-    """세로 피치를 **항목 수에서 파생**한다 — design-rules §F(2026-07-15, S10 하한 초과에서 확정).
-
-    리터럴 피치(`top + i*0.42`)를 쓰면 content로 항목이 늘어난 순간 조용히 하한을 넘는다.
-
-    파생만으로는 부족하다: 항목이 아주 많으면 피치가 칩 높이보다 작아져 **칩끼리 겹친다**.
-    하한(6.35)은 안 넘으므로 경계 검사는 통과한다 — 조용히 틀리는 값이다(2026-07-15 케이스
-    테스트가 잡음: 개념 18개 → 피치 0.109 < 높이 0.24). 그래서 **시끄럽게 죽인다**:
-    이 레이아웃이 수용할 수 있는 항목 수를 넘으면 빌드를 세운다. 공장 문(content_contract)이
-    침묵 폴백을 막는 것과 같은 원리다.
-    """
-    if n <= 1:
-        return h
-    p = min(cap, (bottom - top - h) / (n - 1))
-    if p < h:
-        room = int((bottom - top - h) / h) + 1
-        raise ValueError(
-            f'{what} {n}개는 이 구획({top}~{bottom}")에 안 들어간다 — 피치 {p:.3f} < 칩 높이 {h}'
-            f"라 칩이 겹친다. 최대 {room}개. content를 줄이거나 레이아웃을 다시 설계할 것."
-        )
-    return p
-
-
 def chip_w(text, pt=None, inset=CHIP_INSET, floor=CHIP_FLOOR):
     """칩 폭을 **글자에서 파생**한다 — §6 "칩·박스는 풀폭 금지, 내용 폭 + 인셋으로".
 
@@ -458,11 +435,11 @@ def bipartite_map(slide, terms):
             if c_ not in concepts:
                 concepts.append(c_)
 
-    r_pitch = _pitch(len(concepts), MAP_TOP, MAP_BOTTOM, MAP_H, what="연결 개념")
+    r_pitch = G.pitch(len(concepts), MAP_TOP, MAP_BOTTOM, MAP_H, what="연결 개념")
     r_y = {c_: MAP_TOP + i * r_pitch for i, c_ in enumerate(concepts)}
     # 좌열은 우열 **범위 중앙**에 맞춘다 — 5개를 7개 옆에 위에서부터 쌓으면 아래가 빈다(P4④)
     r_span = (len(concepts) - 1) * r_pitch
-    l_pitch = _pitch(len(terms), MAP_TOP, MAP_BOTTOM, MAP_H, what="용어")
+    l_pitch = G.pitch(len(terms), MAP_TOP, MAP_BOTTOM, MAP_H, what="용어")
     l_span = (len(terms) - 1) * l_pitch
     l_top = MAP_TOP + (r_span - l_span) / 2
     l_y = {t: l_top + i * l_pitch for i, (t, _g, _cs) in enumerate(terms)}

@@ -47,15 +47,23 @@ FINAL-REPORT 재료를 `01.5_outline.md`(아웃라인 계약)의 목차·강조�
 [고정]  8 cta          마무리 + 연락처
 ```
 
-**고정 규칙:** `cover`→`toc` 시작, `cta` 종료. 성과는 CTA 직전. 문제→솔루션 순서 불변.
+**고정 규칙:** 표지→목차 시작, `cta` 종료. 성과는 CTA 직전. 문제→솔루션 순서 불변.
 **유연 규칙:** 성과 숫자가 없으면 7번을 정성 강점으로 대체하거나 뺀다. 전체 6~10장 권장.
-표준 예시: `assets/standard-deck-spec.json`.
+**프레임 타입(2026-07-25):** 표지·목차·간지는 **`golden.cover`/`golden.toc`/`golden.part`**가
+정본이다. legacy `cover`/`toc`/`part` 렌더러와 구세대 견본 spec
+(`assets/standard-deck-spec.json`)은 골든 대응물과 중복이라 폐기됐다 — 그 견본은 코드
+소비자가 0곳이었고(FINAL-REPORT 4.6 실측) 어느 쪽이 표준인지만 갈라놨다.
+장별 content 키 예시는 `references/golden-content-contract.md`(코드 DEFAULT 덤프)가 정본.
 
 ## PART 골격 (필수 — 내비게이션 체계)
 
-본문을 **PART 3~4개**로 묶고 각 그룹 앞에 `part` 간지를 끼운다(예: Ⅰ 문제 정의 → Ⅱ 솔루션
-→ Ⅲ 차별점·증거 → Ⅳ 로드맵). 빌더가 상단 탭·계층번호(N-M)·그룹 목차를 자동 스탬프한다.
+본문을 **PART 3~4개**로 묶고 각 그룹 앞에 **`golden.part`** 간지를 끼운다(예: Ⅰ 문제 정의 →
+Ⅱ 솔루션 → Ⅲ 차별점·증거 → Ⅳ 로드맵). 상단 탭·계층번호(N-M)·그룹 목차는 골든 프레임이 그린다.
 심사자가 "지금 어디를 보고 있는지" 알게 하는 장치다.
+
+**정정(2026-07-25):** 전엔 legacy `part` 타입을 가리켰고 빌더의 v3 내비 기계(`_nav_tabs`·`_num`)가
+그렸다. 그 렌더러가 골든 중복으로 폐기돼 **legacy 타입만으로는 PART 내비를 만들 수 없다** —
+내비가 필요하면 골든 프레임 경로를 쓴다(빌더의 v3 내비 기계는 도달 불가로 남아 있고 거취는 미결).
 
 ## 타입 선택 가이드 — 시각은 장식이 아니라 주장의 증거 형태
 
@@ -63,7 +71,8 @@ FINAL-REPORT 재료를 `01.5_outline.md`(아웃라인 계약)의 목차·강조�
 결정표(Zelazny 5비교·Abela 4목적 기반)로 형식을 고른다.** 안티패턴 표(이종 재고를 bar로,
 병렬 목록을 layers로 등)에 걸리면 즉시 교체. 같은 형식 3장 연속이면 재점검.
 
-- 프로세스·단계 흐름 → `diagram` flow / 방어·아키텍처 적층 → `diagram` layers
+- 프로세스·단계 흐름 → **(A) G04 `routing_band`**(장 타입 `golden.exec_graph`) /
+  위계·적층 → **(A) G06·G07 계층 트리**(`golden.tech_tree`) — (B) 박스 어휘는 2026-07-25 폐기
 - 1→N 분기(라우팅·선택) → `diagram` branch / 로드맵·연혁 → `diagram` timeline
 - 경쟁·전후 비교 → `table`(비교 우위가 핵심이면 `"style":"matrix"`)
 - 수치 → `chart`: **데이터 형태를 먼저 판별**하고 타입을 고른다(기본값 bar 금지) —
@@ -91,7 +100,7 @@ deck-spec 확정 전에 시각 슬라이드마다 후보를 만들어 사용자 
    `{"slides":[{"no","title","message","shape","current","visual_candidates":[...]}]}`.
    **슬라이드당 3안**(1·2안 상이 유형, 3안째는 같은 유형의 조합 변주 허용). 모든 후보에
    조합 장치(emphasis/annotations/sub_table/banner/ref) ≥1. **맨 현행 재출품 금지.**
-   디폴트 어휘(bar·flow·cards) 후보에는 `why_not`(검토한 대안 L-ID와 기각 사유) 의무.
+   디폴트 어휘(bar·process_band·cards) 후보에는 `why_not`(검토한 대안 L-ID와 기각 사유) 의무.
 3. **자기 심사(보고 전 필수)**: `uv run python
    .claude/skills/pptx-visuals/scripts/check_candidates.py <후보.json> <deck-spec.json>`
    — RESULT: PASS가 나올 때까지 고친다. 히스토그램에서 단일 유형이 슬라이드의 30%를
@@ -104,7 +113,7 @@ deck-spec 확정 전에 시각 슬라이드마다 후보를 만들어 사용자 
 ## 다양성 강제 조항 (consistency-qa 게이트 4종이 기계 검증 — 위반이면 되돌아온다)
 
 - 동일 유형 **간격 ≥3장(쿨다운)** · 동일 유형 **덱 전체 ≤2회** · 덱 전체 **최소 5종** ·
-  **박스 다이어그램(flow/layers/cards/branch/from_to) 본문의 30% 이하**.
+  (박스 다이어그램 30% 조항은 대상 어휘 폐기로 삭제됐다 — archetype-catalog 세트 제약 참조).
   후보 설계 단계에서 게이트 통과 가능한 조합이 존재하게 구성한다(check_candidates가 시뮬레이션).
 
 ## 출력: `_workspace/02_deck-spec.json`

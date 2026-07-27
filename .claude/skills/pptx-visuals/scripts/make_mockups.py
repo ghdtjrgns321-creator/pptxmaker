@@ -151,10 +151,19 @@ def _text_mock(ax, spec, pal):
 
 
 def _diagram_mock(ax, spec, pal):
-    """다이어그램 스케치 — 노드 라벨을 박스로 배치(레이아웃 감만 전달)."""
-    layout = spec.get("layout", "flow")
+    """다이어그램 스케치 — 노드 라벨을 박스로 배치(레이아웃 감만 전달).
+
+    2026-07-25 재작성: 옛 분기는 폐기된 박스 어휘 이름(`process_band`·`layers`·`cards`·`branch`·
+    `from_to`)으로 갈라졌고, **남은 9종 중 timeline 말고는 어느 이름도 안 걸려 빈 스케치가
+    나왔다**(matrix_2x2·venn·icon_rows…). 목업은 "이 자리에 이런 덩치가 온다"만 전하면 되므로
+    이름 분기를 버리고 **가로 진행(timeline) vs 세로/격자(그 외)** 둘로 줄인다."""
+    layout = spec.get("layout")
     rows = spec.get("rows") or []
-    nodes = spec.get("nodes") or [{"label": r.get("from", "")} for r in rows if isinstance(r, dict)]
+    nodes = spec.get("nodes") or [
+        {"label": r.get("lead") or r.get("label") or r.get("text") or ""}
+        for r in rows
+        if isinstance(r, dict)
+    ]
     n = max(len(nodes), 1)
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 5)
@@ -173,7 +182,7 @@ def _diagram_mock(ax, spec, pal):
             wrap=True,
         )
 
-    if layout in ("flow", "from_to", "timeline"):
+    if layout == "timeline":  # 가로 진행 — 시간축이 유일한 진행 어휘로 남았다
         w = 10 / n - 0.5
         for i, nd in enumerate(nodes):
             box(i * (w + 0.5), 2, w, 1.4, nd["label"], pal["bg_alt"])
@@ -181,12 +190,12 @@ def _diagram_mock(ax, spec, pal):
                 ax.add_patch(
                     FancyArrow(i * (w + 0.5) - 0.45, 2.7, 0.32, 0, width=0.06, color=pal["accent"])
                 )
-    elif layout == "layers":
+    elif n <= 4:  # 세로 행 — icon_rows·stat_split·spectrum 등 행 기반 어휘의 덩치
         h = 4.5 / n - 0.25
         for i, nd in enumerate(nodes):
             box(1.5, 4.5 - (i + 1) * (h + 0.25), 7, h, nd["label"], pal["bg_alt"])
-    elif layout in ("cards", "branch"):
-        cols = 2 if n <= 4 else 3
+    else:  # 격자 — 셀 기반 어휘(harvey_table·check_matrix·matrix_2x2)
+        cols = 3
         w, h = 10 / cols - 0.6, 1.6
         for i, nd in enumerate(nodes):
             box(

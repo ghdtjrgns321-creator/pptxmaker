@@ -22,6 +22,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE))
 
 from goldenfab import audit as A  # noqa: E402
+from goldenfab import grid as G  # noqa: E402  — 항목 수 파생 자 정본(pitch·track)
 from goldenfab.kit import load_kit  # noqa: E402
 from goldenfab.registry import LAYOUTS  # noqa: E402
 
@@ -58,7 +59,7 @@ def air_pairs_tech_evidence():
     import goldenfab.s08_variants as S8
 
     n_concepts = len({c for _t, _g, cs in S8.DEFAULT_C["terms"] for c in cs})
-    pitch = S8._pitch(n_concepts, S8.MAP_TOP, S8.MAP_BOTTOM, S8.MAP_H)
+    pitch = G.pitch(n_concepts, S8.MAP_TOP, S8.MAP_BOTTOM, S8.MAP_H)
     last_bottom = S8.MAP_TOP + (n_concepts - 1) * pitch + S8.MAP_H
     return [
         ("매핑 룰 → 첫 칩", S8.MAP_HEAD_Y + S8.MAP_RULE_DY + 0.012, S8.MAP_TOP),
@@ -85,12 +86,11 @@ def air_pairs_mirror_matrix():
     좌표는 전부 s17 모듈 상수·행 수에서 파생 — 렌더와 같은 산식이라 어긋나면 렌더가 틀린 것.
     """
     import goldenfab.s17_variants as S17
-    from goldenfab.s08_variants import _pitch
 
     groups = S17.VARIANT_C_DEFAULTS["groups"]
     n_rows = sum(len(axes) for _no, _q, _cl, axes in groups)
     eff_bottom = S17.LAST_BOTTOM - (len(groups) - 1) * S17.GGAP
-    pitch = _pitch(n_rows, S17.ROW0, eff_bottom, S17.CARD_H, cap=S17.PITCH_CAP)
+    pitch = G.pitch(n_rows, S17.ROW0, eff_bottom, S17.CARD_H, cap=S17.PITCH_CAP)
     pairs = [("칼럼 헤드 → 첫 행", S17.COLHEAD_Y + 0.26, S17.ROW0)]
     i = 0
     for gi, (_no, _q, _cl, axes) in enumerate(groups):
@@ -107,14 +107,18 @@ def air_pairs_mirror_matrix():
 
 
 def air_pairs_boundary():
-    """S18 경계 — 칩 → 실측 주석, 캔버스 → 하단 헤드, 룰 → 카드, 카드 → 하한. 전부 모듈 상수 파생."""
-    import goldenfab.s18_variants as S18
+    """S16 경계(dense) — 캔버스 → 다리, 다리 → 카드, 카드 → 하한. 전부 모듈 상수 파생.
+
+    2026-07-26 dense 승격 전에는 **s18_variants(sparse) 상수**를 재고 있었다. 이 검사는 도형이
+    아니라 모듈 상수끼리의 산술이라, 렌더러가 s16_dense로 바뀌어도 조용히 통과했다 —
+    검사가 다른 장을 재는 hollow였다. 렌더하는 모듈과 재는 모듈은 같아야 한다.
+    """
+    import goldenfab.s16_dense as S16
 
     return [
-        ("칩 → 실측 주석", S18.CHIP_Y + S18.CHIP_H, S18.DESC_Y),
-        ("캔버스 → 하단 헤드", S18.CANVAS_BOTTOM, S18.BHEAD_Y),
-        ("하단 룰 → 카드", S18.BRULE_Y + 0.012, S18.CARD_Y),
-        ("카드 → 하한", S18.CARD_Y + S18.CARD_H, A.CONTENT_BOTTOM + A.AIR_MIN),
+        ("캔버스 → 다리", S16.CANVAS_Y + S16.CANVAS_H, S16.BRIDGE_Y),
+        ("다리 → 카드", S16.BRIDGE_Y, S16.CARD_Y),
+        ("카드 → 하한", S16.CARD_Y + S16.CARD_H, A.CONTENT_BOTTOM_DENSE + A.AIR_MIN),
     ]
 
 
@@ -123,7 +127,10 @@ SPECS = {
     "problem_grid": {
         "progress": 0,  # XOR을 셰브런으로 그리면 거짓 인과 (반려 4회)
         "ink_allow": 1,  # primary 채움 = 결론 바 하나뿐
-        "node_top_max": 4.6,  # 인과도 구획만 행 노드로 취급
+        # 인과도 구획만 행 노드로 취급. dense 승격(2026-07-26)으로 세로가 압축되면서 하단
+        # 카드 패널이 y=4.30까지 올라왔다 — 4.6이면 그 패널(h=2.36)이 계열에 섞여 "높이 2종"이
+        # 된다. 인과도 마지막 행이 y=2.93이므로 4.0이 두 구획을 가르는 자리다.
+        "node_top_max": 4.0,
         "air": air_pairs_problem_grid,
     },
     # 그림이 있는 장 — 침범 감시가 목적(2026-07-15 s10 버그: 비율 가정이 틀려 텍스트 1.74" 침범)
@@ -184,6 +191,9 @@ SPECS = {
     # 안 돌았고, S17이 채움률 14~29% FAIL 9건·판정 대비 FAIL 1건을 그대로 안고 있었다 —
     # 규칙이 있어도 러너에 안 물리면 없는 규칙이다. **known 없음** — 새로 깎았으므로 빚 0.
     "mirror_matrix": {  # S17 그룹 미러 — 좌 질문 칼럼 + 중앙 축 기둥 + 좌우 날개
+        # 골든 덱에서 제외된 장(2026-07-16) — registry 창고용으로 sparse variant 렌더러를 유지하므로
+        # 프로파일도 sparse다. dense로 채점하면 sparse 출처선(7.45)이 경계 위반으로 잡힌다.
+        "profile": "sparse",
         "progress": 0,
         # 결론 바 + 축 스파인 칩 7 — 칩은 전부 같은 뜻(비교 축 라벨)이라 잉크 충돌이 아니다.
         # 계수기는 도형 단위라 8로 박는다(늘면 FAIL).
@@ -201,21 +211,27 @@ SPECS = {
 
 
 def audit(name):
+    """장별 오딧 = 전역 묶음(`generic_checks` 단일 출처) + 이 장에만 있는 오라클.
+
+    2026-07-26 dense 승격 전에는 전역 검사를 **여기서 다시 나열**했다. 그래서 임계가 sparse에
+    박제됐고, 골든이 dense가 된 순간 accent·검정충돌·경계 3종이 한꺼번에 적색이 됐다
+    (registry 주석이 예고한 그 자리다). 규칙은 한 곳, 임계만 프로파일로 가른다.
+    """
     spec = SPECS[name]
     sl = render(name)
     shapes = list(sl.shapes)
     print(f"── {name}: 도형 {len(shapes)}")
-    res = [
-        ("§5 진행형 도형", *A.check_progress_shapes(shapes, spec["progress"])),
-        ("§2 accent 상한", *A.check_accent(shapes, str(C["accent"]))),
-        ("P4⑤ 판정 단어 대비", *A.check_verdict_contrast(shapes, None)),
-        ("P4④ 채움률", *A.check_fill_ratio(shapes)),
-        ("P4③ 노드 재탕", *A.check_duplicate_nodes(shapes, allow=spec.get("dup_allow", 0))),
-        ("P4⑩ 노드 클래스", *A.check_node_class(shapes)),
+    res = [("§5 진행형 도형", *A.check_progress_shapes(shapes, spec["progress"]))]
+    res += A.generic_checks(
+        shapes,
+        str(C["accent"]),
+        dup_allow=spec.get("dup_allow", 0),
+        screenshot=(name == "screenshot"),
+        profile=spec.get("profile", "dense"),
+    )
+    res += [
         ("P4⑩ 검정 충돌", *A.check_ink_collision(shapes, str(C["primary"]), spec["ink_allow"])),
         ("P4⑧ 노드 높이", *A.check_node_heights(shapes, spec["node_top_max"])),
-        ("§F 그림 침범", *A.check_picture_overlap(shapes)),
-        ("P2③④ 경계", *A.check_bounds(shapes, skip_tops=(6.60, 7.15))),
         ("§6 공기", *A.check_air(spec["air"]())),
     ]
     return A.report(res, known=spec.get("known"))

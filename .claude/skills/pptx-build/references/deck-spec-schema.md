@@ -31,7 +31,7 @@
 | `metrics`    | `title`, `items[{value,label}]`                                                                                                                                                   | 큰 숫자 KPI 최대 4개                                         |
 | `table`      | `title`, `headers[]`, `rows[[]]`                                                                                                                                                  | 네이티브 표(기술스택·비교표)                                 |
 | `chart`      | `title`, `chart_type`(bar/hbar/line/pie/doughnut/stacked_bar + 확장 waterfall/heatmap/dumbbell/slope/funnel/annotated_scatter/histogram), `categories[]`, `series{name:[values]}` | 차트. 기본 6종은 네이티브, 확장 7종은 mpl 이미지(하이브리드) |
-| `diagram`    | `title`, `layout`(flow/layers/branch/timeline), `nodes[{label,sub?}]`                                                                                                             | 도형 다이어그램(흐름·아키텍처)                               |
+| `diagram`    | `title`, `layout`(timeline/matrix_2x2/venn/icon_rows … **필수**, 9종), `nodes[{label,sub?}]`                                                                                      | 도형 다이어그램(흐름·아키텍처)                               |
 | `part`       | `title`, `subtitle`(선택)                                                                                                                                                         | 간지(PART divider)                                           |
 | `cta`        | `title`, `contact{email,site,...}`                                                                                                                                                | 마무리·연락처                                                |
 
@@ -65,23 +65,19 @@
 
 ### `diagram` 상세 (pptx-visuals 스킬이 렌더)
 
-- `layout: "flow"` — 노드 좌→우 배치 + accent 화살표. **실제 선후관계가 있을 때만**. 노드 3~5개.
-- `layout: "branch"` — `root{label,sub?}` + `nodes[]`. 1→N 분기(라우팅·아키텍처 분기). 자식 2~4개.
+- `layout`은 **필수**다(기본값 없음 — 누락 시 빌드가 ValueError로 죽는다). 기본값 자체가
+  디폴트 어휘 수렴의 원인이었다("어휘를 안 고르면 박스+화살표").
+- **폐기 9종(2026-07-25 사용자 확정)**: `flow`·`process_band`·`layers`·`branch`·`cards`·
+  `from_to`·`band_table`·`pro_con`·`contrast_split`. 박스+화살표 계열 전수 — 팔레트 전수 렌더
+  전면 반려, 실전 사용 0건. **이 값을 쓰면 빌드가 ValueError로 죽는다.** 단계·분기·병렬·전환·
+  그룹 나열·2열 대비의 정본은 (A) 골든 도해다(`deck-compose/references/layout-matching.md` 표 A:
+  G01·G04·G09·G10·G11·G14·G08 · 병렬 카드는 `dense.hero_card`).
 - `layout: "timeline"` — 좌→우 마일스톤(넘버 원 + 상단 라벨/하단 설명). 로드맵·연혁. 3~5개.
-- `layout: "cards"` — 그리드 카드. **순서·위계 없는 병렬 요소 N개**(문제 목록·원칙 등). 3~6개.
-- `layout: "from_to"` — `rows[{from, to, label?}]`. 문제→해결 전환 그리드(BCG From/To). 3~5행.
 - `chart`의 `panels[{title, chart_type, categories, series}]` — 미니 차트 2~3개 나란히(멀티패널).
   지표 여러 개의 전후 개선을 한 장에 담을 때. panels 사용 시 commentary 대신 intro 권장.
 - `banner`: 본문 슬라이드 하단 전폭 결론 스트립(한 문장, `**강조**` 지원).
   **source·footnotes와 병용 금지**(같은 영역 점유 — 빌더가 배너 우선).
 - 형식 선택은 `pptx-visuals/references/visual-selection.md` 결정표를 따른다(주장 한 문장 → 형식).
-- `layout: "layers"` — 노드 상→하 적층. 아키텍처 레이어용. 노드 2~5개 권장.
-- `layout: "process_band"` (v4.1) — 체브론 단계 밴드 + 각 단계 아래 상세 칼럼. 빈 박스
-  나열 금지의 대안: 파이프라인·프로세스는 이것이 기본. `nodes[{label, sub?, details:[..]}]`
-  3~6개, details 2~4줄. 상세가 칼럼에 있으므로 commentary 병용 비권장.
-- `layout: "band_table"` (v4.1, Dallas p46) — 그룹 밴드 표(좌측 세로 그룹 라벨 셀 병합 +
-  줄무늬 행 + 행 하이라이트). `headers[]`, `groups[{label, rows:[[..]]}]`,
-  `highlight:["행 첫 셀 텍스트"]`(선택, accent 행 강조). 검증 결과·항목 그룹 나열용.
 - `layout: "matrix_2x2"` (v4.2) — 2×2 사분면 포지셔닝. `x_axis:["좌","우"]`, `y_axis:["하","상"]`,
   `quadrants:[4라벨(선택)]`, `items:[{label, x:0~1, y:0~1, emphasis?}]`. 정성 경쟁 비교용.
 - `layout: "spectrum"` (v4.2) — 성숙도 스펙트럼(점진 음영 밴드 + 현위치 accent 마커).
@@ -94,16 +90,16 @@
   - `chart_type:"bubble"` (mpl 이미지) — `items:[{label, value, emphasis?}]` 4~9개. 원 면적 비교.
   - `chart_type:"waffle"` (mpl 이미지) — `items:[{label, percent, emphasis?}]` 1~3개. 10×10 도트 %.
   - `layout:"venn"` (도형) — `sets:[{label, sub?}]` 2~3개 + `overlap:"교집합 라벨"`. 개념 겹침.
-  - `layout:"pro_con"` (도형) — `cols:[{heading, tone:"pro"|"con", items:[{text, sub?}]}]` 2열.
-    혜택/리스크 컬러바 대비 리스트(McKinsey 실측).
-- `meta.frame_style: "v3"|"v44"` — 표지·간지 틀 스타일. v44 = 채굴 구도(표지 kicker+메타 행,
-  간지 숫자 워터마크+진행 도트). cover에 `kicker` 필드(상단 시리즈 라벨) 지원.
+- ~~`meta.frame_style: "v3"|"v44"`~~ 폐기 2026-07-25 — legacy `cover`·`part` 렌더러 전용
+  스위치였고 그 두 프레임이 골든 중복으로 폐기됐다. 표지·목차·간지는 `golden.cover`/
+  `golden.toc`/`golden.part`가 정본이며 스타일 스위치가 없다(스냅샷으로 박제).
 - 아키타입 L-ID·형상 매핑·세트 제약은 `pptx-visuals/references/archetype-catalog.md`가 단일 출처.
 - 노드: `{"label": "굵은 제목", "sub": "설명 한 줄(선택)"}`. `sub`는 생략 가능.
 
 ```json
-{"type":"diagram","title":"처리 흐름","layout":"flow",
- "nodes":[{"label":"수집","sub":"pptx 파싱"},{"label":"통합"},{"label":"빌드","sub":"brand-kit 적용"}]}
+{"type":"diagram","title":"도입 이정표","layout":"timeline",
+ "nodes":[{"label":"1분기","sub":"파일럿"},{"label":"2분기","sub":"전사 확대"},
+          {"label":"3분기","sub":"운영 이관"}]}
 ```
 
 ## v4 하이브리드 익스히빗 필드 (chart 타입 확장)
@@ -141,7 +137,7 @@
 
 - `subtitle`: 제목 아래 설명 한 줄(15pt). 대부분의 본문 슬라이드 권장.
 - `commentary`: **table/chart/diagram/metrics 필수 권장** — 개체 옆(표·차트·layers는 좌측
-  칼럼)이나 아래(flow·metrics는 전폭 블록)에 붙는 분석 불릿(중첩 지원, bullets와 동일 형식).
+  칼럼)이나 아래(process_band·metrics는 전폭 블록)에 붙는 분석 불릿(중첩 지원, bullets와 동일 형식).
   개체만 덜렁 있는 슬라이드는 밀도 미달(QA density 검사 FAIL 60단어 하한)이 된다.
   "차트가 말하는 결론 + 근거 + 시사점"을 3~5개 불릿으로 쓴다.
 - **중첩 불릿**: `bullets`/`two_column` items를 문자열 대신 객체로 — `{"text":"리드 문장","sub":["근거1","근거2"]}`.

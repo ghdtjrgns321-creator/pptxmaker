@@ -113,15 +113,6 @@ MAP_H = 0.24
 DELEGATED = "자동(위임판단)"
 
 
-def _pitch(n, top, bottom, h, cap=0.42, *, what="항목"):
-    if n <= 1:
-        return h
-    p = min(cap, (bottom - top - h) / (n - 1))
-    if p < h:
-        raise ValueError(f"{what} {n}개는 이 구획에 안 들어간다 — 피치 {p:.3f} < 칩 {h}")
-    return p
-
-
 def chip_w(text, pt=None, inset=CHIP_INSET, floor=CHIP_FLOOR):
     pt = pt or S["caption"]
     return max(len(text.strip()) * pt * 0.8 / 72 + inset, floor)
@@ -144,10 +135,10 @@ def bipartite_map(slide, terms):
         for c_ in cs:
             if c_ not in concepts:
                 concepts.append(c_)
-    r_pitch = _pitch(len(concepts), MAP_TOP, MAP_BOTTOM, MAP_H, what="연결 개념")
+    r_pitch = G.pitch(len(concepts), MAP_TOP, MAP_BOTTOM, MAP_H, what="연결 개념")
     r_y = {c_: MAP_TOP + i * r_pitch for i, c_ in enumerate(concepts)}
     r_span = (len(concepts) - 1) * r_pitch
-    l_pitch = _pitch(len(terms), MAP_TOP, MAP_BOTTOM, MAP_H, what="용어")
+    l_pitch = G.pitch(len(terms), MAP_TOP, MAP_BOTTOM, MAP_H, what="용어")
     l_span = (len(terms) - 1) * l_pitch
     l_top = MAP_TOP + (r_span - l_span) / 2
     l_y = {t: l_top + i * l_pitch for i, (t, _g, _cs) in enumerate(terms)}

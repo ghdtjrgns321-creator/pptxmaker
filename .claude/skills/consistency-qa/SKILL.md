@@ -55,7 +55,8 @@ uv run python .claude/skills/consistency-qa/scripts/check_contract.py \
 
 - `diversity_cooldown`: 동일 시각 유형(chart:종류/diagram:레이아웃/table…) 간격 3장 미만 = FAIL
 - `diversity_min_kinds`: 본문 5장 이상인데 유형 5종 미만 = FAIL
-- `diversity_box_ratio`: 박스 다이어그램(flow/layers/cards/branch/from_to) 본문의 30% 초과 = FAIL
+- (`diversity_box_ratio`는 2026-07-25 삭제 — 대상 어휘인 박스+화살표 9종이 폐기돼 계수가 항상 0이었다.
+  빈 박스 위험은 (A) 골든 쪽으로 옮겨가 `goldenfab.audit.check_adhoc_card`(§8)가 진다)
 - `diversity_max_repeat`: 동일 유형 덱 전체 3회 이상 = FAIL
 
 위반 시 → **deck-composer로 되돌림**(아키타입 재배정 — archetype-catalog.md 세트 제약).

@@ -35,14 +35,11 @@ LID_KEY = {
     "L11": "chart:funnel",
     "L12": "chart:annotated_scatter",
     "L13": "chart:histogram",
-    "L14": "diagram:flow",
-    "L15": "diagram:layers",
-    "L16": "diagram:branch",
+    # ── 결번 9개(L14·L15·L16·L18·L19·L20·L21·L34·L37) — 박스+화살표 계열 전멸 ──
+    # L14 flow는 진행 밴드와 렌더 동일이라 폐기, 나머지 8종은 팔레트 전수 렌더 **전면 반려**로
+    # 2026-07-25 폐기(사용자 확정). 그 물성의 정본은 (A) 골든 도해다(archetype-catalog crosswalk).
+    # **번호는 밀지 않는다**: 결번을 메우면 문서·워크스페이스의 L-ID 참조 121건이 전부 어긋난다.
     "L17": "diagram:timeline",
-    "L18": "diagram:cards",
-    "L19": "diagram:from_to",
-    "L20": "diagram:process_band",
-    "L21": "diagram:band_table",
     "L22": "diagram:matrix_2x2",
     "L23": "diagram:spectrum",
     "L24": "diagram:harvey_table",
@@ -55,25 +52,60 @@ LID_KEY = {
     "L31": "chart:bubble",
     "L32": "diagram:venn",
     "L33": "chart:waffle",
-    "L34": "diagram:pro_con",
     "L35": "diagram:icon_rows",
     "L36": "diagram:stat_split",
-    "L37": "diagram:contrast_split",
     "L38": "diagram:split_detail",
 }
 
 # 형상 → L-ID 랭킹 (앞이 우선 — archetype-catalog.md 매핑과 동일, 순서만 추천 강도)
+# 2026-07-25: 폐기 9종을 뺐다. 그래서 "흐름전환"은 L11 퍼널 하나만 남는다 — 분기·라우팅 물성의
+# 정본이 (A) 골든 도해(G01·G04·G09·G11)로 옮겨갔기 때문이고, 이 표는 (B) 축만 랭킹한다.
+# 결정표(layout-matching)가 (A)를 먼저 보게 하므로 여기 빈 자리가 곧 "(A)로 가라"는 신호다.
 SHAPE_RANK = {
     "시계열": ["L03", "L13", "L06"],
     "구성비": ["L07", "L02", "L05", "L33", "L04"],
-    "전후": ["L09", "L10", "L19", "L29"],
+    "전후": ["L09", "L10", "L29"],
     "범주비교": ["L02", "L01", "L31", "L27", "L09"],
-    "교차다축": ["L21", "L24", "L08", "L25", "L27"],
-    "흐름전환": ["L20", "L11", "L16", "L14"],
+    "교차다축": ["L24", "L08", "L25", "L27"],
+    "흐름전환": ["L11"],
     "분포상관": ["L12", "L13"],
-    "시간여정": ["L20", "L17", "L23"],
+    "시간여정": ["L17", "L23"],
     "숫자": ["L36", "L28", "L07"],
-    "정성": ["L35", "L37", "L38", "L22", "L23", "L24", "L25", "L34", "L32", "L21", "L19", "L18"],
+    "정성": ["L35", "L38", "L22", "L23", "L24", "L25", "L32"],
+}
+
+# ── (A) 골든 문법 우선 랭킹 (2026-07-25) ─────────────────────────────────────────
+# 왜 있나: 결정표(layout-matching)는 "(A) 1순위"로 재작성됐는데 **판정 기계는 (B)만 랭킹**해서
+# 자동 경로를 타면 여전히 (B)가 유일 후보로 올라왔다("고를 수 있게 만들었지만 그 길로 가는지는
+# 산문"). 이 표가 그 산문을 기계로 옮긴다 — 추천 출력의 **맨 앞**이 (A)가 되고,
+# check_candidates가 "(A) 후보 0개 + why_not 없음"을 FAIL로 잡는다.
+#
+# **경계(정직):** (A)가 오르는 물성은 **구조·정성뿐**이다. `detect()`는 수치·카테고리 형상만
+# 읽으므로 "판정 인과냐 집합 대응이냐" 같은 구조 물성은 기계가 못 가른다 — 그래서 형상이
+# 정성·흐름전환일 때 **후보군 전체**를 올리고 그 중 무엇이냐는 사람/컴포저가 결정표 표 A의
+# 판정 질문으로 고른다. 정량 물성(시계열·구성비·전후·범주비교·교차다축·분포상관·숫자·시간여정)은
+# 골든 도해에 어휘가 0이므로(인벤토리 §7 실측) 여기 비어 있고 (B)가 정본이다 — 억지로 채우면
+# 거짓 추천이 된다.
+GRAMMAR_KEY = {  # G-ID → 장 타입 (archetype-catalog (A) 표·layout-matching 표 A와 동기)
+    "G01": "golden.problem_grid",
+    "G02": "golden.problem_grid",
+    "G04": "golden.exec_graph",
+    "G05": "golden.tech_evidence",
+    "G06": "golden.tech_tree",
+    "G08": "golden.tech_tree",
+    "G09": "golden.tech_mechanism",
+    "G10": "golden.tech_mechanism",
+    "G11": "adapted.tech_mechanism",
+    "G13": "golden.ab_simulation",
+    "G14": "golden.ab_simulation",
+    "G15": "golden.validation",
+    "G17": "adapted.validation",
+    "G19": "golden.boundary",
+    "G21": "golden.screenshot",
+}
+GRAMMAR_RANK = {
+    "정성": ["G01", "G05", "G06", "G08", "G19", "G17", "G02", "G14", "G21"],
+    "흐름전환": ["G04", "G09", "G11", "G10", "G15", "G13"],
 }
 
 
@@ -120,8 +152,7 @@ def detect(sl):
             and len(sl["rows"][0]) >= 3
             and len(sl.get("rows", [])) >= 3
         ),
-        "stagey": sl.get("layout") in ("flow", "timeline", "process_band")
-        or bool(sl.get("stages")),
+        "stagey": sl.get("layout") == "timeline" or bool(sl.get("stages")),
         "kpi": sl.get("type") == "metrics"
         or (
             bool(sl.get("items"))
@@ -168,20 +199,26 @@ def classify(sl, f):
 
 
 def recommend(spec):
+    """슬라이드별 추천 — **(A) 골든 문법이 먼저**, 그다음 (B) L-ID(결정표 판정 절차 §2 그대로)."""
     out = []
     for i, sl in enumerate(spec["slides"], 1):
         if sl["type"] in FRAME:
             continue
         f = detect(sl)
         shape = classify(sl, f)
-        lids = SHAPE_RANK[shape]
+        rec = [
+            {"gid": gid, "key": GRAMMAR_KEY[gid], "axis": "A"}
+            for gid in GRAMMAR_RANK.get(shape, [])
+        ]
+        rec += [{"lid": lid, "key": LID_KEY[lid], "axis": "B"} for lid in SHAPE_RANK[shape]]
         out.append(
             {
                 "no": i,
                 "type": sl["type"],
                 "shape": shape,
                 "features": {k: v for k, v in f.items() if v},
-                "recommended": [{"lid": lid, "key": LID_KEY[lid]} for lid in lids],
+                "grammar_first": bool(GRAMMAR_RANK.get(shape)),  # (A)가 1순위인 물성인가
+                "recommended": rec,
             }
         )
     return out
@@ -197,8 +234,9 @@ def main():
     for r in recs:
         if args.slide and r["no"] != args.slide:
             continue
-        keys = " > ".join(f"{x['lid']}({x['key']})" for x in r["recommended"])
-        print(f"s{r['no']:02d} [{r['shape']}] {sorted(r['features'])} → {keys}")
+        keys = " > ".join(f"{x.get('gid') or x['lid']}({x['key']})" for x in r["recommended"])
+        head = "(A)먼저 " if r["grammar_first"] else ""
+        print(f"s{r['no']:02d} [{head}{r['shape']}] {sorted(r['features'])} → {keys}")
 
 
 if __name__ == "__main__":

@@ -6,11 +6,11 @@
 메커니즘(design-rules P1.5·P4·P5).
 
 **정본 위임(2026-07-20 통합):** 예전엔 이 파일이 자체 밀도·accent·경계 검사를 따로 뒀는데
-audit.py와 경쟁하는 중복이었다. 지금은 **`goldenfab.audit.generic_checks(dense=True)` 하나에
+audit.py와 경쟁하는 중복이었다. 지금은 **`goldenfab.audit.generic_checks(profile="dense")` 하나에
 전부 위임**한다 — 밀도(글자수)·accent(런 제외)·경계(dense 하한)·채움률(칩 폭)·그림침범(아이콘
 제외)이 전부 audit.py에 dense-인지로 있다. 이 파일은 "단일 모듈을 1장짜리 덱으로 빌드해 채점"하는
 편의만 남는다. 실전 덱(여러 장)은 audit_deck.py가, 빌드 시 자동은 build_pptx._gate_density가 같은
-generic_checks(dense=True)를 쓴다.
+generic_checks(profile="dense")를 쓴다.
 
 사용:
     uv run python .claude/skills/pptx-build/scripts/preflight_dense.py s14_dense [s15_dense ...]
@@ -54,12 +54,12 @@ def audit_module(mod_name, accent, band):
     shapes = _shapes(mod_name)
     print(f"\n══ {mod_name}: 도형 {len(shapes)} ══")
     # 정본 audit.py의 dense-인지 전역 검사 재사용(단일 출처). accent 런 제외·경계 dense 하한·
-    # 칩 폭·아이콘 제외가 전부 generic_checks(dense=True) 안에 있다.
+    # 칩 폭·아이콘 제외가 전부 generic_checks(profile="dense") 안에 있다.
     res = A.generic_checks(
         shapes,
         accent,
         band=band,
-        dense=True,
+        profile="dense",
         screenshot=cfg.get("screenshot", False),
         dup_allow=cfg.get("dup_allow", 0),
     )

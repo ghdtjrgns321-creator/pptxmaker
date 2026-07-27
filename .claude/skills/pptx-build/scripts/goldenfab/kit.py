@@ -65,6 +65,8 @@ def add_box(slide, x, y, w, h, fill=None, line=None, line_w=None, shape="rect"):
         "round": MSO_SHAPE.ROUNDED_RECTANGLE,
         "pentagon": MSO_SHAPE.PENTAGON,
         "diamond": MSO_SHAPE.DIAMOND,
+        "l_brace": MSO_SHAPE.LEFT_BRACE,
+        "r_brace": MSO_SHAPE.RIGHT_BRACE,
     }
     shp = slide.shapes.add_shape(kinds[shape], Inches(x), Inches(y), Inches(w), Inches(h))
     shp.shadow.inherit = False

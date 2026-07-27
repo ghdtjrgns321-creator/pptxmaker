@@ -18,7 +18,8 @@ model: opus
 ## 배치 판단 — 본령은 결함 발견이 아니라 배치다
 ### 사다리 (위일수록 강함 — 위에서부터 검토)
 1. **부품** `goldenfab/dense.py` — 나쁜 원시도구를 제거해 즉흥을 **구조적으로 불가능**하게(밋밋 카드 → `hero_card`만 남긴다). 막는 게 사후에 잡는 것보다 세다.
-2. **정밀 게이트** `audit.py:generic_checks`(단일 출처, dense-aware) — 여기 내리면 preflight·build 게이트·Stop 렌더게이트·consistency-qa가 **전부 이 하나를 물어** 전 경로 강제. 스킬별 경쟁 임계 신설 금지.
+2. **정밀 게이트** `audit.py:generic_checks`(단일 출처, **프레임 프로파일 3종** sparse·dense·legacy) — 여기 내리면 preflight·build 게이트·Stop 렌더게이트·consistency-qa가 **전부 이 하나를 물어** 각 프로파일 경로에서 강제된다. 스킬별 경쟁 임계 신설 금지 — 프레임이 다르면 **임계만** 프로파일로 갈린다.
+   **정직한 범위(2026-07-25):** "전 경로 강제"는 전엔 거짓이었다 — legacy 렌더러 장에는 이 게이트가 아예 안 돌았고(러너가 golden./adapted./novel만 대상), 4단계에서 배선했다. legacy는 여전히 **채움률·판정 단어 대비·밀도 밴드 3종이 미배선**(오탐 실측 근거는 `generic_checks` docstring). 새 검사를 내릴 땐 "어느 프로파일에 도는가"를 같이 정하고 `test_wiring` 통합G의 집합을 갱신한다.
 3. **배선 불변식** `test_wiring.py` — 규칙·게이트가 실제 실행 경로에 물렸나(존재≠검사 hollow 방지), 나중에 un-wire 못 하게 못 박는다.
 4. **훅** Stop 게이트(`pptx_render_gate.sh`·`completion_gate`) — 종료 자체를 막아 미충족 완료 선언 차단.
 5. **prose**(design-rules·CLAUDE.md) — 설명·판단 규칙만. *prose·국소 패치는 갈라지고 잊히고 우회된다*(반복 학습한 실패 경로). 규칙을 내리면 반드시 1~4에 기계로 박는다.
@@ -38,13 +39,14 @@ model: opus
 
 - 헷갈리면 물어라: **"이게 없어져도 내가 다시 배워야 할 게 있나?"** 없으면 지운다.
 - `[산문·하강대기]`인데 오탐 경계를 실측할 결함이 이번에 드러났다면 **그 자리에서 기계로 하강**한다(P1.5 리듬 — 한꺼번에 짜지 말 것).
-- 알려진 **죽은 실물**(감사 2026-07-24, 미처리): 고아 모듈 `s06_pilot`·`s06_proto_f` · 렌더러 없는 카탈로그 3행(`process_grid`·`category_spine_table`·`mapping`) · 호출자 0인 `shape_kind`.
+- 죽은 실물 **정리 완료**(2026-07-25): 고아 모듈 `s06_pilot`·`s06_proto_f` · 카탈로그 hollow 3행 · `brand-kit sizes.compact` · `shape_kind.py` 삭제 — 재유입은 `test_wiring` ⑦(고아 census)·통합C(문서 선언→렌더러 실존)가 막는다. **남은 미결 1건**: `s06_mid`(S6 dense 기준작인데 미배선 — 승격/삭제는 사용자 결정, `ORPHAN_DEBT` 1/1).
 - 판정은 승인 여부와 무관하게 **`정리:` 칸에 항상 보고**("없음"도 이유와 함께). 사용자 승인 후 코드로 내린다 — prose로 방치하지 않는다.
 
 ## 하네스 지도
 - **오케스트레이터** `pptmaker` → ① deck-outline-grill(메인 대화) ② deck-composer ③ pptx-builder ④ consistency-qa
 - **부품** `goldenfab/dense.py`(hero_card·compact_header·chip_row 등)·`kit.py`·`grid.py`
-- **정본 게이트** `goldenfab/audit.py:generic_checks(dense=True)` — 밀도·accent·채움률·넘침·**§8 즉흥 카드**·경계. 러너 `preflight_dense.py`·`audit_deck.py`·`build_pptx._gate_density`
+- **정본 게이트** `goldenfab/audit.py:generic_checks(profile="sparse"|"dense"|"legacy")` — 밀도·accent·채움률·넘침·겹침·**§8 즉흥 카드**·경계. 러너 `preflight_dense.py`(dense)·`audit_deck.py`(sparse·dense)·`build_pptx._gate_density`(전 3종)·`consistency-qa/audit_pptx.py`(legacy)
+- **content 계약 문 2개** `goldenfab/content_contract.py` — `assert_content`(golden.\* 경로) · `assert_scripted_content`(adapted./novel 장 스크립트 — 스크립트가 실제 읽는 키만 요구)
 - **배선 테스트** `pptx-build/scripts/test_wiring.py` · **QA** `consistency-qa/scripts/audit_pptx.py`
 - **훅** `post_write_check`(U+FFFD) · `completion_gate`(계약 VERIFY) · `pptx_arm.py`+`pptx_render_gate.sh`(dense 편집→렌더·preflight 강제) · `guard_bash`
 - **SSOT들** 물성 결정표 `deck-compose/references/layout-matching.md` · 브랜드 `pptx-build/assets/brand-kit.yaml` · 시각 레시피 `pptx-visuals`(visuals.py)
@@ -52,7 +54,7 @@ model: opus
   `> **강제:**` 태그 = 그 규칙의 강제 상태: `[부품]`(구조상 불가) `[기계: 검사명]`(전 덱) `[기계·골든: …]`(장별 정답지 SPECS 필요) `[훅]`
   `[눈]`(참/거짓 없음) `[산문·하강대기]`(산수인데 검사 없음 = **하강 후보**). `test_wiring` ⑥이 태그를 양방향 검증(유령·고아·부채 래칫) — 새 검사엔 태그도 같이 단다.
 - **회고 자산**(새 발견도 이 셋 중 **제 집에 단일 출처로** — 별도 이력 폴더·에이전트 내 archive 신설 금지): 버그→고침은 `audit.py`·`dense.py`의
-  **"왜 있나" 출처 주석** · 취향·디자인 반려는 `design-rules.md`(P0·§8 "재발 원인" 노트) · 방향 이력은 `CLAUDE.md` 변경 이력 + `docs/`
+  **"왜 있나" 출처 주석** · 취향·디자인 반려는 `design-rules.md`(P0·§8 "재발 원인" 노트) · 방향 이력은 `docs/CHANGELOG.md` + `docs/`
 
 ## 루프 (덱/장 하나마다 · 스크립트는 `uv run python`, 한글 파일은 Write/Edit만 — PowerShell 치환 = U+FFFD 하드 차단)
 0. **착수 전** — 가장 가까운 **통과 장(코드+렌더 PNG)** Read + P0 북극성 + 물성 결정표. 내용이 형태를 정하게(칸 맞추려 억지 카드·배지 금지).

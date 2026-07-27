@@ -20,7 +20,9 @@ from pptx.util import Inches, Pt
 
 from . import grid as G
 from .kit import SLIDE_H, SLIDE_W, add_box, add_text, load_kit, set_shape_text
-from .s08_variants import _pitch, chip_w  # 칩 폭·피치 파생식 단일 출처 — 두 장이 같은 자를 쓴다
+from .s08_variants import (
+    chip_w,
+)  # 칩 폭 파생식 단일 출처 — 두 장이 같은 자를 쓴다(피치는 grid.pitch)
 
 K = load_kit()
 C, S, F = K["rgb"], K["sizes"], K["fonts"]
@@ -240,8 +242,8 @@ SRC_W = G.RIGHT_EDGE - SRC_X  # 1.763
 
 
 def _cat_pitch(n):
-    """행 피치를 **행 수에서 파생**(design-rules §F) + 겹침 가드. s08._pitch와 같은 식."""
-    return _pitch(n, CAT_TOP, CAT_BOTTOM, CAT_H, what="카탈로그 행")
+    """행 피치를 **행 수에서 파생**(design-rules §F) + 겹침 가드. 자는 `grid.pitch` 정본."""
+    return G.pitch(n, CAT_TOP, CAT_BOTTOM, CAT_H, what="카탈로그 행")
 
 
 # ── 노드 클래스 인코딩 — **이 장의 단일 출처** (좌 트리 · 우 카탈로그 공용) ──

@@ -337,6 +337,34 @@ def variant_b(prs):
     return slide
 
 
+# ── G14 근거 체인 기하 — 단계 수에서 y·강조를 파생 (s14_variants·s14_dense 공용 단일 출처) ──
+CHAIN_TOP, CHAIN_BOTTOM, CHAIN_H = 3.20, 5.30, 0.46
+CHAIN_PITCH_CAP = 0.78  # 여유 있을 때의 골든 리듬(3단 = 3.20·3.98·4.76)
+
+
+def chain_layout(n):
+    """근거 체인 n단의 `(y, fill, color, border)` 리스트.
+
+    2026-07-25 항목 수 파생: 전엔 `step_y = [3.2, 3.98, 4.76]`과 `step_style` 3줄 리스트를
+    `zip(c["steps"], …)`으로 물렸다 — 단계가 4개면 **4번째가 조용히 사라지고** 2개면 아래가
+    비었다. 이제 y는 `grid.pitch`로, 강조 인코딩은 규칙으로 파생한다:
+    **마지막 = accent 테두리(도달점), 중간 = 다크 채움(전환점), 나머지 = 헤어라인.**
+    좌표·강조가 개수에서 나오므로 단계가 늘어도 "도달 경로가 근거"라는 물성이 유지된다.
+    """
+    p = G.pitch(n, CHAIN_TOP, CHAIN_BOTTOM, CHAIN_H, cap=CHAIN_PITCH_CAP, what="근거 단계")
+    dark = (n - 1) // 2  # n=3 → 1(가운데). n=1이면 마지막과 겹치므로 accent가 우선한다.
+    out = []
+    for i in range(n):
+        if i == n - 1:
+            style = (C["bg"], C["primary"], C["accent"])
+        elif i == dark:
+            style = (C["primary"], C["bg"], None)
+        else:
+            style = (C["bg"], C["primary"], C["muted"])
+        out.append((CHAIN_TOP + i * p, *style))
+    return out
+
+
 def _dash_arrow(slide, x1, y1, x2, y2):
     """점선 화살표 — 확률 신호(불확실) 표기용."""
     from pptx.enum.shapes import MSO_CONNECTOR
@@ -578,17 +606,11 @@ def variant_c(prs, c=None):
         border=C["muted"],
         bold=False,
     )
-    # 스텝 스타일(구조·색 고정: fill, color, border), 텍스트는 c["steps"]에서
-    step_style = [
-        (C["bg"], C["primary"], C["muted"]),
-        (C["primary"], C["bg"], None),
-        (C["bg"], C["primary"], C["accent"]),
-    ]
-    step_y = [3.2, 3.98, 4.76]
+    # 스텝 y·강조는 단계 수에서 파생(chain_layout) — 텍스트는 c["steps"]에서
     prev_bottom = 2.84
-    for (text, note), (fill, color, border), sy in zip(c["steps"], step_style, step_y):
+    for (text, note), (sy, fill, color, border) in zip(c["steps"], chain_layout(len(c["steps"]))):
         _solid_arrow(slide, ccx, prev_bottom, ccx, sy)
-        _chip(slide, rx + 0.35, sy, chain_w, 0.46, text, fill, color, border=border)
+        _chip(slide, rx + 0.35, sy, chain_w, CHAIN_H, text, fill, color, border=border)
         add_text(
             slide,
             rx + 0.35 + chain_w + 0.15,
@@ -601,7 +623,7 @@ def variant_c(prs, c=None):
             C["muted"],
             line_spacing=1.15,
         )
-        prev_bottom = sy + 0.46
+        prev_bottom = sy + CHAIN_H
     add_text(
         slide,
         qx,

@@ -69,8 +69,21 @@ def build(prs, c=None):
     c = {**DEFAULT, **(c or {})}
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
-    D.compact_header(slide, KICKER, HEADLINE)
-    add_text(slide, G.MARGIN_L, 0.76, D.FULL_W, 0.24, SUBLEAD, S["caption"], F["body"], C["muted"])
+    # content에서 읽는다 — 모듈 상수를 그대로 쓰면 실전 덱에 K-IFRS 글이 그대로 나간다.
+    # (2026-07-26 dense 승격 때 compare_golden PARAM 오라클이 잡았다: sparse 원본은
+    #  `header(slide, c["headline"], c["kicker"])`인데 dense 이식에서 상수로 굳었다.)
+    D.compact_header(slide, c.get("kicker") or KICKER, c.get("headline") or HEADLINE)
+    add_text(
+        slide,
+        G.MARGIN_L,
+        0.76,
+        D.FULL_W,
+        0.24,
+        c.get("sublead") or SUBLEAD,
+        S["caption"],
+        F["body"],
+        C["muted"],
+    )
 
     # ══ 좌 판: 리랭커 (bg_alt) — 골든 variant_c 그대로, ty+sh ══
     lx, lw = G.MARGIN_L, 5.75
@@ -227,16 +240,13 @@ def build(prs, c=None):
         border=C["muted"],
         bold=False,
     )
-    step_style = [
-        (C["bg"], C["primary"], C["muted"]),
-        (C["primary"], C["bg"], None),
-        (C["bg"], C["primary"], C["accent"]),
-    ]
-    step_y = [3.2, 3.98, 4.76]
+    # 스텝 y·강조는 골든 정본 chain_layout에 위임(단계 수 파생) — dense는 ty/sh affine만 얹는다
     prev_bottom = 2.84
-    for (text, note), (fill, color, border), syb in zip(c["steps"], step_style, step_y):
+    for (text, note), (syb, fill, color, border) in zip(
+        c["steps"], V.chain_layout(len(c["steps"]))
+    ):
         V._solid_arrow(slide, ccx, ty(prev_bottom), ccx, ty(syb))
-        V._chip(slide, rx + 0.35, ty(syb), chain_w, sh(0.46), text, fill, color, border=border)
+        V._chip(slide, rx + 0.35, ty(syb), chain_w, sh(V.CHAIN_H), text, fill, color, border=border)
         add_text(
             slide,
             rx + 0.35 + chain_w + 0.15,
@@ -249,7 +259,7 @@ def build(prs, c=None):
             C["muted"],
             line_spacing=1.2,
         )
-        prev_bottom = syb + 0.46
+        prev_bottom = syb + V.CHAIN_H
     add_text(
         slide,
         qx,

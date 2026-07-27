@@ -159,8 +159,9 @@ def build(prs, c=None):
     slide = prs.slides.add_slide(prs.slide_layouts[6])
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
 
-    # ── 헤더: dense 압축 ──
-    D.compact_header(slide, KICKER, HEADLINE)
+    # ── 헤더: dense 압축 ── content에서 읽는다(상수로 두면 실전 덱에 골든 글이 새 나간다.
+    # 2026-07-26 dense 승격 때 compare_golden PARAM 오라클이 잡은 이식 누락 3건 중 하나)
+    D.compact_header(slide, c.get("kicker") or KICKER, c.get("headline") or HEADLINE)
 
     # ── 구획 1: 게이트 인과도 (골든 variant_k 그대로 · 평행이동만) ──
     VK._band_head(slide, ty(VK.B1_HEAD_Y), c["band1_head"])

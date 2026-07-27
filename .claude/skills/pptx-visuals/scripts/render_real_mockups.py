@@ -17,6 +17,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).parent))
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pptx-build" / "scripts"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "consistency-qa" / "scripts"))
 from make_mockups import CSS, edit_label  # noqa: E402
 
 import build_pptx  # noqa: E402
@@ -85,16 +86,13 @@ $pres.Close(); $ppt.Quit()
         if c.get("chart_type"):
             return f"chart:{c['chart_type']}"
         if c.get("layout") or c.get("type") == "diagram":
-            return f"diagram:{c.get('layout', 'flow')}"
+            return f"diagram:{c.get('layout') or '?'}"
         return c.get("type", "?")
 
-    BOX = {"diagram:flow", "diagram:layers", "diagram:cards", "diagram:branch", "diagram:from_to"}
-    meta = [
-        {"no": no, "tag": tag, "key": vkey(cand), "box": vkey(cand) in BOX}
-        for no, tag, _, cand in order
-    ]
+    meta = [{"no": no, "tag": tag, "key": vkey(cand)} for no, tag, _, cand in order]
 
-    # 기본 선택: 게이트 4종을 통과하는 조합을 그리디로 사전 계산(초기 로드부터 전부 ✓)
+    # 기본 선택: 게이트 3종을 통과하는 조합을 그리디로 사전 계산(초기 로드부터 전부 ✓)
+    # 박스 비율 게이트는 2026-07-25 삭제 — 대상 어휘(박스+화살표 9종)가 폐기돼 계수가 항상 0.
     from collections import Counter
 
     by_no = {}
@@ -102,7 +100,7 @@ $pres.Close(); $ppt.Quit()
         by_no.setdefault(m["no"], []).append(m)
     nos = sorted(by_no)
     default_sel, picked_keys = {}, []
-    kcount, boxes = Counter(), 0
+    kcount = Counter()
     for no in nos:
         best, best_pen = by_no[no][0], 10**9
         for m in by_no[no]:
@@ -111,8 +109,6 @@ $pres.Close(); $ppt.Quit()
                 pen += 100  # 쿨다운(간격<3) 위반
             if kcount[m["key"]] >= 2:
                 pen += 100  # 덱 전체 ≤2회 위반
-            if m["box"] and (boxes + 1) / len(nos) > 0.30:
-                pen += 50  # 박스 30% 초과
             if kcount[m["key"]]:
                 pen += 3  # 새 유형 선호(≥5종 달성 유도)
             if pen < best_pen:
@@ -120,7 +116,6 @@ $pres.Close(); $ppt.Quit()
         default_sel[no] = best["tag"]
         picked_keys.append(best["key"])
         kcount[best["key"]] += 1
-        boxes += 1 if best["box"] else 0
     parts = [
         f"<style>{CSS}"
         ".bar{display:flex;align-items:center;gap:6px;margin:2px 0}"
@@ -195,9 +190,6 @@ function update(){
   gates.push(['쿨다운(동일 유형 간격 ≥3)', cool.length===0, cool.join(', ')]);
   const kinds = new Set(keys).size;
   gates.push([`최소 5종 (현재 ${kinds}종)`, kinds>=5, '']);
-  const boxes = sel.filter(m=>m.box).length;
-  const ratio = Math.round(boxes/keys.length*100);
-  gates.push([`박스 ≤30% (현재 ${boxes}/${keys.length}=${ratio}%)`, ratio<=30, '']);
   const over = Object.entries(counts).filter(([k,n])=>n>2).map(([k,n])=>`${k}×${n}`);
   gates.push(['동일 유형 ≤2회', over.length===0, over.join(', ')]);
   document.getElementById('gates').innerHTML = gates.map(([nm,ok,d]) =>

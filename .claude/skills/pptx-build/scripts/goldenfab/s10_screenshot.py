@@ -44,12 +44,10 @@ def point_pitch(n):
     """항목 n개를 PT_TOP ~ CONTENT_BOTTOM 안에 균등 배치하는 피치.
 
     마지막 항목 bottom = PT_TOP + (n-1)*pitch + PT_BLOCK_H ≤ CONTENT_BOTTOM 을 만족하는
-    최대 피치. n=1이면 나눗셈이 없으므로 블록 높이만 확인.
+    최대 피치. 자는 `grid.pitch` 정본(2026-07-25 통합) — 항목이 너무 많아 블록이 겹치면
+    조용히 통과하지 않고 시끄럽게 죽는다. 1.05 = 여유 있을 때의 기존 리듬(상한).
     """
-    if n <= 1:
-        return PT_BLOCK_H
-    room = G.CONTENT_BOTTOM - PT_TOP - PT_BLOCK_H
-    return min(1.05, room / (n - 1))  # 1.05 = 여유 있을 때의 기존 리듬(상한)
+    return G.pitch(n, PT_TOP, G.CONTENT_BOTTOM, PT_BLOCK_H, cap=1.05, what="관찰 포인트")
 
 
 SHOT_DEFAULTS = {

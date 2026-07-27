@@ -72,8 +72,9 @@ def main():
         opts = sl.get("audit", {})
         # 스크린샷 장(§F) = 밀도 예외 — golden.screenshot 타입 or spec audit 선언
         screenshot = sl["type"].endswith("screenshot") or opts.get("screenshot", False)
-        # dense 인지 — adapted/novel(=dense 챕터 스크립트)·spec audit.dense 선언 시 accent 런 제외·
-        # 경계 dense 하한·칩 폭 등 dense 캘리브레이션 적용(그렇지 않으면 sparse 골든 기준).
+        # 프레임 프로파일 — adapted/novel(=dense 챕터 스크립트)·spec audit.dense 선언 시 dense
+        # 캘리브레이션(accent 런 제외·경계 dense 하한·칩 폭). 그 외 골든 장은 sparse.
+        # legacy 타입은 이 러너의 대상이 아니다 — consistency-qa/audit_pptx가 profile="legacy"로 본다.
         dense = sl["type"].startswith(("adapted.", "novel")) or opts.get("dense", False)
         print(f"\n── S{no} {sl['type']}: 도형 {len(shapes)}")
         res = A.generic_checks(
@@ -82,7 +83,7 @@ def main():
             band=band,
             dup_allow=opts.get("dup_allow", 0),
             screenshot=screenshot,
-            dense=dense,
+            profile="dense" if dense else "sparse",
         )
         fails = A.report(res, known=opts.get("known"))
         all_fails += [f"S{no}: {f}" for f in fails]

@@ -3,8 +3,10 @@
 
 검사: ① 커버 전수(모집단 = deck-spec 본문, 양방향 차집합) ② 슬라이드당 후보 ≥3안
 ③ 슬라이드 내 상이 유형 ≥2종(3안째는 조합 변주 허용) ④ 조합 장치 ≥1 전수
-⑤ shape 필드 전수 ⑥ 디폴트 어휘(bar·flow·cards) 후보의 why_not 의무
+⑤ shape 필드 전수 ⑥ 디폴트 어휘 후보의 why_not 의무
 ⑦ 아키타입 히스토그램 + 최선 조합 게이트 시뮬레이션(단일 유형 30% 초과 경고)
+⑧ **(A) 골든 문법 1순위 물성(정성·흐름전환)에서 (A) 후보 0개면 why_not_golden 의무**
+   — 결정표 판정 절차 §2를 기계화(2026-07-25). 전엔 산문이라 자동 경로가 (B)로만 갔다.
 
 usage: python check_candidates.py <candidates.json> <deck-spec.json>
 exit 0=PASS, 1=FAIL
@@ -18,7 +20,11 @@ from pathlib import Path
 
 FRAME = {"cover", "toc", "part", "section", "cta"}
 COMBO = ("emphasis", "annotations", "sub_table", "banner", "ref")
-DEFAULTS = {"chart:bar", "diagram:flow", "diagram:cards"}
+# 게으른 디폴트 어휘 — 이 키로 낸 후보는 why_not 정당화 의무. 죽은 문자열을 남기면 이 의무가
+# 조용히 발화 불가가 된다(vacuous 게이트)라서, 어휘가 폐기되면 **반사가 옮겨간 곳으로 갱신**한다.
+# 2026-07-25: `diagram:process_band`·`diagram:cards` 폐기(박스+화살표 9종 전면) → 반사는
+# `diagram:icon_rows`(남은 (B) 정성 나열의 유일한 기본 그릇)로 옮겨갔다. 그래서 그 자리를 잇는다.
+DEFAULTS = {"chart:bar", "diagram:icon_rows", "table"}
 SHAPES = {
     "시계열",
     "범주비교",
@@ -39,13 +45,21 @@ from recommend_archetypes import recommend  # noqa: E402
 
 
 def key(c):
+    t = c.get("type", "")
+    if t.startswith(("golden.", "adapted.")) or t == "novel":
+        return t  # (A) 축 후보 — 장 타입이 곧 어휘다(부품 호출이 아니다)
     if c.get("panels"):
         return "chart:panels"
     if c.get("chart_type"):
         return f"chart:{c['chart_type']}"
     if c.get("layout") or c.get("type") == "diagram":
-        return f"diagram:{c.get('layout', 'flow')}"
+        return f"diagram:{c.get('layout') or '?'}"
     return c.get("type", "?")
+
+
+def is_grammar(k):
+    """(A) 골든 문법 축 후보인가 — 장 타입(`golden.*`/`adapted.*`/`novel`)."""
+    return k.startswith(("golden.", "adapted.")) or k == "novel"
 
 
 def main():
@@ -54,7 +68,12 @@ def main():
     body = {i for i, sl in enumerate(spec["slides"], 1) if sl["type"] not in FRAME}
     fails, warns = [], []
     # 추천 엔진(데이터 형상 결정적 분석) — 추천군 밖 후보는 경고(정당화 여지는 남김)
-    rec_by_no = {r["no"]: {x["key"] for x in r["recommended"]} for r in recommend(spec)}
+    recs = recommend(spec)
+    rec_by_no = {r["no"]: {x["key"] for x in r["recommended"]} for r in recs}
+    # (A) 1순위 물성 — 결정표 판정 절차 §2의 "(B)를 고르려면 왜 (A)가 안 되는지 적어라"를
+    # **슬라이드 단위 의무**로 기계화한다(2026-07-25). 후보마다 요구하면 표·문서형 슬라이드에서
+    # 3안 전부에 같은 문장을 쓰게 되는 소음이라, "후보 하나라도 (A)"이거나 "why_not 한 줄"이면 된다.
+    grammar_first = {r["no"]: r for r in recs if r["grammar_first"]}
 
     covered = {sl["no"] for sl in cand["slides"]}
     if covered != body:
@@ -84,6 +103,19 @@ def main():
             if rec and key(c) not in rec and not c.get("why_not"):
                 warns.append(
                     f"s{no}-{tag}: 추천군 밖 {key(c)} (추천: {sorted(rec)}) — why_not 권장"
+                )
+        gf = grammar_first.get(no)
+        if gf and not any(is_grammar(k) for k in keys):
+            # **전용 필드만** 인정한다 — 일반 `why_not`(디폴트 어휘 정당화)으로는 못 갈음한다.
+            # 실측(2026-07-25): 갈음을 허용하니 구 후보 파일이 "chart:bar를 쓴 이유" 한 줄로
+            # (A) 검토 의무를 전부 통과했다. 다른 질문에 대한 답은 이 질문의 답이 아니다.
+            if not sl.get("why_not_golden"):
+                top = list(dict.fromkeys(x["key"] for x in gf["recommended"] if x["axis"] == "A"))[
+                    :4
+                ]
+                fails.append(
+                    f"s{no}: 물성 '{gf['shape']}'는 (A) 골든 문법 1순위인데 (A) 후보 0개 "
+                    f"— {top} 중 하나를 후보로 올리거나 why_not_golden에 왜 (A)가 안 되는지 적을 것"
                 )
         cur = sl.get("current", "")
         for i, c in enumerate(cands):

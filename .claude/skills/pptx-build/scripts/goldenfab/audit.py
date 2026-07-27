@@ -36,6 +36,22 @@ CONTENT_BOTTOM_DENSE = 7.1  # dense 본문 하한 — 바 없이 출처선(dense
 RIGHT_EDGE = 12.733  # P2④
 CONTRAST_MIN = 4.5  # WCAG AA (일반 텍스트)
 
+# ── legacy 프레임 상수 (2026-07-25 실측 · PROFILES "legacy") ──────────────────
+# legacy(build_pptx의 chart·표·문서형·다이어그램 렌더러)는 골든과 **다른 프레임**을 쓴다:
+# 하단이 배너(top 6.58)·출처선(6.65)·각주(6.88)·푸터 헤어라인(7.0)·푸터 텍스트(7.08)로 층층이 차
+# 있다. 골든 하한(6.35·7.1)을 그대로 쓰면 111/111 적색이 되고, 그건 이 프로젝트가 이미 겪은
+# "상시 적색은 무시당하고 우회된다" 경로다. 그래서 **규칙은 하나, 임계만 프레임별**로 둔다.
+#
+# 하한을 **푸터 헤어라인(7.0)**으로 잡은 근거(legacy 산출물 111장 전수 실측): 본문 도형의 최대
+# bottom이 정확히 7.0이었고(`_stat_split` 캡션 상자), 7.0 아래는 전부 푸터 텍스트 영역이라
+# 그 아래로 내려간 본문은 푸터와 실제로 겹친다. 더 위로(6.55) 올리면 spectrum 단계 설명(6.9)·
+# stat_split 캡션이 오탐으로 걸린다 — 상자에 여유를 두는 legacy idiom이지 침범이 아니다.
+# **경계(정직):** 그래서 이 검사는 legacy에서 "푸터 침범"까지만 본다. 본문이 출처선(6.65)을
+# 덮는 경우는 여기서 안 걸리고 `check_text_collision`(글자 실점유 비교)이 진다.
+CONTENT_BOTTOM_LEGACY = 7.0
+LEGACY_FRAME_TOPS = (6.88, 6.95, 7.0, 7.08)
+ACCENT_MAX_LEGACY = 8  # 실측 상한(harvey_table 점수볼 = 채움 4 + 선 4). 런은 legacy도 제외.
+
 
 # ── 픽셀·색 산수 ──────────────────────────────────────────────
 
@@ -65,46 +81,89 @@ def shape_kind(sh):
         return None
 
 
+# ── 색 읽기는 **읽기 전용**이어야 한다 (2026-07-25 버그 수리) ────────────────────
+# 왜: 초판은 `sh.line.color.type` · `run.font.color.rgb`로 색을 읽었는데 python-pptx의 ColorFormat은
+# **접근하는 순간 XML을 만든다** — `<a:ln><a:solidFill/></a:ln>`(빈 solidFill)이 붙고,
+# PowerPoint는 그걸 **검정 헤어라인 테두리**로 그린다. 빌드 시 게이트(`_gate_density`)는 `prs.save()`
+# **전에** 도니 그 테두리가 파일에 그대로 저장됐다 — 즉 **오딧이 산출물을 오염시켰다.**
+# legacy 배선 후 fixture 렌더 눈검증에서 전 텍스트 상자에 테두리가 생겨 발각됐다(게이트는 전부 green).
+# 교훈: 검사기는 대상을 절대 변형하지 않는다. 아래는 lxml로 XML을 **읽기만** 한다.
+_NS_A = "{http://schemas.openxmlformats.org/drawingml/2006/main}"
+
+
+def _solid_srgb(parent):
+    """`<parent><a:solidFill><a:srgbClr val="RRGGBB"/>` → "RRGGBB". 없으면 None(생성하지 않음).
+
+    schemeClr(테마색)·gradFill·pattFill은 None — 초판도 `.rgb` 예외로 None이었다(동등).
+    """
+    if parent is None:
+        return None
+    sf = parent.find(f"{_NS_A}solidFill")
+    if sf is None:
+        return None
+    clr = sf.find(f"{_NS_A}srgbClr")
+    val = clr.get("val") if clr is not None else None
+    return val.upper() if val else None
+
+
+def _spPr(sh):
+    el = getattr(sh, "_element", None)
+    return getattr(el, "spPr", None) if el is not None else None
+
+
 def fill_hex(sh):
-    try:
-        if sh.fill.type is not None:
-            return str(sh.fill.fore_color.rgb)
-    except Exception:
-        pass
-    return None
+    return _solid_srgb(_spPr(sh))
 
 
 def line_hex(sh):
-    try:
-        if sh.line.color.type is not None:
-            return str(sh.line.color.rgb)
-    except Exception:
-        pass
-    return None
+    spPr = _spPr(sh)
+    return _solid_srgb(spPr.find(f"{_NS_A}ln") if spPr is not None else None)
 
 
 def runs_of(sh):
-    """(텍스트, hex색, pt, bold) 목록."""
+    """(텍스트, hex색, pt, bold) 목록 — **rPr XML을 읽기만** 한다(위 오염 주석 참조).
+
+    `run.font`는 `get_or_add_rPr()`를 호출하고 `font.color`는 빈 `<a:solidFill/>`을 넣는다.
+    텍스트 색에 빈 solidFill이 박히면 상속 색이 끊긴다 — 검사기가 색을 바꿀 수는 없다.
+    """
     out = []
     if not sh.has_text_frame:
         return out
     for p in sh.text_frame.paragraphs:
         for r in p.runs:
-            try:
-                col = str(r.font.color.rgb)
-            except Exception:
-                col = None
-            out.append((r.text, col, r.font.size.pt if r.font.size else None, r.font.bold))
+            rPr = r._r.find(f"{_NS_A}rPr")
+            sz = rPr.get("sz") if rPr is not None else None
+            b = rPr.get("b") if rPr is not None else None
+            out.append(
+                (
+                    r.text,
+                    _solid_srgb(rPr),
+                    int(sz) / 100 if sz else None,
+                    None if b is None else b in ("1", "true"),
+                )
+            )
     return out
 
 
 def box(sh):
-    return (
-        sh.left / EMU,
-        sh.top / EMU,
-        sh.width / EMU,
-        sh.height / EMU,
-    )
+    """도형의 **화면상** 경계 상자 (x, y, w, h) 인치 — 회전을 반영한다.
+
+    왜 회전을 보나(2026-07-25 legacy 배선 실측): legacy 프레임의 세로 저작권선은
+    `add_textbox(10.73, 3.55, 4.6, 0.28)` + `rotation=270`이다. python-pptx의 left/top/width/
+    height는 **회전 전** 값이라 그대로 쓰면 폭 4.6"의 가로 띠가 화면 중앙을 지나는 것으로
+    보인다 — 그래서 mpl 익스히빗 10장이 `check_picture_overlap`에 "저작권선 침범"으로 걸렸다
+    (전부 오탐). 회전 도형이 하나만 있어도 기하 검사 전체가 오염되므로 여기 한 곳에서 바로잡는다.
+    90·270도(가로세로 교환)만 정확히 처리하고, 그 외 각도는 회전 전 상자를 그대로 쓴다 —
+    임의 각도의 AABB는 더 커져서 오탐을 만들고, 이 하네스는 90도 배수만 쓴다.
+    """
+    x, y = sh.left / EMU, sh.top / EMU
+    w, h = sh.width / EMU, sh.height / EMU
+    rot = round(getattr(sh, "rotation", 0) or 0) % 360
+    if rot in (90, 270):
+        cx, cy = x + w / 2, y + h / 2
+        w, h = h, w
+        x, y = cx - w / 2, cy - h / 2
+    return (x, y, w, h)
 
 
 # ── 규칙 ──────────────────────────────────────────────────────
@@ -180,7 +239,7 @@ def check_fill_ratio(shapes, min_ratio=0.30, min_w=1.5):
     return not bad, f"채움률 < {min_ratio:.0%}: {len(bad)} {bad[:3]}", len(bad)
 
 
-def check_adhoc_card(shapes, w_min=3.0, h_min=1.5):
+def check_adhoc_card(shapes, w_min=2.4, h_min=0.9):
     """즉흥 밋밋 카드 금지 — 카드 크기 박스가 **구조 자식**(아이콘·배지·구분선·중첩 박스) 0이면 FAIL.
 
     출처(2026-07-21): dense.py에 '카드=hero_card 단일 · 장별 즉흥 카드 금지'(design-rules §8)가
@@ -189,6 +248,17 @@ def check_adhoc_card(shapes, w_min=3.0, h_min=1.5):
     배지(oval)·히어로 아이콘(picture)·배너·구분선(rule)·칩(중첩 박스)을 **항상** 낳는다 —
     그 구조 자식이 하나도 없는 카드 크기 박스 = 즉흥 밋밋 카드. '리치·의미 정합'은 기계화 못
     하지만 '구조 0'은 여기서 막는다(그 위는 눈검증 몫). dense 전용(sparse 골든 카드 idiom은 다름).
+
+    문턱 하향 3.0x1.5 → **2.4x0.9**(2026-07-25 래칫). 아래 실측에 나오는 (B) 어휘
+    (flow·layers·branch·cards·from_to)는 **그 후 전부 폐기**됐다 — 문턱을 이 값으로 정한
+    근거로만 보존한다(지우면 왜 2.4x0.9인지 다시 실측해야 한다).
+    초판 문턱이 **카드 크기**만 봐서
+    다이어그램 노드가 전부 눈 밖이었다 — 다이어그램 18종 전면 반려 당시 실측으로 `flow`
+    노드(2.66x1.4)·`layers`(12.13x1.0)·`branch` 자식(7.63x1.24)·`from_to`(4.69x1.15)가
+    **같은 결함(구조 0)인데 미달로 통과**하고 `cards`(5.92x1.7) 한 장만 걸렸다. 패턴이
+    같으면 문턱도 같아야 한다. 오탐 실측(하향 승인 근거): dense 장 모듈 10/10 · 다이어그램
+    18장 전수 · 개선 4장 = **0건**. 더 낮추면(2.4x0.6) s14_dense 1 · s16_dense 2가 오탐으로
+    걸린다 — 그게 하한이 여기인 이유다(정밀 > 양: 오탐 게이트는 백스톱에 음소거된다).
     """
     from pptx.enum.shapes import MSO_SHAPE_TYPE
 
@@ -320,7 +390,18 @@ def check_ink_collision(shapes, ink, allow=1):
     출처: v4에서 '재무제표 반영'(파국)과 결론 바(우리 원칙)가 **바이트 동일**한
     primary+샤프+흰볼드였다. 훑는 사람은 검은 덩어리 둘을 같은 종류로 분류한다.
     """
-    f = [s for s in shapes if fill_hex(s) == ink]
+
+    # 번호 배지(작은 원 안 한두 자리 숫자)는 제외한다 — 그건 "검은 덩어리"가 아니라 **계열**이고,
+    # 같은 뜻(순번)을 진다. 카드가 늘면 배지도 느는데 상한으로 막으면 항목 수에 따라 게이트가
+    # 깨진다(2026-07-26 dense 승격에서 hero_card 배지 4개가 4개 장을 한꺼번에 적색으로 만들었다).
+    def _badge(s):
+        _x, _y, w, h = box(s)
+        if w > 0.45 or h > 0.45 or abs(w - h) > 0.06:
+            return False
+        t = s.text_frame.text.strip() if s.has_text_frame else ""
+        return len(t) <= 2 and t.isdigit()
+
+    f = [s for s in shapes if fill_hex(s) == ink and not _badge(s)]
     txt = [s.text_frame.text[:16] for s in f if s.has_text_frame and s.text_frame.text.strip()]
     return len(f) <= allow, f"{ink} 채움 {len(f)} (허용 {allow}) {txt}", len(f)
 
@@ -354,15 +435,46 @@ def check_progress_shapes(shapes, allowed=0):
     return len(prog) <= allowed, f"진행형 도형 {len(prog)} (허용 {allowed})", len(prog)
 
 
+def text_need_height(sh):
+    """이 상자의 텍스트를 다 그리는 데 필요한 높이(인치) 근사 — 넘침·겹침 검사의 단일 출처.
+
+    줄당 글자수 ≈ 상자폭 / (pt·CW/72), 필요 줄 수 = ceil(글자수/줄당),
+    필요 높이 = Σ(줄수·pt·1.2·행간/72). **근사 한계:** 글자폭은 혼합 텍스트(한글·숫자·공백)
+    평균 ≈ 0.62×pt(순 한글 1.0, 숫자·공백 0.4~0.5)라 순 한글 장문은 과소추정된다.
+    두 검사가 각자 계산하면 한쪽만 고쳐져 갈라지므로 여기 한 곳에 둔다.
+    """
+    w = sh.width / EMU
+    need = 0.0
+    for para in sh.text_frame.paragraphs:
+        ptxt = "".join(r.text for r in para.runs)
+        if not ptxt:
+            need += 0.12  # 빈 문단도 한 줄 차지
+            continue
+        pts = [r.font.size.pt for r in para.runs if r.font.size]
+        pt = max(pts) if pts else 12
+        cw = pt * 0.62 / 72  # 혼합 텍스트 평균 글자폭
+        per_line = max(1, int((w - 0.04) / cw))
+        lines = max(1, -(-len(ptxt) // per_line))  # ceil
+        ls = para.line_spacing if isinstance(para.line_spacing, (int, float)) else 1.0
+        need += lines * pt * 1.2 * ls / 72
+    return need
+
+
 def check_text_overflow(shapes, tol=1.5):
     """텍스트가 제 상자 높이를 넘겨 흘러나오나(세로 오버플로우) — 근사 추정(2026-07-21 신설).
 
     add_text는 word_wrap=True라 가로는 감기지만, 감긴 줄 수가 상자 높이를 넘으면 **아래로 흘러**
-    이웃 요소와 겹친다(s15 fix 블록 사고). 렌더 없이 잡으려고 근사한다: 줄당 글자수 ≈ 상자폭 /
-    (pt·CW/72), 필요 줄 수 = ceil(글자수/줄당), 필요 높이 = 줄수·pt·1.2·행간/72. 필요 높이가
-    상자 높이×tol을 넘으면 넘침. **근사 한계:** 글자폭은 혼합 텍스트(한글·숫자·공백) 평균 ≈
-    0.62×pt(순 한글 1.0, 숫자·공백 0.4~0.5). tol·CW는 오탐(짧은 라벨)과 미탐(경계) 사이 타협 —
+    이웃 요소와 겹친다(s15 fix 블록 사고). 렌더 없이 잡으려고 `text_need_height`로 근사하고,
+    필요 높이가 상자 높이×tol을 넘으면 넘침. tol·CW는 오탐(짧은 라벨)과 미탐(경계) 사이 타협 —
     총체적 겹침이 아니라 **단일 상자 세로 초과**만 잡는 하한 대리지표다(눈검증은 여전히 필요).
+
+    **폭 계수를 못 올리는 이유(2026-07-25 실측 · 통과작 163장 분모).** 한글 미탐(순 한글 42자가
+    5줄로 흘러 상자를 넘겼는데 미탐)을 고치려 계수를 올려 봤다:
+    0.75→오탐 6장 · 0.85→7장 · 1.00→12장 · 전각/반각 구분 + 어절 그리디(가장 정확)→5장.
+    전부 통과작(골든 부제·작은 캡션 상자·1자 마크)이다. 게다가 **오탐과 진짜 결함이 같은 비율**에
+    있다 — legacy 28pt 헤드라인 2줄(결함, 0.93/0.52=1.79×)과 골든 부제 2줄(정상, 0.93/0.55=1.69×)은
+    비율로 못 가른다. 둘을 가르는 건 "아래에 무엇이 있나"이고 그건 이 규칙이 아니라
+    `check_text_collision`의 일이다. → **계수·tol 그대로 둔다.** 올리려면 통과작 오탐 처리가 선행.
     """
     bad = []
     for s in shapes:
@@ -374,19 +486,7 @@ def check_text_overflow(shapes, tol=1.5):
         w, h = s.width / EMU, s.height / EMU
         if w < 0.3 or h < 0.05:
             continue
-        need = 0.0
-        for para in tf.paragraphs:
-            ptxt = "".join(r.text for r in para.runs)
-            if not ptxt:
-                need += 0.12  # 빈 문단도 한 줄 차지
-                continue
-            pts = [r.font.size.pt for r in para.runs if r.font.size]
-            pt = max(pts) if pts else 12
-            cw = pt * 0.62 / 72  # 혼합 텍스트 평균 글자폭
-            per_line = max(1, int((w - 0.04) / cw))
-            lines = max(1, -(-len(ptxt) // per_line))  # ceil
-            ls = para.line_spacing if isinstance(para.line_spacing, (int, float)) else 1.0
-            need += lines * pt * 1.2 * ls / 72
+        need = text_need_height(s)
         if need > h * tol:
             bad.append((tf.text.strip()[:12], round(need, 2), round(h, 2)))
     return not bad, f"텍스트 상자 넘침(추정) {len(bad)} {bad[:3]}", len(bad)
@@ -435,7 +535,10 @@ def check_text_collision(
     이 규칙은 check_picture_overlap의 형제다: 저건 그림이 침범, 이건 텍스트가 텍스트를 침범.
 
     역할 분담(단일 출처의 두 반쪽): check_text_overflow(제 상자 초과·경미한 흘러내림·tol 대리지표)
-    + 이 규칙(배치 충돌·상자 세로 포갬). 렌더 추정을 **안 쓴다** — 순수 기하라 추정 오탐 0.
+    + 이 규칙(배치 충돌·글자 실점유 세로 포갬). 초판은 "렌더 추정을 안 쓴다 — 순수 기하라 추정
+    오탐 0"이었으나 **틀렸다**(2026-07-25 legacy 실측 17장 오탐): 순수 상자 기하는 "상자를 넉넉히
+    잡는 idiom"을 겹침으로 오판한다. 이제 아래 (5)로 `text_need_height` 근사를 **상한 클램프**로만
+    쓴다 — 추정이 커지는 방향으로는 판정에 못 끼어들어 추정 오탐이 새로 생기지 않는다.
 
     오탐 경계 — 통과작 전수 실측(2026-07-24)으로 좁힌 네 축(핵심 난제):
     (1) **배경 있는 도형 제외**(fill_hex 있으면 스킵): 판정 마름모 노드·아이콘 칩·배지·bg 패널은
@@ -452,6 +555,17 @@ def check_text_collision(
     (4) 포함(작은 라벨이 큰 텍스트 박스 안): 면적비 < small_frac AND 교집합 >= contain_frac x
         작은 면적이면 제외 — 비슷한 크기 포갬(불릿 뭉갬)은 포함이 아니라 충돌이다.
 
+    (5) **글자가 실제로 차지하는 높이까지만**(h = min(상자 높이, text_need_height)): 상자를 넉넉히
+        잡고 텍스트를 위에 붙이는 idiom(legacy `bullets` 상자 0.5"에 피치 0.46" → 0.04" 상자 겹침,
+        `_stat_split` 40pt 숫자 상자 1.4"에 실제 0.67")에서 **글자는 안 겹치는데 상자만 겹친다**.
+        2026-07-25 legacy 111장 실측: 이 축이 없으면 17장이 오탐(전부 상자 여유 0.04~0.4")이었다.
+        상자가 글자로 꽉 찬 경우(need ≥ h)엔 종전과 동일해 검출력이 그대로다(주입 프로브:
+        꽉 찬 상자 0.05~0.25" 포갬 전건 검출 — `test_wiring` ④.5가 상시 확인).
+        **미탐 경계(정직):** `text_need_height`는 혼합 텍스트 평균(0.62×pt)이라 **순 한글 장문은
+        과소추정**한다 — 상자 여유가 큰 자리에서 그만큼 얕은 겹침을 놓칠 수 있다. 근사를 정확하게
+        (전각 1.0/반각 0.5 + 어절 그리디) 키우면 legacy 통과작 1건이 오탐이 된다(2026-07-25 실측,
+        163장 분모) → **오탐 0을 택했다**(오탐 게이트는 백스톱에 음소거된다).
+
     경계 한계(정직): '배경 없는·같은 폭·세로 파일업'까지만 기계로 막는다. 배경 있는 요소 위 텍스트
     겹침·좁은 라벨 대 넓은 본문·가로 충돌은 여기서 안 잡힌다(눈검증 몫) — 정밀(오탐 0) > 양.
     """
@@ -464,6 +578,7 @@ def check_text_collision(
         x, y, w, h = box(s)
         if w > 13 and h > 7:
             continue  # 풀블리드 배경
+        h = min(h, max(text_need_height(s), 0.05))  # 글자 실점유까지만(5)
         tb.append((s, x, y, w, h))
     bad = []
     for i in range(len(tb)):
@@ -590,30 +705,56 @@ def check_density(shapes, band, screenshot=False):
     return bool(ok), msg, int(deficit)
 
 
-def generic_checks(shapes, accent, band=None, dup_allow=0, screenshot=False, dense=False):
-    """레이아웃 무관 전역 오딧 묶음 — 변형(adapted)·신규(novel)·content 주입 골든 장에 적용.
+PROFILES = ("sparse", "dense", "legacy")
+
+
+def generic_checks(shapes, accent, band=None, dup_allow=0, screenshot=False, profile="sparse"):
+    """레이아웃 무관 전역 오딧 묶음 — **모든 렌더 경로의 단일 출처**.
 
     레이아웃 특정 규칙(진행형 도형 허용 수·ink_allow·공기 쌍·노드 높이)은 여기 없다 —
     그건 장 스크립트가 자체 assert하거나 채점(P4)이 본다. audit_deck.py가 이 묶음의 러너.
     screenshot=True면 밀도 검사를 예외 처리(§F 스크린샷 장).
 
-    dense=True(2026-07-20 dense 인지): accent는 런 제외(2단 불릿 **강조**는 정상)·상한 완화,
-    경계는 dense 하한(압축 헤더로 세로를 더 씀). sparse 골든은 dense=False(기존 그대로).
+    **profile — 프레임은 셋, 규칙은 하나.** 임계만 프레임별로 갈리고 규칙 코드는 공유한다
+    (스킬별 경쟁 임계 신설 금지). 어느 검사가 어느 프로파일에 도는지는 **오탐 0 실측**으로 정했다:
+      · `sparse` — sparse 골든 장(결론 바 6.60·출처 7.15 프레임).
+      · `dense`  — dense 장/adapted/novel(2026-07-20): accent 런 제외(2단 불릿 **강조**는 정상)·
+        상한 완화, 경계는 dense 하한(압축 헤더로 세로를 더 씀), 칩 폭 보정, §8 즉흥 카드.
+      · `legacy` — build_pptx의 legacy 렌더러(chart·mpl·표·문서형·다이어그램, 2026-07-25 신설).
+        전엔 이 경로에 generic_checks가 **아예 안 돌았다**(러너 3종이 golden./adapted./novel만
+        대상, consistency-qa는 import조차 안 함) — 남은 legacy 어휘가 무검증으로 나갔다.
+        **legacy 산출물 111장 전수 실측**으로 오탐 0인 부분집합만 물린다:
+          물림 = accent(런 제외·상한 8) · 경계(legacy 프레임 상수) · 노드 재탕 · 노드 클래스 ·
+                 그림 침범 · 텍스트 넘침 · 텍스트 겹침 · §8 즉흥 카드   (전부 0/111)
+          미배선 3종 = **채움률**(풀폭 배너 12.13"×0.36 다크 스트립이 구조상 26% → 오탐 1) ·
+                 **판정 단어 대비**(check_matrix의 회색 ✓ 3.22·강조어 accent 3.41 = 어휘 idiom →
+                 오탐 4) · **밀도 밴드**(골든 458자 하한은 legacy 프레임에 부적합 → 93/111 적색.
+                 legacy 밀도의 정본은 consistency-qa `audit_pptx`의 본문 60단어 하한이다).
+        미배선 3종을 억지로 물리면 상시 적색이 되고, 그건 이 프로젝트가 이미 겪은 우회 경로다.
     """
+    if profile not in PROFILES:
+        raise ValueError(f"generic_checks: 알 수 없는 profile {profile!r} (허용 {PROFILES})")
+    dense, legacy = profile == "dense", profile == "legacy"
     if dense:
         accent_res = check_accent(shapes, accent, cap=ACCENT_MAX_DENSE, count_runs=False)
         bounds_res = check_bounds(shapes, bottom=CONTENT_BOTTOM_DENSE, skip_tops=(7.14,))
         # dense 칩(아이콘+짧은 라벨)은 폭 대비 텍스트가 적어도 죽은 회색이 아니다 — min_w를 칩
         # 폭(≤2.98") 위로 올려 진짜 넓은 죽은 박스(≥3.2")만 잡는다.
         fill_res = check_fill_ratio(shapes, min_w=3.2)
+    elif legacy:
+        accent_res = check_accent(shapes, accent, cap=ACCENT_MAX_LEGACY, count_runs=False)
+        bounds_res = check_bounds(shapes, bottom=CONTENT_BOTTOM_LEGACY, skip_tops=LEGACY_FRAME_TOPS)
+        fill_res = None  # 미배선(풀폭 배너 idiom) — 위 docstring 참조
     else:
         accent_res = check_accent(shapes, accent)
         bounds_res = check_bounds(shapes, skip_tops=(6.60, 7.15))
         fill_res = check_fill_ratio(shapes)
-    res = [
-        ("§2 accent 상한", *accent_res),
-        ("P4⑤ 판정 단어 대비", *check_verdict_contrast(shapes, None)),
-        ("P4④ 채움률", *fill_res),
+    res = [("§2 accent 상한", *accent_res)]
+    if not legacy:
+        res.append(("P4⑤ 판정 단어 대비", *check_verdict_contrast(shapes, None)))
+    if fill_res is not None:
+        res.append(("P4④ 채움률", *fill_res))
+    res += [
         ("P4③ 노드 재탕", *check_duplicate_nodes(shapes, allow=dup_allow)),
         ("P4⑩ 노드 클래스", *check_node_class(shapes)),
         ("§F 그림 침범", *check_picture_overlap(shapes)),
@@ -621,9 +762,10 @@ def generic_checks(shapes, accent, band=None, dup_allow=0, screenshot=False, den
         ("텍스트 겹침", *check_text_collision(shapes)),
         ("P2③④ 경계", *bounds_res),
     ]
-    if dense:
-        # §8 즉흥 밋밋 카드 금지 — hero_card 미사용(구조 0)을 기계로 차단. dense 전용
-        # (통과작 8장 오탐 0 검증). 어두운 코드·아티팩트 패널은 제외.
+    if dense or legacy:
+        # §8 즉흥 밋밋 카드 금지 — hero_card 미사용(구조 0)을 기계로 차단.
+        # dense 통과작 8장 · legacy 111장 전수 오탐 0. 어두운 코드·아티팩트 패널은 제외.
+        # sparse 골든은 제외(카드 idiom이 다르다).
         res.append(("§8 즉흥 카드", *check_adhoc_card(shapes)))
     if band:
         res.append(("§6-D 밀도 밴드", *check_density(shapes, band, screenshot=screenshot)))

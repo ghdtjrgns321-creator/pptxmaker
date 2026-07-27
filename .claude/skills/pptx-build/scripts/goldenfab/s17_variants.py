@@ -343,7 +343,7 @@ SPINE_X = WING_L_X + WING_W + WING_GAP
 WING_R_X = SPINE_X + SPINE_W + WING_GAP
 COLHEAD_Y = 2.02
 ROW0 = 2.42
-PITCH_CAP = 0.54  # 행 피치 상한 — 실제 피치는 행 수에서 파생(_pitch)
+PITCH_CAP = 0.54  # 행 피치 상한 — 실제 피치는 행 수에서 파생(grid.pitch)
 CARD_H = 0.42
 GGAP = 0.12  # 그룹 경계 추가 공기(헤어라인 자리) — 경계 총 공기 = (피치-카드) + GGAP
 LAST_BOTTOM = 6.32  # 마지막 카드 bottom 한계 (하한 6.35 - 공기 여유)
@@ -439,13 +439,12 @@ def variant_c(prs, c=None):
     add_box(slide, 0, 0, SLIDE_W, SLIDE_H, fill=C["bg"])
     header(slide, c["headline"], c["kicker"])
     from .kit import set_shape_text
-    from .s08_variants import _pitch
 
     groups = c["groups"]
     n_rows = sum(len(axes) for _no, _q, _cl, axes in groups)
     # 피치는 행·그룹 수에서 파생 — 축이 늘면 좁아지고, 수용 한계를 넘으면 시끄럽게 죽는다(§F)
     eff_bottom = LAST_BOTTOM - (len(groups) - 1) * GGAP
-    pitch = _pitch(n_rows, ROW0, eff_bottom, CARD_H, cap=PITCH_CAP, what="비교 축")
+    pitch = G.pitch(n_rows, ROW0, eff_bottom, CARD_H, cap=PITCH_CAP, what="비교 축")
     add_text(
         slide,
         WING_L_X,

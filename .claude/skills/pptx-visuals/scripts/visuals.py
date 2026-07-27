@@ -1,7 +1,7 @@
 """차트·다이어그램 렌더 모듈 — pptx-visuals 스킬의 단일 출처.
 
 build_pptx.py가 import해서 사용한다. 차트는 네이티브 차트(PPT에서 데이터 수정 가능),
-다이어그램은 도형+커넥터 조합(flow/layers)으로 렌더한다.
+다이어그램은 도형+커넥터 조합(timeline·matrix_2x2·venn 등 9종)으로 렌더한다.
 색·폰트·크기는 인자로 받은 brand dict(brand-kit.yaml)에서만 나온다.
 """
 
@@ -179,14 +179,21 @@ def add_callouts(slide, annotations, brand, x, y, w, h):
 
 # --- 다이어그램 (도형+화살표 DSL) ---
 def add_diagram(slide, spec, brand, x, y, w, h):
-    """diagram 슬라이드 본문 렌더.
-    layout: flow(좌→우 화살표) | layers(상→하 적층) | branch(1→N 분기) | timeline(마일스톤)."""
-    layout = spec.get("layout", "flow")
-    if layout == "process_band":
-        _process_band(slide, spec["nodes"], brand, x, y, w, h)
-    elif layout == "band_table":
-        _band_table(slide, spec, brand, x, y, w, h)
-    elif layout == "matrix_2x2":
+    """diagram 슬라이드 본문 렌더. **layout은 필수** — 기본값을 두지 않는다.
+
+    남은 어휘 9종: matrix_2x2 · spectrum · harvey_table · check_matrix · venn · timeline ·
+    icon_rows · stat_split · split_detail. layout 누락·오타는 아래 else의 ValueError로
+    **빌드 시점에 시끄럽게** 죽는다(조용한 폴백 금지 — 그게 어휘 수렴의 기계적 원인이었다).
+
+    **박스+화살표 계열 전멸(2026-07-25 사용자 확정 폐기 9종)**: `flow`·`process_band`·`layers`·
+    `branch`·`cards`·`from_to`·`band_table`·`pro_con`·`contrast_split`. 사유는 하나다 — 팔레트
+    전수 렌더에서 **전면 반려**("그냥 도형 나열 / 고등학생 ppt"). 노드 문법을 dense로 재작업한
+    개선판까지 반려됐고, 실전 사용은 0건이었다. 이 물성들의 정본은 (A) 골든 도해다:
+    분기·라우팅=G01·G04·G09·G11 · 집합 대응=G05 · 관계 전수=G08 · 단계=G10·G14 · 병렬 카드=
+    `dense.hero_card` · 경계=G19(crosswalk: archetype-catalog).
+    (B)에 남는 **정당한** 쓸모는 (A)에 어휘가 없는 물성뿐이다 — 시간축·좌표계·다축 충족도·교집합."""
+    layout = spec.get("layout")
+    if layout == "matrix_2x2":
         _matrix_2x2(slide, spec, brand, x, y, w, h)
     elif layout == "spectrum":
         _spectrum(slide, spec, brand, x, y, w, h)
@@ -194,36 +201,27 @@ def add_diagram(slide, spec, brand, x, y, w, h):
         _score_grid(slide, spec, brand, x, y, w, h, mode=layout)
     elif layout == "venn":
         _venn(slide, spec, brand, x, y, w, h)
-    elif layout == "pro_con":
-        _pro_con(slide, spec, brand, x, y, w, h)
     elif layout == "icon_rows":
         _icon_rows(slide, spec.get("rows", []), brand, x, y, w, h, tag_head=spec.get("tag_head"))
     elif layout == "stat_split":
         _stat_split(slide, spec, brand, x, y, w, h)
-    elif layout == "contrast_split":
-        _contrast_split(slide, spec, brand, x, y, w, h)
     elif layout == "split_detail":
         _split_detail(slide, spec, brand, x, y, w, h)
-    elif layout == "layers":
-        _layers(slide, spec["nodes"], brand, x, y, w, h)
-    elif layout == "flow":
-        _flow(slide, spec["nodes"], brand, x, y, w, h)
-    elif layout == "branch":
-        _branch(slide, spec, brand, x, y, w, h)
     elif layout == "timeline":
         _timeline(slide, spec["nodes"], brand, x, y, w, h)
-    elif layout == "cards":
-        _cards(slide, spec["nodes"], brand, x, y, w, h)
-    elif layout == "from_to":
-        _from_to(slide, spec["rows"], brand, x, y, w, h)
     else:
         raise ValueError(f"unknown diagram layout: {layout}")
 
 
 def _icon_rows(slide, rows, brand, x, y, w, h, tag_head=None, dark=False):
     """아이콘 행 리스트(McKinsey 실측 골격) — [아이콘 배지 | 볼드 리드 | 설명(+선택 tag 열)].
-    서사형 내용의 기본 그릇: band_table(표 파편화)의 상위호환.
-    rows: [{"icon"?, "lead", "desc", "tag"?}] 3~6개. tag_head: 3열 머리(예: '실측 근거')."""
+    서사형 내용의 기본 그릇(2026-07-25 이후 (B)의 정성 나열 정본 — 표로 파편화하던 band_table은 폐기).
+    rows: [{"icon"?, "badge"?, "lead", "desc", "tag"?}] 3~6개. tag_head: 3열 머리(예: '실측 근거').
+
+    `badge`(2026-07-25): 배지 자리에 **수량**을 넣는 옵션. 골든 문법 G18(수 배지 원인 귀속 행 —
+    "떨어진 것이 각각 왜인가", 합이 분모와 맞는 전수 귀속)을 새 L-ID 없이 이 행이 흡수하기 위한
+    최소 옵션이다(사용자 확정 2026-07-25). 없으면 종전대로 순번(i+1) — 순번은 귀속 수량을 말할
+    수 없어서, 폴백만으로는 그 물성이 안 된다."""
     c, f, s = brand["colors"], brand["fonts"], brand["sizes"]
     ink = "FFFFFF" if dark else c["text"]
     lead_c = "FFFFFF" if dark else c["primary"]
@@ -262,13 +260,13 @@ def _icon_rows(slide, rows, brand, x, y, w, h, tag_head=None, dark=False):
             add_icon(
                 slide, icon, x + badge_d / 2 - 0.15, by + badge_d / 2 - 0.15, 0.3, color="accent"
             )
-        else:  # 아이콘 없으면 번호 배지
+        else:  # 아이콘 없으면 수 배지(`badge`) · 없으면 순번 배지
             tf = badge.text_frame
             tf.vertical_anchor = MSO_ANCHOR.MIDDLE
             p = tf.paragraphs[0]
             p.alignment = PP_ALIGN.CENTER
             r = p.add_run()
-            r.text = str(i + 1)
+            r.text = str(row.get("badge", i + 1))
             r.font.size = Pt(11)
             r.font.bold = True
             r.font.name = f["head"]
@@ -384,34 +382,6 @@ def _stat_split(slide, spec, brand, x, y, w, h):
     )
 
 
-def _contrast_split(slide, spec, brand, x, y, w, h):
-    """좌 밝은 존 vs 우 다크 존 반반 대비(McKinsey Benefits/Risks 골격).
-    spec: {"left": {"heading", "rows": [...]}, "right": {"heading", "rows": [...]}}
-    우측 존은 primary 풀블리드 배경 + 백색 텍스트."""
-    c, f, s = brand["colors"], brand["fonts"], brand["sizes"]
-    half = w / 2
-    panel = slide.shapes.add_shape(
-        MSO_SHAPE.RECTANGLE, Inches(x + half), Inches(y - 0.05), Inches(half), Inches(h + 0.1)
-    )
-    panel.fill.solid()
-    panel.fill.fore_color.rgb = _rgb(c["primary"])
-    panel.line.fill.background()
-    for side, sx, dark in ((spec["left"], x, False), (spec["right"], x + half + 0.35, True)):
-        tb = slide.shapes.add_textbox(
-            Inches(sx), Inches(y + 0.05), Inches(half - 0.5), Inches(0.45)
-        )
-        p = tb.text_frame.paragraphs[0]
-        r = p.add_run()
-        r.text = side["heading"]
-        r.font.size = Pt(s["head"] + 3)
-        r.font.bold = True
-        r.font.name = f["head"]
-        r.font.color.rgb = _rgb("FFFFFF" if dark else c["primary"])
-        _icon_rows(
-            slide, side.get("rows", []), brand, sx, y + 0.65, half - 0.55, h - 0.75, dark=dark
-        )
-
-
 def _split_detail(slide, spec, brand, x, y, w, h):
     """좌 시각(중첩 다이어그램/차트 아님 — 도형 다이어그램만) + 우 아이콘 행
     (McKinsey 동심원+설명 리스트 골격). spec: {"visual": <diagram spec>, "rows": [...]}"""
@@ -484,58 +454,6 @@ def _venn(slide, spec, brand, x, y, w, h):
         r.font.bold = True
         r.font.name = f["head"]
         r.font.color.rgb = _rgb(c["text"])
-
-
-def _pro_con(slide, spec, brand, x, y, w, h):
-    """컬러바 리스트(McKinsey p128~131 실측 color_coded_list) — 항목마다 좌측 세로
-    컬러바(pro=accent, con=primary) + 텍스트. 혜택/리스크·기회/제약 대비 서술용.
-    spec: {"cols": [{"heading", "tone": "pro"|"con", "items": ["..." | {"text","sub"?}]}] 2개}"""
-    c, f, s = brand["colors"], brand["fonts"], brand["sizes"]
-    cols = spec["cols"][:2]
-    colw = (w - 0.5) / len(cols)
-    for ci, col in enumerate(cols):
-        cx = x + ci * (colw + 0.5)
-        tone = c["accent"] if col.get("tone", "pro") == "pro" else c["primary"]
-        tb = slide.shapes.add_textbox(Inches(cx), Inches(y), Inches(colw), Inches(0.35))
-        p = tb.text_frame.paragraphs[0]
-        r = p.add_run()
-        r.text = col["heading"]
-        r.font.size = Pt(s["head"])
-        r.font.bold = True
-        r.font.name = f["head"]
-        r.font.color.rgb = _rgb(tone)
-        iy = y + 0.5
-        n = max(len(col["items"]), 1)
-        ih = min(0.95, (h - 0.6) / n)
-        for it in col["items"]:
-            text = it if isinstance(it, str) else it.get("text", "")
-            sub = None if isinstance(it, str) else it.get("sub")
-            bar = slide.shapes.add_shape(
-                MSO_SHAPE.RECTANGLE, Inches(cx), Inches(iy + 0.04), Inches(0.07), Inches(ih - 0.16)
-            )
-            bar.fill.solid()
-            bar.fill.fore_color.rgb = _rgb(tone)
-            bar.line.fill.background()
-            tb = slide.shapes.add_textbox(
-                Inches(cx + 0.22), Inches(iy), Inches(colw - 0.25), Inches(ih)
-            )
-            tf = tb.text_frame
-            tf.word_wrap = True
-            p = tf.paragraphs[0]
-            r = p.add_run()
-            r.text = text
-            r.font.size = Pt(s["body"] - 1)
-            r.font.bold = True
-            r.font.name = f["body"]
-            r.font.color.rgb = _rgb(c["text"])
-            if sub:
-                p2 = tf.add_paragraph()
-                r2 = p2.add_run()
-                r2.text = sub
-                r2.font.size = Pt(s["body"] - 2)
-                r2.font.name = f["body"]
-                r2.font.color.rgb = _rgb(c["muted"])
-            iy += ih
 
 
 def _matrix_2x2(slide, spec, brand, x, y, w, h):
@@ -787,198 +705,6 @@ def _score_grid(slide, spec, brand, x, y, w, h, mode="harvey_table"):
                 pie.line.fill.background()
 
 
-def _process_band(slide, nodes, brand, x, y, w, h):
-    """프로세스 밴드(우석진/BCG 실측) — 상단 체브론 단계 밴드 + 각 단계 아래 상세 칼럼.
-    빈 박스 나열이 아니라 '단계 이름 + 그 단계에서 실제로 일어나는 일'을 함께 그린다.
-    nodes: [{"label": "단계", "sub": "한 줄 요약(선택)", "details": ["상세", ...]}] 3~6개."""
-    c, f, s = brand["colors"], brand["fonts"], brand["sizes"]
-    n = len(nodes)
-    gap = 0.12
-    cw = (w - gap * (n - 1)) / n
-    band_h = 0.62
-    for i, nd in enumerate(nodes):
-        cx = x + i * (cw + gap)
-        chev = slide.shapes.add_shape(
-            MSO_SHAPE.PENTAGON if i < n - 1 else MSO_SHAPE.RECTANGLE,
-            Inches(cx),
-            Inches(y),
-            Inches(cw),
-            Inches(band_h),
-        )
-        chev.fill.solid()
-        chev.fill.fore_color.rgb = _rgb(c["primary"])
-        chev.line.fill.background()
-        tf = chev.text_frame
-        tf.word_wrap = True
-        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-        p = tf.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        r1 = p.add_run()
-        r1.text = f"{i + 1:02d}  "
-        r1.font.size = Pt(s["body"])
-        r1.font.bold = True
-        r1.font.name = f["head"]
-        r1.font.color.rgb = _rgb(c["accent"])
-        r2 = p.add_run()
-        r2.text = nd["label"]
-        r2.font.size = Pt(s["body"])
-        r2.font.bold = True
-        r2.font.name = f["head"]
-        r2.font.color.rgb = _rgb("FFFFFF")
-        # 단계 아래 상세 칼럼 — 요약 1줄(굵게) + 상세 불릿
-        col = slide.shapes.add_textbox(
-            Inches(cx + 0.05),
-            Inches(y + band_h + 0.12),
-            Inches(cw - 0.1),
-            Inches(h - band_h - 0.15),
-        )
-        tf = col.text_frame
-        tf.word_wrap = True
-        first = True
-        if nd.get("sub"):
-            p = tf.paragraphs[0]
-            first = False
-            r = p.add_run()
-            r.text = nd["sub"]
-            r.font.size = Pt(s["body"] - 1)
-            r.font.bold = True
-            r.font.name = f["head"]
-            r.font.color.rgb = _rgb(c["primary"])
-            p.space_after = Pt(4)
-        for det in nd.get("details", []):
-            p = tf.paragraphs[0] if first else tf.add_paragraph()
-            first = False
-            p.space_after = Pt(2)
-            r = p.add_run()
-            r.text = f"– {det}"
-            r.font.size = Pt(s["body"] - 2)
-            r.font.name = f["body"]
-            r.font.color.rgb = _rgb(c["text"])
-        if i:  # 칼럼 사이 헤어라인
-            ln = slide.shapes.add_connector(
-                MSO_CONNECTOR.STRAIGHT,
-                Inches(cx - gap / 2),
-                Inches(y + band_h + 0.15),
-                Inches(cx - gap / 2),
-                Inches(y + h - 0.1),
-            )
-            ln.line.color.rgb = _rgb(c["bg_alt"])
-            ln.line.width = Pt(0.75)
-
-
-def _band_table(slide, spec, brand, x, y, w, h):
-    """그룹 밴드 표(Dallas p46 실측) — 좌측 세로 그룹 라벨(셀 병합) + 상세 행 + 행 하이라이트.
-    spec: {"headers": [...], "groups": [{"label": "그룹", "rows": [[...]]}],
-           "highlight": ["행 첫 셀 텍스트", ...](선택)}"""
-    c, f, s = brand["colors"], brand["fonts"], brand["sizes"]
-    headers = ["구분"] + list(spec["headers"])
-    groups = spec["groups"]
-    data_rows = sum(len(g["rows"]) for g in groups)
-    nrows, ncols = data_rows + 1, len(headers)
-    row_h = min(0.55, max(0.36, (h - 0.05) / nrows))
-    gf = slide.shapes.add_table(
-        nrows, ncols, Inches(x), Inches(y), Inches(w), Inches(row_h * nrows)
-    )
-    tbl = gf.table
-    tbl.columns[0].width = Inches(max(1.1, w * 0.14))
-    highlight = set(spec.get("highlight", []))
-
-    def cell_text(cell, text, color, bold=False, size_off=-3, align=PP_ALIGN.LEFT):
-        cell.vertical_anchor = MSO_ANCHOR.MIDDLE
-        p = cell.text_frame.paragraphs[0]
-        p.alignment = align
-        r = p.add_run()
-        r.text = str(text)
-        r.font.size = Pt(s["body"] + size_off)
-        r.font.bold = bold
-        r.font.name = f["body"]
-        r.font.color.rgb = _rgb(color)
-
-    for j, htxt in enumerate(headers):
-        cell = tbl.cell(0, j)
-        cell.fill.solid()
-        cell.fill.fore_color.rgb = _rgb(c["primary"])
-        cell_text(cell, htxt, c["bg"], bold=True)
-    ri = 1
-    for gi, g in enumerate(groups):
-        start = ri
-        for row in g["rows"]:
-            hl = row and str(row[0]) in highlight
-            for j, val in enumerate(row):
-                cell = tbl.cell(ri, j + 1)
-                cell.fill.solid()
-                if hl:
-                    cell.fill.fore_color.rgb = _rgb(c["accent"])
-                else:
-                    cell.fill.fore_color.rgb = _rgb(c["bg"] if ri % 2 else c["bg_alt"])
-                cell_text(cell, val, "FFFFFF" if hl else c["text"], bold=bool(hl and j == 0))
-            ri += 1
-        band = tbl.cell(start, 0)
-        if ri - 1 > start:
-            band.merge(tbl.cell(ri - 1, 0))  # 제자리 병합(반환값 없음) — origin 셀을 계속 쓴다
-        band.fill.solid()
-        band.fill.fore_color.rgb = _rgb(c["bg_alt"] if gi % 2 else c["muted"])
-        cell_text(
-            band,
-            g["label"],
-            c["primary"] if gi % 2 else "FFFFFF",
-            bold=True,
-            align=PP_ALIGN.CENTER,
-        )
-
-
-def _from_to(slide, rows, brand, x, y, w, h):
-    """From→To 전환 그리드(BCG p40 실측) — 문제 박스 →쉐브론→ 해결 박스 행 반복.
-    rows: [{"from": "...", "to": "...", "label": "행 라벨(선택)"}] 3~5행 권장."""
-    c, f, s = brand["colors"], brand["fonts"], brand["sizes"]
-    n = len(rows)
-    gap = 0.22
-    head_h = 0.42  # 열 머리 영역을 내부에서 확보(외부 겹침 방지)
-    rh = min(1.15, (h - head_h - gap * (n - 1)) / n)
-    has_label = any(r.get("label") for r in rows)
-    label_w = 1.9 if has_label else 0.0
-    arrow_w = 0.55
-    bw = (w - label_w - arrow_w - 0.3) / 2
-    # 열 머리(From... / ...To)
-    for i, (hx, htxt) in enumerate(
-        ((x + label_w, "From — 기존 방식"), (x + label_w + bw + arrow_w + 0.3, "To — 본 시스템"))
-    ):
-        tb = slide.shapes.add_textbox(Inches(hx), Inches(y), Inches(bw), Inches(0.3))
-        p = tb.text_frame.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        run = p.add_run()
-        run.text = htxt
-        run.font.size = Pt(s["body"] - 1)
-        run.font.bold = True
-        run.font.name = f["head"]
-        run.font.color.rgb = _rgb(c["muted"] if i == 0 else c["accent"])
-    for i, r in enumerate(rows):
-        ry = y + head_h + i * (rh + gap)
-        if r.get("label"):
-            lb = slide.shapes.add_textbox(Inches(x), Inches(ry), Inches(label_w - 0.15), Inches(rh))
-            lb.text_frame.word_wrap = True
-            lb.text_frame.vertical_anchor = MSO_ANCHOR.MIDDLE
-            p = lb.text_frame.paragraphs[0]
-            run = p.add_run()
-            run.text = r["label"]
-            run.font.size = Pt(s["body"] - 1)
-            run.font.bold = True
-            run.font.name = f["head"]
-            run.font.color.rgb = _rgb(c["primary"])
-        _node_box(slide, brand, x + label_w, ry, bw, rh, r["from"], fill=c["bg_alt"])
-        chev = slide.shapes.add_shape(
-            MSO_SHAPE.CHEVRON,
-            Inches(x + label_w + bw + 0.15),
-            Inches(ry + rh / 2 - 0.14),
-            Inches(arrow_w - 0.15),
-            Inches(0.28),
-        )
-        chev.fill.solid()
-        chev.fill.fore_color.rgb = _rgb(c["accent"])
-        chev.line.fill.background()
-        _node_box(slide, brand, x + label_w + bw + arrow_w + 0.3, ry, bw, rh, r["to"], dark=True)
-
-
 def _arrowhead(connector):
     """커넥터 끝에 삼각 화살촉(python-pptx 미노출 → XML 직접 부착)."""
     ln = connector.line._get_or_add_ln()
@@ -986,66 +712,40 @@ def _arrowhead(connector):
     ln.append(tail)
 
 
-def _node_box(slide, brand, x, y, w, h, label, sub=None, fill=None, dark=False):
-    """공용 노드 박스. dark=True면 primary 채움 + 백색 텍스트(분기 루트 등 강조용)."""
-    c, f, s = brand["colors"], brand["fonts"], brand["sizes"]
-    if dark:
-        fill = c["primary"]
-    box = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(x), Inches(y), Inches(w), Inches(h))
-    # v4.5 플랫 룩: 직각 + 무테(채움으로만 구분) — 라운드+테두리는 구식 PPT 티
-    box.fill.solid()
-    box.fill.fore_color.rgb = _rgb(fill or c["bg_alt"])
-    box.line.fill.background()
-    tf = box.text_frame
+def _mix(a, b, t):
+    """브랜드 색 두 개의 중간색(t=0 → a, t=1 → b). 헤어라인·진행 램프 파생용.
+
+    `goldenfab.kit.mix`와 같은 산식이지만 저쪽은 RGBColor 도메인, 여기는 brand dict의
+    **hex 문자열** 도메인이다 — 스킬 간 import + 변환 글루가 산식(3줄)보다 길어지므로
+    산식만 국소로 둔다. 색 **값**은 여전히 brand-kit 단일 출처(hex 리터럴 0, 통합D 래칫).
+    """
+    return "".join(
+        f"{round(int(a[i : i + 2], 16) + (int(b[i : i + 2], 16) - int(a[i : i + 2], 16)) * t):02X}"
+        for i in (0, 2, 4)
+    )
+
+
+def _tbox(slide, x, y, w, h, text, pt, font, color, *, bold=False, align=PP_ALIGN.LEFT):
+    """좌측 정렬 기본 텍스트 상자(마진 0 · 한글 어절 줄바꿈) — 노드 내부 텍스트 단일 경로."""
+    from pptx.enum.lang import MSO_LANGUAGE_ID
+
+    tb = slide.shapes.add_textbox(Inches(x), Inches(y), Inches(max(w, 0.2)), Inches(max(h, 0.16)))
+    tf = tb.text_frame
     tf.word_wrap = True
-    tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+    tf.margin_left = tf.margin_right = tf.margin_top = tf.margin_bottom = 0
+    tf.vertical_anchor = MSO_ANCHOR.TOP
     p = tf.paragraphs[0]
-    p.alignment = PP_ALIGN.CENTER
-    run = p.add_run()
-    run.text = label
-    run.font.size = Pt(s["body"])
-    run.font.bold = True
-    run.font.name = f["head"]
-    run.font.color.rgb = _rgb("FFFFFF" if dark else c["primary"])
-    if sub:
-        p2 = tf.add_paragraph()
-        p2.alignment = PP_ALIGN.CENTER
-        run2 = p2.add_run()
-        run2.text = sub
-        run2.font.size = Pt(s["body"] - 2)
-        run2.font.name = f["body"]
-        run2.font.color.rgb = _rgb(c["bg_alt"] if dark else c["muted"])
-    return box
-
-
-def _branch(slide, spec, brand, x, y, w, h):
-    """1→N 분기 아키텍처 — 좌측 루트(dark) → 엘보 커넥터 → 우측 자식 스택."""
-    c = brand["colors"]
-    root = spec.get("root", {"label": "분기"})
-    nodes = spec["nodes"]
-    n = len(nodes)
-    rw = min(3.3, w * 0.34)
-    rh = 1.5
-    ry = y + h / 2 - rh / 2
-    _node_box(slide, brand, x, ry, rw, rh, root.get("label", ""), root.get("sub"), dark=True)
-    cx = x + rw + 1.2
-    cw = w - rw - 1.2
-    gap = 0.35
-    ch = min(1.5, (h - gap * (n - 1)) / n)
-    top = y + (h - (ch * n + gap * (n - 1))) / 2
-    for i, nd in enumerate(nodes):
-        cy = top + i * (ch + gap)
-        _node_box(slide, brand, cx, cy, cw, ch, nd["label"], nd.get("sub"))
-        conn = slide.shapes.add_connector(
-            MSO_CONNECTOR.ELBOW,
-            Inches(x + rw),
-            Inches(ry + rh / 2),
-            Inches(cx),
-            Inches(cy + ch / 2),
-        )
-        conn.line.color.rgb = _rgb(c["accent"])
-        conn.line.width = Pt(1.75)
-        _arrowhead(conn)
+    p._p.get_or_add_pPr().set("eaLnBrk", "0")  # §4 어절 단위 줄바꿈(런 언어 태그와 쌍)
+    p.alignment = align
+    p.line_spacing = 1.05
+    r = p.add_run()
+    r.text = text
+    r.font.size = Pt(pt)
+    r.font.bold = bold
+    r.font.name = font
+    r.font.color.rgb = _rgb(color)
+    r.font.language_id = MSO_LANGUAGE_ID.KOREAN
+    return tb
 
 
 def _timeline(slide, nodes, brand, x, y, w, h):
@@ -1105,60 +805,3 @@ def _timeline(slide, nodes, brand, x, y, w, h):
             r2.font.size = Pt(s["body"] - 2)
             r2.font.name = f["body"]
             r2.font.color.rgb = _rgb(c["muted"])
-
-
-def _flow(slide, nodes, brand, x, y, w, h):
-    """노드 좌→우 균등 배치 + 사이마다 accent 화살표 (프로세스 흐름)."""
-    n = len(nodes)
-    gap = 0.5
-    bw = (w - gap * (n - 1)) / n
-    bh = min(1.4, h)
-    by = y + (h - bh) / 2
-    for i, nd in enumerate(nodes):
-        bx = x + i * (bw + gap)
-        _node_box(slide, brand, bx, by, bw, bh, nd["label"], nd.get("sub"))
-        if i:  # v4.5: 두꺼운 블록 화살표 → 가는 커넥터+작은 화살촉(플랫 룩)
-            conn = slide.shapes.add_connector(
-                MSO_CONNECTOR.STRAIGHT,
-                Inches(bx - gap + 0.06),
-                Inches(by + bh / 2),
-                Inches(bx - 0.06),
-                Inches(by + bh / 2),
-            )
-            conn.line.color.rgb = _rgb(brand["colors"]["muted"])
-            conn.line.width = Pt(1.0)
-            _arrowhead(conn)
-
-
-def _cards(slide, nodes, brand, x, y, w, h):
-    """그리드 카드 — 순서·위계 없는 병렬 요소용(화살표·적층 없음). 3~6개 권장."""
-    n = len(nodes)
-    cols = 2 if n <= 4 else 3
-    rows = (n + cols - 1) // cols
-    gap = 0.3
-    cw = (w - gap * (cols - 1)) / cols
-    ch = min(1.7, (h - gap * (rows - 1)) / rows)
-    for i, nd in enumerate(nodes):
-        cx = x + (i % cols) * (cw + gap)
-        cy = y + (i // cols) * (ch + gap)
-        _node_box(slide, brand, cx, cy, cw, ch, nd["label"], nd.get("sub"))
-
-
-def _layers(slide, nodes, brand, x, y, w, h):
-    """노드 상→하 적층 (아키텍처 레이어). 줄무늬 배경으로 층 구분."""
-    c = brand["colors"]
-    n = len(nodes)
-    gap = 0.18
-    bh = min(1.0, (h - gap * (n - 1)) / n)
-    for i, nd in enumerate(nodes):
-        _node_box(
-            slide,
-            brand,
-            x,
-            y + i * (bh + gap),
-            w,
-            bh,
-            nd["label"],
-            nd.get("sub"),
-            fill=c["bg_alt"] if i % 2 == 0 else c["bg"],
-        )

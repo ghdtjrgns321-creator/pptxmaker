@@ -21,8 +21,31 @@ from pptx.enum.shapes import MSO_SHAPE_TYPE
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pptx-visuals" / "scripts"))
 from mpl_exhibits import MPL_TYPES  # noqa: E402
 
-# "박스+화살표" 어휘 — 다양성 게이트 3(30% 상한) 분모·분자 정의
-BOX_LAYOUTS = {"flow", "layers", "cards", "branch", "from_to"}
+# 기하·색 규칙의 정본 게이트는 goldenfab.audit 하나다(경쟁 임계 신설 금지).
+# 2026-07-25까지 이 파일은 그걸 **import조차 안 했다** — legacy 장이 무검증으로 나간 구멍.
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "pptx-build" / "scripts"))
+from goldenfab import audit as A  # noqa: E402
+from goldenfab.kit import load_kit  # noqa: E402
+
+# legacy 렌더러 타입(build_pptx.RENDERERS) — profile="legacy"로 채점할 장.
+# golden./adapted./novel 장은 audit_deck·build 게이트가 sparse/dense 프로파일로 이미 본다.
+LEGACY_TYPES = {
+    "section",
+    "bullets",
+    "two_column",
+    "metrics",
+    "table",
+    "chart",
+    "diagram",
+    "cta",
+}
+
+# 게이트 3(박스 다이어그램 ≤30%)과 `is_box`는 2026-07-25 삭제됐다 — **대상 어휘가 0이 됐기
+# 때문**이다(박스+화살표 9종 전부 사용자 확정 폐기). 규칙을 남기면 항상 0/N=0%로 통과하는
+# hollow 검사가 되고, 그게 다음 사람에게 "박스 상한이 지켜지고 있다"는 거짓 신호를 준다.
+# 그 규칙이 막던 것("빈 박스에 라벨 두 단어")은 이제 (A) 골든 도해 쪽 위험이고
+# `goldenfab.audit.check_adhoc_card`(§8 즉흥 카드)가 진다. 어휘 수렴 방지는 남은 게이트
+# 1(쿨다운)·2(≥5종)·4(동일 ≤2회)가 그대로 진다.
 # 프레임(정형) 레이아웃 — 본문 다양성 계수에서 제외. golden.<layout>·adapted.<layout>도
 # 접두사를 벗겨 판정한다(golden.cover/toc/part/closing이 본문으로 오계수되던 버그, 2026-07-20).
 FRAME_LAYOUTS = {"cover", "toc", "part", "section", "cta", "closing"}
@@ -47,7 +70,7 @@ def visual_key(sl):
     if t == "chart":
         return f"chart:{'panels' if sl.get('panels') else sl.get('chart_type', 'bar')}"
     if t == "diagram":
-        return f"diagram:{sl.get('layout', 'flow')}"
+        return f"diagram:{sl.get('layout') or '?'}"
     if t.startswith("golden.") or t.startswith("adapted."):
         return f"golden:{_base_layout(t)}"  # golden 레이아웃도 정규화 계수(각기 고유 어휘)
     if t == "novel":
@@ -56,7 +79,9 @@ def visual_key(sl):
 
 
 def diversity_checks(slides):
-    """다양성 게이트 4종 — 아키타입 세트 제약(archetype-catalog.md)을 기계로 강제."""
+    """다양성 게이트 3종 — 아키타입 세트 제약(archetype-catalog.md)을 기계로 강제.
+
+    2026-07-25 4종 → 3종: 박스 비율 게이트는 대상 어휘 폐기로 삭제(위 주석 참조)."""
     body = [sl for sl in slides if not is_frame(sl)]
     keys = [visual_key(sl) for sl in body]
     out = []
@@ -72,18 +97,43 @@ def diversity_checks(slides):
     kinds = len(set(keys))
     need = 5 if len(body) >= 5 else len(set(keys)) or 1
     out.append((f"diversity_min_kinds(≥{need}종)", kinds >= need, f"{kinds}종/{len(body)}장"))
-    # 게이트 3: 박스 다이어그램 30% 이하
-    boxes = sum(
-        1 for sl in body if sl["type"] == "diagram" and sl.get("layout", "flow") in BOX_LAYOUTS
-    )
-    ratio = boxes / len(body) if body else 0
-    out.append(("diversity_box_ratio(≤30%)", ratio <= 0.30, f"{boxes}/{len(body)}={ratio:.0%}"))
-    # 게이트 4: 동일 유형 덱 전체 ≤2회
+    # 게이트 3: 동일 유형 덱 전체 ≤2회
     from collections import Counter
 
     over = {k: n for k, n in Counter(keys).items() if n > 2}
     out.append(("diversity_max_repeat(동일 유형 ≤2회)", not over, f"초과 {over or '0건'}"))
     return out
+
+
+def legacy_gate(prs, slides):
+    """legacy 장에 **정본 게이트**를 건다 — `generic_checks(profile="legacy")` 위임(2026-07-25).
+
+    왜 여기인가: legacy 타입은 audit_deck·build 게이트의 골든 프로파일 대상이 아니어서
+    기하 검사가 0이었다. 러너를 새로 만들지 않고 이 QA 러너가 같은 규칙을 프레임 프로파일만
+    바꿔 부른다(단일 출처). 어느 검사가 legacy에 도는지는 audit.generic_checks docstring 참조 —
+    legacy 산출물 111장 전수 오탐 0 부분집합만 물렸다.
+    """
+    accent = str(load_kit()["rgb"]["accent"])
+    out, n = [], 0
+    for idx, (sl, spec_sl) in enumerate(zip(prs.slides, slides), 1):
+        if spec_sl.get("type") not in LEGACY_TYPES:
+            continue
+        n += 1
+        opts = spec_sl.get("audit", {})
+        res = A.generic_checks(
+            list(sl.shapes),
+            accent,
+            dup_allow=opts.get("dup_allow", 0),
+            profile="legacy",
+        )
+        known = opts.get("known")
+        for name, ok, detail, cnt in res:
+            base = (known or {}).get(name)
+            if not ok and base is not None and cnt is not None and cnt <= base:
+                continue  # 승인된 기지 빚(래칫) — audit.report와 같은 규율
+            if not ok:
+                out.append((f"legacy[s{idx} {spec_sl['type']}] {name}", False, detail))
+    return out, n
 
 
 def collect_fonts(prs):
@@ -110,11 +160,10 @@ def main():
     spec = json.loads(Path(args.spec).read_text(encoding="utf-8"))
     slides = spec["slides"]
 
-    # 네이티브 표 생성 경로 3종: table 타입 + diagram band_table + chart sub_table
-    want_tables = (
-        sum(1 for s in slides if s["type"] == "table")
-        + sum(1 for s in slides if s["type"] == "diagram" and s.get("layout") == "band_table")
-        + sum(1 for s in slides if s["type"] == "chart" and s.get("sub_table"))
+    # 네이티브 표 생성 경로 2종: table 타입 + chart sub_table
+    # (diagram band_table은 2026-07-25 폐기 — 표를 낳는 다이어그램이 더는 없다)
+    want_tables = sum(1 for s in slides if s["type"] == "table") + sum(
+        1 for s in slides if s["type"] == "chart" and s.get("sub_table")
     )
 
     def is_image(s):  # 하이브리드: 확장 유형·render:image는 mpl PNG로 삽입된다
@@ -155,10 +204,17 @@ def main():
                 f"{got_pics}/{want_exhibit_pics}(아이콘 포함 가능)",
             )
         )
-    # 골격: 첫 두 장 cover/toc, 마지막 cta
+    # 골격: 첫 두 장 표지/목차, 마지막 마침 장.
+    # 2026-07-25: 접두사를 벗겨 판정한다. 전엔 리터럴 `["cover","toc"]`·`"cta"`만 봐서
+    # **모든 현행 덱에서 상시 FAIL**이었다 — 골든 덱은 `golden.cover`/`golden.closing`이고
+    # legacy `cover`·`toc`·`part` 렌더러는 폐기됐다(골든 프레임이 정본). 상시 적색은 무시당하므로
+    # 검사가 아니라 소음이었다.
     types = [s["type"] for s in slides]
-    skeleton_ok = types[:2] == ["cover", "toc"] and types[-1] == "cta"
-    checks.append(("skeleton(cover→toc..cta)", skeleton_ok, str(types[:2] + ["..", types[-1]])))
+    base = [_base_layout(t) for t in types]
+    skeleton_ok = base[:2] == ["cover", "toc"] and base[-1] in ("cta", "closing")
+    checks.append(
+        ("skeleton(cover→toc..cta/closing)", skeleton_ok, str(base[:2] + ["..", base[-1]]))
+    )
 
     # 정보 밀도: 본문 슬라이드(표지·목차·섹션·CTA 제외) 단어수 하한 — 빈 슬라이드 차단
     MIN_BODY_WORDS = 60
@@ -181,6 +237,18 @@ def main():
 
     # 다양성 게이트 3종(v4) — "다양하게"를 말이 아니라 기계 규칙으로 강제
     checks.extend(diversity_checks(slides))
+
+    # legacy 장 정본 게이트(2026-07-25 배선) — 기하·색 규칙은 goldenfab.audit이 단일 출처
+    legacy_fails, n_legacy = legacy_gate(prs, slides)
+    if n_legacy:
+        checks.append(
+            (
+                f"legacy_gate(generic_checks profile=legacy · {n_legacy}장)",
+                not legacy_fails,
+                f"위반 {len(legacy_fails)}건" if legacy_fails else "전 장 통과",
+            )
+        )
+        checks.extend(legacy_fails)
 
     # 구성 규칙(deck-compose 계약을 기계로 강제 — 프롬프트 규칙은 요동, 게이트는 불변)
     n_bullets = types.count("bullets")

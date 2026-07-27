@@ -107,7 +107,7 @@ IN_X = (SLIDE_W - IN_W) / 2
 IN_Y = 1.42
 LINE_Y = IN_Y + IN_H / 2
 CHIP_Y, CHIP_H = LINE_Y - 0.33, 0.66
-BRIDGE_Y = 3.12
+BRIDGE_Y = 3.14  # 캔버스 하단(3.02)에서 AIR_MIN 0.12 확보 — 3.12면 0.10으로 §6 미달
 CARD_Y, CARD_H = 3.46, 3.0
 
 
@@ -279,9 +279,9 @@ def build(prs, c=None):
         C["muted"],
     )
 
-    # ══ 하단: 정직한 한계 3종 — hero_card(정본 컴포넌트) ══
+    # ══ 하단: 정직한 한계 N종 — hero_card(정본 컴포넌트). 폭은 한계 수에서 파생(§F 가로 짝) ══
     gap = 0.27
-    sec_w = (D.FULL_W - 2 * gap) / 3
+    sec_w = G.track(len(c["limits"]), G.MARGIN_L, G.RIGHT_EDGE, gap, 2.2, what="한계 카드")
     for i, lim in enumerate(c["limits"]):
         sx = G.MARGIN_L + i * (sec_w + gap)
         D.hero_card(

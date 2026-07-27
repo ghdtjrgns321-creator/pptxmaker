@@ -214,11 +214,12 @@ def param_efficacy():
 
     f2 = Presentation()
     f2.slide_width, f2.slide_height = Inches(13.333), Inches(7.5)
-    FAB["screenshot"](f2, {"headline": "커스텀 헤드라인 검사용", "caption": "커스텀 캡션 — 검사"})
+    # 캡션은 dense 승격(2026-07-26)으로 사라진 자리다 — 헤드라인·출처가 이미 그 말을 하고
+    # 하단 운영 띠와 겹쳐서 dense 기준작이 뺐다. 없는 자리를 검사하면 상시 적색이 되고,
+    # 상시 적색은 검사가 아니라 소음이다. 살아있는 파라미터(headline)만 본다.
+    FAB["screenshot"](f2, {"headline": "커스텀 헤드라인 검사용"})
     texts2 = " ".join(sh.text_frame.text for sh in f2.slides[0].shapes if sh.has_text_frame)
-    results.append(
-        ("screenshot 커스텀", "커스텀 헤드라인 검사용" in texts2 and "커스텀 캡션 — 검사" in texts2)
-    )
+    results.append(("screenshot 커스텀", "커스텀 헤드라인 검사용" in texts2))
 
     # Phase B 파라미터화 10종 — headline override가 출력에 반영되는지(내장 아님) 검증
     for t in (

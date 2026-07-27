@@ -193,14 +193,22 @@ BRANCH = [
     ("산술 필요", " 계산을 확인한 뒤 답변"),
     ("그 외", " 확정 또는 조건부 답변"),
 ]
+# 갈래 행이 쓸 수 있는 세로 밴드 — 라벨(2.26) 밑 ~ 세로 구분선 끝(3.41) 안쪽. 갈래가 이 밴드에
+# 안 들어가면 `grid.pitch`가 시끄럽게 죽는다(현 기하 수용 한계 = 4갈래).
+BR_BAND_TOP, BR_BAND_BOTTOM = 2.46, 3.46
 
 
 def _inject_and_branch(slide, c, x0, x1):
-    """주제기반 3단계 다중주입(번호 배지 흐름) + 주입 뒤 세 갈래 분기 — 원본 좌하 전량 수납."""
+    """주제기반 다중주입(G10 번호 배지 흐름) + 주입 뒤 N갈래 분기(G11) — 원본 좌하 전량 수납.
+
+    2026-07-25 항목 수 파생: 칼럼 폭·갈래 y가 리터럴(`/3`·`[2.54, 2.84, 3.14]`)이라 단계·갈래가
+    하나 늘면 마지막이 조용히 사라지거나 칸을 넘었다. 이제 `grid.track`·`grid.pitch`로 파생하고
+    수용 한계를 넘으면 시끄럽게 죽는다(§F). 갈래 블록은 주입 박스 세로중심에 정렬한다.
+    """
     tw = x1 - x0
     _subhead(slide, x0, 0.82, tw, c["steps_head"])
     gap = 0.30
-    cw = (tw - 2 * gap) / 3
+    cw = G.track(len(STEPS_SHORT), x0, x1, gap, 1.30, what="주입 단계")
     for i, (head, body) in enumerate(STEPS_SHORT):
         cxi = x0 + i * (cw + gap)
         badge = add_box(slide, cxi, 1.28, 0.26, 0.26, fill=C["primary"], shape="oval")
@@ -221,7 +229,7 @@ def _inject_and_branch(slide, c, x0, x1):
         add_text(
             slide, cxi, 1.66, cw, 0.62, body, S["foot"], F["body"], C["muted"], line_spacing=1.18
         )
-        if i < 2:
+        if i < len(STEPS_SHORT) - 1:
             D.arrow(slide, cxi + cw + 0.04, 1.41, cxi + cw + gap - 0.04, 1.41, C["muted"])
     # ── 주입 뒤 세 갈래 (주입된 질문 → 3 갈래로 갈린다) ──
     add_text(
@@ -231,7 +239,12 @@ def _inject_and_branch(slide, c, x0, x1):
     qb = add_box(slide, x0, qy, qw, qh, fill=C["primary"], shape="round")
     set_shape_text(qb, "주입된 질문", S["foot"], F["head"], C["bg"], bold=True)
     rows_x = x0 + qw + 0.5
-    for (lab, desc), ry in zip(BRANCH, [2.54, 2.84, 3.14]):
+    # 갈래 행 y = 갈래 수에서 파생 → 블록을 주입 박스 세로중심(2.96)에 맞춘다(부채꼴 축 정렬)
+    n_br, row_h = len(BRANCH), 0.24
+    br_pitch = G.pitch(n_br, BR_BAND_TOP, BR_BAND_BOTTOM, row_h, cap=0.30, what="분기 갈래")
+    br_top = (qy + qh / 2) - ((n_br - 1) * br_pitch + row_h) / 2
+    for i, (lab, desc) in enumerate(BRANCH):
+        ry = br_top + i * br_pitch
         D.arrow(slide, x0 + qw, qy + qh / 2, rows_x - 0.06, ry + 0.11, C["muted"])
         add_text(
             slide,

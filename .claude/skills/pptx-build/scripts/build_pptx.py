@@ -74,7 +74,6 @@ class Deck:
         self.prs.slide_width = Inches(EMU_W)
         self.prs.slide_height = Inches(EMU_H)
         self.blank = self.prs.slide_layouts[6]
-        self._toc_items = []  # 목차용: 본문 섹션 제목 수집(파트 없을 때)
         self.parts = []  # [{no,title,items:[제목…]}] — part 타입 pre-pass로 채움
         self.body_top = BODY_TOP  # 파트 체계 사용 시 NAV_BODY_TOP으로 전환
         self._page_no = 0
@@ -82,7 +81,6 @@ class Deck:
         self.meta = {}
         self._comment_side = "left"  # 해설 칼럼 좌/우 교차 토글(형식 반복 방지)
         self.render_dir = Path("_workspace/render")  # mpl 익스히빗 PNG 출력처(main이 재설정)
-        self.frame_style = "v3"  # 프레임 틀(표지·간지) 스타일 — build()가 meta.frame_style로 전환
         # 장 스크립트(adapted/novel) 상대경로 기준 — main이 spec 위치로 설정
         self._spec_dir: Path | None = None
 
@@ -229,7 +227,10 @@ class Deck:
             m,
             0.32,
             EMU_W - 2 * m,
-            0.6,
+            # 0.52: 제목 상자 바닥(0.84)이 부제 top(0.86) **아래**여야 한다. 0.6이면 0.06"
+            # 겹쳐 check_text_collision이 레거시 전 장에서 상시 적색이었다(2026-07-25 실측:
+            # 팔레트 18/18). 텍스트는 TOP 앵커라 상자만 줄이는 건 렌더상 무변화.
+            0.52,
             title,
             self.s["section"],
             self.c["primary"],
@@ -507,370 +508,6 @@ class Deck:
         )
 
     # --- 슬라이드 타입별 렌더러 ---
-    def cover(self, spec):
-        if self.frame_style == "v44":
-            return self._cover_v44(spec)
-        s = self._slide(bg=self.c["primary"])
-        m = self.margin
-        self._accent_bar(s, m, 3.0, w=1.6, h=0.12)
-        self._text(
-            s,
-            m,
-            3.25,
-            EMU_W - 2 * m,
-            1.6,
-            spec["title"],
-            self.s["title"],
-            "FFFFFF",
-            font=self.f["head"],
-            bold=True,
-        )
-        if spec.get("subtitle"):
-            self._text(
-                s,
-                m,
-                4.7,
-                EMU_W - 2 * m,
-                1.0,
-                spec["subtitle"],
-                self.s["head"],
-                self.c["bg_alt"],
-                font=self.f["body"],
-            )
-        self._logo_mark(s, color="FFFFFF")
-        return s
-
-    def _cover_v44(self, spec):
-        """표지 v4.4(BCG GenAI p1 실측 구도) — 상단 시리즈 kicker + 헤어라인,
-        좌측 대형 타이틀 블록, 하단 메타 행(브랜드·연도·accent 사각 불릿)."""
-        s = self._slide(bg=self.c["primary"])
-        m = self.margin
-        kicker = (spec.get("kicker") or self.meta.get("project", "")).upper()
-        self._text(
-            s,
-            m,
-            0.7,
-            EMU_W - 2 * m,
-            0.35,
-            kicker,
-            self.s["caption"] + 1,
-            self.c["muted"],
-            font=self.f["head"],
-            bold=True,
-        )
-        self._hline(s, m, EMU_W - m, 1.12, self.c["muted"], weight=0.75)
-        from pptx.enum.shapes import MSO_SHAPE
-
-        sq = s.shapes.add_shape(  # accent 사각 마커 — 표지의 유일한 포인트 색
-            MSO_SHAPE.RECTANGLE,
-            Inches(m),
-            Inches(2.55),
-            Inches(0.28),
-            Inches(0.28),
-        )
-        sq.fill.solid()
-        sq.fill.fore_color.rgb = rgb(self.c["accent"])
-        sq.line.fill.background()
-        self._text(
-            s,
-            m,
-            3.0,
-            EMU_W - 2 * m - 1.5,
-            1.9,
-            spec["title"],
-            self.s["title"] + 4,
-            "FFFFFF",
-            font=self.f["head"],
-            bold=True,
-        )
-        if spec.get("subtitle"):
-            self._text(
-                s,
-                m,
-                4.75,
-                EMU_W - 2 * m - 2.5,
-                1.0,
-                spec["subtitle"],
-                self.s.get("sub", 15),
-                self.c["bg_alt"],
-                font=self.f["body"],
-            )
-        self._hline(s, m, EMU_W - m, EMU_H - 1.05, self.c["muted"], weight=0.75)
-        self._text(
-            s,
-            m,
-            EMU_H - 0.85,
-            6.0,
-            0.35,
-            self.b["brand"]["name"],
-            self.s["caption"] + 1,
-            "FFFFFF",
-            bold=True,
-        )
-        self._text(
-            s,
-            EMU_W - m - 3.0,
-            EMU_H - 0.85,
-            3.0,
-            0.35,
-            str(self.meta.get("year", "")),
-            self.s["caption"] + 1,
-            self.c["muted"],
-            align=PP_ALIGN.RIGHT,
-        )
-        return s
-
-    def _part_v44(self, spec):
-        """간지 v4.4(달러스 p34·BCG 실측 구도) — 우측 대형 로마숫자 워터마크 +
-        좌측 PART 칩·제목 + 하단 파트 진행 인디케이터(도트) + 소주제 프리뷰."""
-        from pptx.enum.shapes import MSO_SHAPE
-
-        s = self._slide(bg=self.c["primary"])
-        m = self.margin
-        no = spec["_part_no"]
-        # 우측 워터마크 — 대형 로마숫자(장식, muted 저대비)
-        wm = s.shapes.add_textbox(Inches(EMU_W - 5.2), Inches(0.6), Inches(4.6), Inches(4.6))
-        wp = wm.text_frame.paragraphs[0]
-        wp.alignment = PP_ALIGN.RIGHT
-        wr = wp.add_run()
-        wr.text = f"{no:02d}"  # 로마숫자 Ⅰ는 대형 렌더 시 막대로 보임 — 숫자 워터마크
-        wr.font.size = Pt(280)
-        wr.font.bold = True
-        wr.font.name = self.f["head"]
-        wr.font.color.rgb = rgb("2A2E35")  # primary 위 저대비 톤(장식 전용)
-        chip = s.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE, Inches(m), Inches(1.5), Inches(1.5), Inches(0.44)
-        )
-        chip.fill.solid()
-        chip.fill.fore_color.rgb = rgb(self.c["accent"])
-        chip.line.fill.background()
-        tf = chip.text_frame
-        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-        p = tf.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        run = p.add_run()
-        run.text = f"PART {no:02d}"
-        run.font.size = Pt(12)
-        run.font.bold = True
-        run.font.name = self.f["head"]
-        run.font.color.rgb = rgb("FFFFFF")
-        self._text(
-            s,
-            m,
-            2.15,
-            EMU_W - 2 * m - 4.0,
-            1.4,
-            spec["title"],
-            self.s["title"] + 4,
-            "FFFFFF",
-            font=self.f["head"],
-            bold=True,
-        )
-        if spec.get("subtitle"):
-            self._accent_bar(s, m, 3.62, w=0.05, h=0.4)
-            self._text(
-                s,
-                m + 0.18,
-                3.55,
-                EMU_W - 2 * m - 4.5,
-                0.9,
-                spec["subtitle"],
-                self.s.get("sub", 15),
-                self.c["bg_alt"],
-            )
-        # 하단 진행 인디케이터 — 전체 파트 중 현재 위치(accent)
-        dot_y = 4.55
-        for pi in range(len(self.parts)):
-            d = s.shapes.add_shape(
-                MSO_SHAPE.OVAL, Inches(m + pi * 0.34), Inches(dot_y), Inches(0.16), Inches(0.16)
-            )
-            d.fill.solid()
-            d.fill.fore_color.rgb = rgb(self.c["accent"] if pi == no - 1 else self.c["muted"])
-            d.line.fill.background()
-        # 소주제 프리뷰(기존 모티프 유지)
-        items = self.parts[no - 1]["items"][:4]
-        if items:
-            colw = (EMU_W - 2 * m) / len(items)
-            for i, item in enumerate(items):
-                x = m + i * colw
-                self._num_circle(s, x + colw / 2 - 0.22, 5.2, f"{i + 1:02d}", dark_bg=True)
-                self._text(
-                    s,
-                    x + 0.2,
-                    5.8,
-                    colw - 0.4,
-                    0.7,
-                    item,
-                    self.s["body"] - 1,
-                    self.c["bg_alt"],
-                    align=PP_ALIGN.CENTER,
-                )
-        return s
-
-    def toc(self, spec):
-        s = self._slide()
-        self._title_block(s, spec.get("title", "목차"), None, spec)
-        m = self.margin
-        if self.parts:
-            # PART별 그룹 목차(2단) — 로마숫자 헤딩 + 계층번호 항목
-            cols = [[], []]
-            weights = [0.0, 0.0]
-            for p in self.parts:
-                k = 0 if weights[0] <= weights[1] else 1
-                cols[k].append(p)
-                weights[k] += len(p["items"]) + 1.8
-            colw = (EMU_W - 2 * m - 0.8) / 2
-            for ci, plist in enumerate(cols):
-                x = m + ci * (colw + 0.8)
-                y = self.body_top + 0.15
-                for p in plist:
-                    self._text(
-                        s,
-                        x,
-                        y,
-                        0.6,
-                        0.4,
-                        ROMAN[p["no"] - 1],
-                        self.s["head"],
-                        self.c["accent"],
-                        font=self.f["head"],
-                        bold=True,
-                    )
-                    self._text(
-                        s,
-                        x + 0.55,
-                        y,
-                        colw - 0.55,
-                        0.4,
-                        p["title"],
-                        self.s.get("sub", 15),
-                        self.c["primary"],
-                        font=self.f["head"],
-                        bold=True,
-                    )
-                    self._hline(s, x, x + colw, y + 0.42, self.c["muted"], weight=0.75)
-                    y += 0.58
-                    for j, item in enumerate(p["items"], 1):
-                        self._text(
-                            s,
-                            x + 0.15,
-                            y,
-                            0.6,
-                            0.3,
-                            f"{p['no']}-{j}",
-                            self.s["caption"] + 1,
-                            self.c["accent"],
-                            bold=True,
-                        )
-                        self._text(
-                            s,
-                            x + 0.8,
-                            y,
-                            colw - 0.8,
-                            0.34,
-                            item,
-                            self.s["body"] - 1,
-                            self.c["text"],
-                        )
-                        y += 0.35
-                    y += 0.28
-            return s
-        items = spec.get("items") or self._toc_items
-        y = 2.0
-        for i, it in enumerate(items, 1):
-            self._text(
-                s,
-                m + 0.1,
-                y,
-                0.6,
-                0.5,
-                f"{i:02d}",
-                self.s["head"],
-                self.c["accent"],
-                font=self.f["head"],
-                bold=True,
-            )
-            self._text(s, m + 0.9, y, EMU_W - 2 * m - 0.9, 0.5, it, self.s["body"], self.c["text"])
-            y += 0.62
-        return s
-
-    def part(self, spec):
-        """간지(PART divider) — 전면 primary 배경 + PART 칩 + 로마숫자 제목 +
-        하단 소주제 프리뷰(넘버 서클 모티프). 우석진 템플릿 p3 구성 이식."""
-        if self.frame_style == "v44":
-            return self._part_v44(spec)
-        from pptx.enum.shapes import MSO_SHAPE
-
-        s = self._slide(bg=self.c["primary"])
-        m = self.margin
-        no = spec["_part_no"]
-        chip = s.shapes.add_shape(
-            MSO_SHAPE.RECTANGLE, Inches(m), Inches(1.5), Inches(1.5), Inches(0.44)
-        )
-        chip.fill.solid()
-        chip.fill.fore_color.rgb = rgb(self.c["accent"])
-        chip.line.fill.background()
-        tf = chip.text_frame
-        tf.vertical_anchor = MSO_ANCHOR.MIDDLE
-        p = tf.paragraphs[0]
-        p.alignment = PP_ALIGN.CENTER
-        run = p.add_run()
-        run.text = f"PART {no:02d}"
-        run.font.size = Pt(12)
-        run.font.bold = True
-        run.font.name = self.f["head"]
-        run.font.color.rgb = rgb("FFFFFF")
-        self._text(
-            s,
-            m,
-            2.15,
-            EMU_W - 2 * m,
-            1.0,
-            f"{ROMAN[no - 1]}. {spec['title']}",
-            self.s["title"] + 4,
-            "FFFFFF",
-            font=self.f["head"],
-            bold=True,
-        )
-        if spec.get("subtitle"):
-            self._accent_bar(s, m, 3.42, w=0.05, h=0.4)
-            self._text(
-                s,
-                m + 0.18,
-                3.35,
-                EMU_W - 2 * m - 3.0,
-                0.9,
-                spec["subtitle"],
-                self.s.get("sub", 15),
-                self.c["bg_alt"],
-            )
-        # 하단 소주제 프리뷰 — 이 PART에 속한 본문 슬라이드 제목
-        items = self.parts[no - 1]["items"][:4]
-        if items:
-            colw = (EMU_W - 2 * m) / len(items)
-            for i, item in enumerate(items):
-                x = m + i * colw
-                self._num_circle(s, x + colw / 2 - 0.22, 5.0, f"{i + 1:02d}", dark_bg=True)
-                self._text(
-                    s,
-                    x + 0.2,
-                    5.6,
-                    colw - 0.4,
-                    0.7,
-                    item,
-                    self.s["body"] - 1,
-                    self.c["bg_alt"],
-                    align=PP_ALIGN.CENTER,
-                )
-                if i:
-                    from pptx.enum.shapes import MSO_CONNECTOR
-
-                    ln = s.shapes.add_connector(
-                        MSO_CONNECTOR.STRAIGHT, Inches(x), Inches(5.0), Inches(x), Inches(6.2)
-                    )
-                    ln.line.color.rgb = rgb(self.c["muted"])
-                    ln.line.width = Pt(0.5)
-        return s
 
     def section(self, spec):
         s = self._slide(bg=self.c["bg_alt"])
@@ -1260,26 +897,17 @@ class Deck:
         self._title_block(s, spec["title"], spec.get("subtitle"), spec)
         m = self.margin
         off = self._intro(s, spec)
-        if spec.get("layout") in ("layers", "branch", "cards"):
-            # 적층/분기/카드 — 해설 칼럼 좌/우 교차, 다이어그램은 반대편
-            x, w = self._exhibit_zone(s, spec, off)
-            visuals.add_diagram(
-                s,
-                spec,
-                self.b,
-                x,
-                self.body_top + off + 0.12,
-                w,
-                BODY_BOTTOM - self.body_top - off - 0.2,
-            )
-        elif spec.get("layout") in ("icon_rows", "stat_split", "contrast_split", "split_detail"):
+        # 2026-07-25: 좌/우 교차 배치 분기(layers·branch·cards)는 그 어휘가 폐기돼 삭제했다 —
+        # 남은 9종은 컴포지트(본문 전폭 사용) 또는 전폭 가로 둘로 갈린다.
+        if spec.get("layout") in ("icon_rows", "stat_split", "split_detail"):
             # v4.5 컴포지트 조판 — 자체 밀도가 높으므로 본문 영역 전체 사용(하단 공백 금지)
             avail = BODY_BOTTOM - (self.body_top + off + 0.12)
             visuals.add_diagram(
                 s, spec, self.b, m, self.body_top + off + 0.12, EMU_W - 2 * m, avail
             )
         else:
-            # flow/timeline/from_to는 전폭 가로 — 다이어그램 상단, 해설은 아래 전폭 블록
+            # timeline·matrix_2x2·spectrum·venn·harvey_table·check_matrix는 전폭 가로 —
+            # 다이어그램 상단, 해설은 아래 전폭 블록
             avail = BODY_BOTTOM - (self.body_top + off + 0.12)
             diag_h = 2.35 if spec.get("commentary") else min(4.2, avail)
             visuals.add_diagram(
@@ -1319,10 +947,11 @@ class Deck:
         self._logo_mark(s, color="FFFFFF")
         return s
 
+    # 2026-07-25: legacy `cover`·`toc`·`part`를 폐기했다 — 골든 프레임
+    # (`golden.cover`/`golden.toc`/`golden.part`, goldenfab/layouts.py)이 정본이고 이쪽은 v3 시절
+    # 사본이라 "어느 쪽이 표준인가"가 갈렸다(구세대 견본 spec이 이 타입을 쓰고 있었다).
+    # 이 타입을 쓰면 아래 unknown slide type ValueError로 시끄럽게 죽는다.
     RENDERERS = {
-        "cover": cover,
-        "toc": toc,
-        "part": part,
         "section": section,
         "bullets": bullets,
         "two_column": two_column,
@@ -1372,6 +1001,10 @@ class Deck:
         스크립트로 변형(adapted)하고, 골든에 없는 물성이면 신규 설계(novel)한다.
         스냅샷 회귀는 goldenfab 보호 전용이므로 여기 장은 대상이 아니다 — 품질은
         audit_deck.py(전역 오딧+밀도 밴드)와 병렬 채점(design-rules P4)이 진다.
+
+        **content 계약(2026-07-25 배선):** 이 문에는 계약 검사가 **없었다** — 골든 출발 스크립트를
+        그대로 쓰면 K-IFRS 글이 남아도 전 게이트 green이었다(`_render_golden`에만 assert_content가
+        있었다). 이제 `assert_scripted_content`가 "스크립트가 실제 읽는 골든 기본값 키"를 요구한다.
         """
         import importlib.util
 
@@ -1392,6 +1025,11 @@ class Deck:
         mod_spec.loader.exec_module(mod)
         if not hasattr(mod, "build"):
             raise ValueError(f"S{slide_no} {sl['type']}: 장 스크립트에 build(prs, content) 없음")
+        from goldenfab.content_contract import assert_scripted_content
+
+        assert_scripted_content(
+            sl["type"], mod, p.read_text(encoding="utf-8"), sl.get("content"), slide_no
+        )
         result = mod.build(self.prs, sl.get("content"))
         slide = result[0] if isinstance(result, tuple) else result
         if slide is None:
@@ -1401,7 +1039,6 @@ class Deck:
 
     def build(self, spec):
         self.meta = spec.get("meta", {})
-        self.frame_style = self.meta.get("frame_style", "v3")
         body_types = {
             "section",
             "bullets",
@@ -1412,6 +1049,11 @@ class Deck:
             "metrics",
         }
         # PART pre-pass: 간지 수집 + 본문 계층 번호(N-M) 부여 (내비게이션 단일 출처)
+        # **경계(2026-07-25)**: legacy `part` 렌더러가 폐기돼 이 분기는 legacy 경로에서 더는
+        # 발화하지 않는다(골든 덱은 `golden.part`로 자체 간지·탭을 그린다). 그래서 아래 내비
+        # 기계(`_nav_tabs`·계층번호 `_num`·NAV_BODY_TOP)는 현재 **도달 불가**다. 지울지
+        # 살릴지는 "legacy (B) 경로를 어디까지 유지하나"라는 별개 결정이라 사용자 몫으로 남긴다 —
+        # 여기 적어 두는 이유는, 안 적으면 다음 사람이 살아 있는 기계로 착각하고 손대기 때문이다.
         seq = 0
         for sl in spec["slides"]:
             if sl["type"] == "part":
@@ -1424,10 +1066,6 @@ class Deck:
                 sl["_num"] = f"{sl['_part_no']}-{seq}"
                 self.parts[-1]["items"].append(sl.get("title", ""))
         self.body_top = NAV_BODY_TOP if self.parts else BODY_TOP
-        # 목차 자동 채움(파트 없을 때만 사용 — 파트 있으면 toc가 그룹 목차를 그림)
-        self._toc_items = [
-            sl["title"] for sl in spec["slides"] if sl["type"] in body_types and sl.get("title")
-        ]
         total = len(spec["slides"])
         self._total = total
         for i, sl in enumerate(spec["slides"], start=1):
@@ -1462,9 +1100,15 @@ class Deck:
         return self.prs
 
     def _gate_density(self, spec):
-        """빌드 시 밀도 게이트(2026-07-20 기계 강제) — golden/adapted/novel 장을 audit_deck과
-        같은 규칙(goldenfab.audit.generic_checks + 글자수 밀도 밴드)으로 **빌드가 스스로** 채점한다.
-        오케스트레이터가 consistency-qa를 안 돌려도 성김이 잡힌다. 러너 단일 출처는 audit_deck.py.
+        """빌드 시 기계 게이트(2026-07-20 신설 · 2026-07-25 legacy 확장) — 빌드가 **스스로**
+        `goldenfab.audit.generic_checks`로 채점한다. 오케스트레이터가 consistency-qa를 안 돌려도
+        성김·겹침·넘침이 잡힌다. 규칙 단일 출처는 audit.py, 러너 참조는 audit_deck.py.
+
+        프로파일 배정: golden.*(정형 4종 제외)=sparse · adapted./novel=dense ·
+        **legacy 렌더러 장(section·bullets·two_column·metrics·table·chart·diagram·cta)=legacy**.
+        legacy는 2026-07-25까지 이 게이트의 대상이 아니었다 — 남은 legacy 어휘(차트 6·mpl 9·표·
+        문서형·다이어그램 9종)가 무검증으로 나갔다. 밀도 밴드는 골든 파생이라 legacy에 안 건다
+        (legacy 밀도의 정본은 consistency-qa audit_pptx의 본문 60단어 하한).
         반환: 실패 문자열 목록(빈 목록=통과). 빌드는 막지 않는다 — main()이 종료코드로 신호한다.
         """
         import sys as _sys
@@ -1483,24 +1127,27 @@ class Deck:
         for i, sl in enumerate(spec["slides"], start=1):
             t = sl.get("type", "")
             base = t.split(".", 1)[1] if t.startswith(("golden.", "adapted.")) else t
-            target = (
-                (t.startswith("golden.") and base not in fixed)
-                or t.startswith("adapted.")
-                or t == "novel"
-            )
-            if not target or i > len(slides):
-                continue
             opts = sl.get("audit", {})
+            if t.startswith("golden.") and base not in fixed:
+                profile = "dense" if opts.get("dense", False) else "sparse"
+            elif t.startswith("adapted.") or t == "novel":
+                profile = "dense"
+            elif t in self.RENDERERS:
+                profile = "legacy"  # legacy 렌더러 장 — 2026-07-25 배선
+            else:
+                continue
+            if i > len(slides):
+                continue
             screenshot = base == "screenshot" or opts.get("screenshot", False)
-            dense = t.startswith(("adapted.", "novel")) or opts.get("dense", False)
             shapes = list(slides[i - 1].shapes)
             res = A.generic_checks(
                 shapes,
                 accent,
-                band=band,
+                # 밀도 밴드는 골든 스냅샷 파생이라 legacy 프레임엔 안 건다(93/111 상시 적색)
+                band=None if profile == "legacy" else band,
                 dup_allow=opts.get("dup_allow", 0),
                 screenshot=screenshot,
-                dense=dense,
+                profile=profile,
             )
             fails += [f"S{i} {t}: {x}" for x in A.report(res, known=opts.get("known"))]
         return fails

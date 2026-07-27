@@ -7,24 +7,30 @@
 전부 덮지 않으면 빌드를 중단한다(`content_contract.assert_content`). 골든 글은 밖으로 못 나간다.
 """
 
-# ⚠️ dense 승격 보류(2026-07-20): dense 7장에 DEFAULT 노출·registry 재지정까지 됐으나,
-# 골든 회귀 하네스(compare_golden PARAM 오라클·audit_golden 장별 기하 SPECS·audit.py accent/경계)가
-# 전부 sparse variant 기하에 박제돼 있어 dense로 재기준선하면 하네스가 깨진다. 승격은 별도 작업:
-# ① audit.py를 dense 인지(accent 런 제외·경계 6.9)로 ② compare_golden/audit_golden 장별 오라클을
-# dense 좌표로 재조정 ③ s15·s16 완결·승인. 그때까지 골든=variant 유지(하네스 무결).
-# dense는 deck-spec에서 adapted.<layout>+script 경로로 개별 사용 가능(_render_scripted).
-from ._variant_k import variant_k as problem_grid
+# dense 승격 완료(2026-07-26, 사용자 확정). 골든은 **운영 골든(dense) 하나**다.
+#
+# 그전까지 골든이 둘로 갈라져 있었다 — 운영·열람용은 `golden-deck-operating.pptx`(dense)인데
+# registry·회귀 하네스는 sparse variant를 지켰다. 그래서 도해마다 sparse 1벌 + dense 1벌이
+# 존재했고(가로 좌표는 동일, 세로만 다름 — s08 실측: 2.45/4.75/8.20 공통, 세로 3.88 vs 1.30),
+# 장 하나 고치려면 두 벌을 고쳐야 했다. 2026-07-15에 없앤 `golden/`↔`goldenfab/` 이중화와
+# **같은 병이 다른 축에서 재발**한 것이다.
+#
+# 승격으로 sparse 기준선은 폐기했다. 회귀 스냅샷(`golden-snapshot.json`)·장별 기하 오라클
+# (`audit_golden.SPECS`)은 dense 좌표로 재수립했다.
+# exec_graph(S6)만 dense 기준작이 미승인이라 sparse 렌더러를 유지한다(부채 1건, 아래 주석).
+from ._variant_k import variant_k as problem_grid_sparse  # noqa: F401  (S4 sparse — 참조 보존)
 from .layouts import cover, part, toc
-from .s06_variants import variant_c as exec_graph
-from .s08_variants import variant_c as tech_evidence
-from .s09_variants import variant_a as tech_tree
-from .s10_screenshot import variant_a as screenshot
-from .s11_variants import variant_d as tech_mechanism
-from .s12_variants import variant_b as tech_capture
-from .s14_variants import variant_c as ab_simulation
-from .s15_variants import variant_c as validation
-from .s17_variants import variant_c as mirror_matrix
-from .s18_variants import variant_b as boundary
+from .s04_dense import build as problem_grid
+from .s06_variants import variant_c as exec_graph  # dense 미승인 — s06_mid가 기준작 후보
+from .s08_dense import build as tech_evidence
+from .s09_dense import build as tech_tree
+from .s10_dense import build as screenshot
+from .s11_dense import build as tech_mechanism
+from .s12_dense import build as tech_capture
+from .s14_dense import build as ab_simulation
+from .s15_dense import build as validation
+from .s16_dense import build as boundary
+from .s17_variants import variant_c as mirror_matrix  # 골든 덱 제외 · 실전 창고용 타입
 from .s21_closing import variant_a as closing
 
 LAYOUTS = {

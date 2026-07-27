@@ -14,8 +14,15 @@
 
 compare_golden은 레이아웃 함수를 직접 호출(`FAB[key](prs, None)`)하므로 이 계약을 안 거친다
 — 우회 플래그 불필요. 공장 문에서만 강제된다.
+
+**두 번째 문(2026-07-25 신설): `adapted.`/`novel` 장 스크립트.**
+위 문은 `golden.<layout>` 경로(`_render_golden`)에만 있었다. `_render_scripted`는 `assert_content`를
+부르지 않았으므로 **실전 덱을 `adapted.`로 만들면 골든(K-IFRS) 글이 그대로 남아도 전 게이트가
+green**이었다 — 이 파일이 막으려던 사고와 정확히 같은 클래스가 옆문으로 열려 있었다.
+그 문은 `assert_scripted_content`가 진다. 임계는 **"그 스크립트가 실제로 읽는 키"**다(아래 참조).
 """
 
+import re
 import sys
 
 # DEFAULT dict 없이 c[...]를 직접 접근하는 레이아웃 — 명시 선언(실측: layouts.py 소스)
@@ -55,6 +62,60 @@ def required_keys(name, fn):
             "content_contract.EXPLICIT_KEYS에 필수 키를 명시하거나 모듈의 DEFAULT를 하나로 정리할 것."
         )
     return set(d)
+
+
+def content_keys_read(src):
+    """소스가 실제로 읽는 content 키 — `c["k"]` · `c.get("k")`. 계약 선언의 진위 판정 기준.
+
+    단일 출처: `test_wiring` 통합E·통합F도 이 함수를 쓴다(각자 정규식을 두면 갈라진다).
+    """
+    return set(re.findall(r"""c\[["']([a-z0-9_]+)["']\]""", src)) | set(
+        re.findall(r"""c\.get\(["']([a-z0-9_]+)["']""", src)
+    )
+
+
+def scripted_required_keys(module, src):
+    """장 스크립트가 **주입을 요구하는** 키 = (모듈 DEFAULT 키) ∩ (실제로 읽는 키).
+
+    왜 교집합인가(오탐 0 설계, 2026-07-25 실측): dense 기준작은 DEFAULT에 키를 두고도 본문은
+    **모듈 상수를 그리는** 구멍이 28건 있다(`test_wiring` 통합F 래칫). 그 키를 필수로 요구하면
+    골든 출발 스크립트가 즉시 28건 적색이 되고, 상시 적색 게이트는 무시당한다 — 이 프로젝트가
+    이미 겪은 경로다. 그래서 **주입해도 안 읽히는 키는 요구하지 않는다**. 대신 구멍 자체를
+    통합F가 감소 전용 래칫으로 고정하므로 "안 읽히는 키"가 늘어나 검사를 우회할 수는 없다.
+
+    DEFAULT dict이 아예 없는 스크립트(실전용으로 새로 쓴 adapted·novel)는 필수 키 0 —
+    골든 글이 들어있지 않으므로 유출 위험 자체가 없다. 억지로 요구하면 novel이 막힌다.
+    """
+    defaults = set()
+    for n, v in vars(module).items():
+        if "DEFAULT" in n.upper() and isinstance(v, dict):
+            defaults |= set(v)
+    return defaults & content_keys_read(src)
+
+
+def assert_scripted_content(name, module, src, content, slide_no):
+    """`adapted.<layout>`/`novel` 장 스크립트의 content 계약. 누락 시 ValueError(빌드 중단)."""
+    req = scripted_required_keys(module, src)
+    if not req:
+        return True
+    content = content or {}
+    given = {k for k in content if not _is_empty(content[k])}
+    missing = req - given
+    if not missing:
+        return True
+    lines = [
+        f"슬라이드 {slide_no} ({name}): 장 스크립트가 읽는 content 키 {len(missing)}/{len(req)}개 누락 "
+        f"→ 그 자리에 스크립트의 골든 기본값(다른 프로젝트 글)이 그대로 나간다.",
+        f"  누락: {sorted(missing)}",
+        "  필수 키 = 스크립트 DEFAULT 키 ∩ 스크립트가 실제 읽는 키 "
+        "(안 읽히는 키는 요구하지 않는다 — goldenfab/content_contract.scripted_required_keys).",
+    ]
+    empty = {k for k in req & set(content) if _is_empty(content[k])}
+    if empty:
+        lines.append(
+            f"  이 중 {sorted(empty)}는 키만 있고 **값이 비었다** — 키 존재는 주입이 아니다."
+        )
+    raise ValueError("\n".join(lines))
 
 
 def _is_empty(v):
