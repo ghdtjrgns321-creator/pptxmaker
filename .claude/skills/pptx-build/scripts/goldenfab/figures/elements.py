@@ -349,6 +349,50 @@ def center_text(box, kit, text, size, color, *, bold=True):
     r.font.color.rgb = color
 
 
+# ── 노드 클래스 인코딩 (2026-07-26 이관) ─────────────────────────────────────────
+# **한 장 안에서 노드를 그리는 길은 이 함수 하나뿐이어야 한다.**
+#
+# 근거(2026-07-15 제3자 채점 FAIL): 같은 장의 좌 트리와 우 카탈로그가 **별개 함수**로 노드를
+# 그려서 각자 색을 정했다. 좌측은 `bg_alt` 채움을 내부 노드(개념·문단)에 썼고 우측은 같은
+# `bg_alt`를 사례에 썼다 — 독자가 왼쪽에서 배운 "회색 = 그래프 내부"가 오른쪽에서 "회색 =
+# 사례"로 뒤집힌다. 같은 이름의 노드가 한 장에서 회색 덩어리이자 흰 바탕 볼드였다.
+# 노드 클래스가 그 장의 주제인데 인코딩이 자기모순이었던 것이다.
+NODE_STYLE = {
+    "root": dict(fill="primary", line=None, line_w=None, shape="round"),  # 최상위
+    "concept": dict(fill="bg", line="primary", line_w=1.0, shape="round"),  # 체계가 세운 개념
+    "para": dict(fill="bg", line="muted", line_w=0.75, shape="rect"),  # 본문 단위
+    "case": dict(fill="bg_alt", line=None, line_w=None, shape="rect"),  # 외부 사례
+    "term": dict(fill="bg", line="muted", line_w=0.75, shape="round"),  # 사람이 등재한 진입어
+}
+BOLD_KINDS = ("root", "concept")
+
+
+def node_chip(slide, kit, x, y, w, h, text, kind, *, size=None):
+    """노드를 그리는 유일한 길 — 종류가 모양·채움·글자 굵기를 전부 정한다."""
+    C = kit["rgb"]
+    st = NODE_STYLE[kind]
+    b = add_box(
+        slide,
+        x,
+        y,
+        w,
+        h,
+        fill=C[st["fill"]],
+        line=C[st["line"]] if st["line"] else None,
+        line_w=st["line_w"],
+        shape=st["shape"],
+    )
+    set_shape_text(
+        b,
+        text,
+        size or kit["sizes"]["foot"],
+        kit["fonts"]["head"] if kind in BOLD_KINDS else kit["fonts"]["body"],
+        C["bg"] if kind == "root" else C["primary"],
+        bold=(kind in BOLD_KINDS),
+    )
+    return b
+
+
 def badge(slide, kit, cx, cy, text, *, d=0.24, on_dark=False):
     """번호 배지 — 도해의 노드와 옆 설명표의 행을 **같은 번호**로 잇는다.
 

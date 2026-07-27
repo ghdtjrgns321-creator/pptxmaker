@@ -91,15 +91,21 @@ def air_pairs_tech_evidence():
 
 
 def air_pairs_tech_tree():
-    """S9 카탈로그 — 소제목 → 첫 행, 마지막 행 → 하한."""
-    import goldenfab.s09_variants as S9
+    """S9 카탈로그 — 소제목 → 첫 행, 마지막 행 → 하단 카드. 좌표는 장(배치) + 부품에서 파생.
+
+    2026-07-26까지 폐기된 sparse(`s09_variants`) 좌표를 재던 hollow 검사였다(S4·S8과 같은 형태).
+    """
+    import goldenfab.s09_dense as S9
+    from goldenfab.figures.relation_catalog import LAYOUT as CAT
 
     rows = S9.DEFAULT["cat_rows"]
-    pitch = S9._cat_pitch(len(rows))
-    last_bottom = S9.CAT_TOP + (len(rows) - 1) * pitch + S9.CAT_H
+    box = S9.CAT_BOX
+    h = CAT["row_h"]
+    pitch = G.pitch(len(rows), box.y, box.y + box.h - h, h, what="카탈로그 행")
+    last_bottom = box.y + (len(rows) - 1) * pitch + h
     return [
-        ("카탈로그 소제목 → 첫 행", S9.CAT_HEAD_Y + 0.24, S9.CAT_TOP),
-        ("마지막 행 → 하한", last_bottom, A.CONTENT_BOTTOM + A.AIR_MIN),
+        ("카탈로그 소제목 → 첫 행", 0.80 + 0.24, box.y),
+        ("마지막 행 → 하단 카드", last_bottom, 3.62),  # build의 hero_card y
     ]
 
 
