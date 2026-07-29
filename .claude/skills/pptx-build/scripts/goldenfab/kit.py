@@ -23,6 +23,19 @@ def load_kit() -> dict:
     return kit
 
 
+def new_presentation():
+    """16:9 빈 프레젠테이션 — 모든 덱의 출발점.
+
+    2026-07-29 goldenfab/reference.py(골든 내용물 하드코딩)를 아카이브하며 여기로 옮겼다.
+    캔버스 크기를 아는 모듈이 kit이므로 자리가 여기다.
+    """
+    from pptx import Presentation
+
+    prs = Presentation()
+    prs.slide_width, prs.slide_height = Inches(SLIDE_W), Inches(SLIDE_H)
+    return prs
+
+
 def mix(c1: RGBColor, c2: RGBColor, t: float) -> RGBColor:
     """두 브랜드 색의 중간색 (t=0 → c1, t=1 → c2). 고스트 숫자 등 저대비 장식용."""
     return RGBColor(*(round(a + (b - a) * t) for a, b in zip(c1, c2)))

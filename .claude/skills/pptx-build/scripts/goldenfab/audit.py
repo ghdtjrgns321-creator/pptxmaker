@@ -641,6 +641,29 @@ def check_air(pairs, air_min=AIR_MIN):
 # 밀도 파생·검사에서 제외할 골든 본문 장 — 스크린샷은 캡처가 내용을 지므로 글자가 적다(§F).
 DENSITY_EXEMPT = {"screenshot"}
 
+# 골든 스냅샷 17장의 장 종류 키 — assets/golden-snapshot.json의 slides 배열과 같은 순서.
+# 2026-07-29 goldenfab/reference.py(골든 생산 코드)를 아카이브하며 그 SLIDE_ORDER에서 옮겼다.
+# 스냅샷과 한 몸이므로 스냅샷을 갈면 이것도 같이 간다.
+SNAPSHOT_KEYS = [
+    "cover",
+    "toc",
+    "part",
+    "problem_grid",
+    "part",
+    "exec_graph",
+    "part",
+    "tech_evidence",
+    "tech_tree",
+    "screenshot",
+    "tech_mechanism",
+    "tech_capture",
+    "part",
+    "ab_simulation",
+    "validation",
+    "boundary",
+    "closing",
+]
+
 
 def density_band(snapshot_path=None):
     """골든 스냅샷에서 본문 장의 밀도 하한을 파생 — **텍스트 글자수가 주 지표**(2026-07-20).
@@ -658,13 +681,11 @@ def density_band(snapshot_path=None):
     import json
     from pathlib import Path
 
-    from .reference import SLIDE_ORDER
-
     fixed = {"cover", "toc", "part", "closing"}  # 정형 장 — 밀도 대상 아님
     if snapshot_path is None:
         snapshot_path = Path(__file__).resolve().parents[2] / "assets/golden-snapshot.json"
     snap = json.loads(Path(snapshot_path).read_text(encoding="utf-8"))
-    pairs = [(key, sl) for (key, _n), sl in zip(SLIDE_ORDER, snap["slides"]) if key not in fixed]
+    pairs = [(key, sl) for key, sl in zip(SNAPSHOT_KEYS, snap["slides"]) if key not in fixed]
     body = [sl for _k, sl in pairs]
     dense_body = [sl for k, sl in pairs if k not in DENSITY_EXEMPT]  # 글자수 하한은 비스크린샷에서
     shape_counts = [len(sl) for sl in body]

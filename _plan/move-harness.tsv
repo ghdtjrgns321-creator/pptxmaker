@@ -1,0 +1,9 @@
+.claude/skills/deck-compose	_archive/code/skills/deck-compose	deck-spec 조립 스킬 — spec 경로 폐기
+.claude/skills/consistency-qa	_archive/code/skills/consistency-qa	spec 기반 검수 스킬
+.claude/skills/part-design	_archive/code/skills/part-design	figures 부품 설계 절차
+.claude/agents/deck-composer.md	_archive/code/agents/deck-composer.md	파이프라인 2단계 에이전트
+.claude/agents/pptx-builder.md	_archive/code/agents/pptx-builder.md	파이프라인 3단계 에이전트
+.claude/agents/consistency-qa.md	_archive/code/agents/consistency-qa.md	파이프라인 4단계 에이전트
+.claude/hooks/pptx_arm.py	_archive/code/hooks/pptx_arm.py	덱 에이전트 경유 강제용 무장 기록
+.claude/hooks/pptx_render_gate.sh	_archive/code/hooks/pptx_render_gate.sh	메인 대화 직접 수행을 차단 — 새 파이프라인과 정면 충돌
+.claude/state	_archive/claude-state	훅·게이트 런타임 상태 + 완료 계약 기록 — 훅이 아카이브되어 대상 소멸

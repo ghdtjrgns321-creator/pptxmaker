@@ -1,0 +1,10 @@
+.claude/skills/pptx-visuals/scripts/check_candidates.py	_archive/code/skills/pptx-visuals-scripts/check_candidates.py	deck-spec 인자 + audit_pptx(이미 부재) 죽은 import
+.claude/skills/pptx-visuals/scripts/render_real_mockups.py	_archive/code/skills/pptx-visuals-scripts/render_real_mockups.py	build_pptx 의존 목업 러너
+.claude/skills/pptx-visuals/scripts/recommend_archetypes.py	_archive/code/skills/pptx-visuals-scripts/recommend_archetypes.py	deck-spec 인자 추천 엔진
+.claude/skills/pptx-visuals/scripts/make_mockups.py	_archive/code/skills/pptx-visuals-scripts/make_mockups.py	HTML/mpl 스케치 목업 — 웹목업 기각(PPT 목업으로 대체)
+.claude/skills/pptx-build/scripts/goldenfab/variants	_archive/code/goldenfab-variants	골든 시안 pptx 3개
+golden/ref	_archive/golden-ref-구판	구판 골든 렌더 19장 — 현행 구성과 불일치
+_render/조립	_archive/render-조립	frames 조립 렌더 — 틀 아카이브됨
+_lab/deck.py	_archive/code/lab/deck-1차실험판.py	1차 실험판 — figures 7종 호출, 사용자 반려(전 장 동일 형식)
+.claude/skills/pptx-build/references/deck-spec-schema.md	_archive/code/references/deck-spec-schema.md	deck-spec 스키마 — 차트·다이어그램 필드는 pptx-visuals/references/spec-fields.md로 발췌 이관
+.claude/skills/pptx-build/assets/legacy-refs.json	_archive/code/assets/legacy-refs.json	legacy 렌더러(build_pptx) 통과작 기준선

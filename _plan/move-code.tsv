@@ -1,0 +1,31 @@
+.claude/skills/pptx-build/scripts/goldenfab/figures	_archive/code/goldenfab/figures	부품 10종 — 두 실험판 모두 0회 호출
+.claude/skills/pptx-build/scripts/goldenfab/frames.py	_archive/code/goldenfab/frames.py	배치 틀 6종 — 0회. 자리 독점이 반려 원인
+.claude/skills/pptx-build/scripts/goldenfab/registry.py	_archive/code/goldenfab/registry.py	레이아웃 15종 배정표 — 장 통째 배정 = 복제 원인
+.claude/skills/pptx-build/scripts/goldenfab/reference.py	_archive/code/goldenfab/reference.py	골든 내용물 하드코딩(K-IFRS) — 골든 생산 코드
+.claude/skills/pptx-build/scripts/goldenfab/content_contract.py	_archive/code/goldenfab/content_contract.py	registry 전용 계약 검사
+.claude/skills/pptx-build/scripts/goldenfab/select.py	_archive/code/goldenfab/select.py	frames 기반 부품 선택기
+.claude/skills/pptx-build/scripts/goldenfab/common.py	_archive/code/goldenfab/common.py	참조 0건 — 죽은 코드
+.claude/skills/pptx-build/scripts/goldenfab/s04_dense.py	_archive/code/goldenfab/s04_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s06_mid.py	_archive/code/goldenfab/s06_mid.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s08_dense.py	_archive/code/goldenfab/s08_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s09_dense.py	_archive/code/goldenfab/s09_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s10_dense.py	_archive/code/goldenfab/s10_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s11_dense.py	_archive/code/goldenfab/s11_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s12_dense.py	_archive/code/goldenfab/s12_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s14_dense.py	_archive/code/goldenfab/s14_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s15_dense.py	_archive/code/goldenfab/s15_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s16_dense.py	_archive/code/goldenfab/s16_dense.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/goldenfab/s17_variants.py	_archive/code/goldenfab/s17_variants.py	골든 시안 변형
+.claude/skills/pptx-build/scripts/goldenfab/s21_closing.py	_archive/code/goldenfab/s21_closing.py	골든 본문 렌더러
+.claude/skills/pptx-build/scripts/build_pptx.py	_archive/code/scripts/build_pptx.py	deck-spec 빌더 1368줄 — 0회
+.claude/skills/pptx-build/scripts/audit_golden.py	_archive/code/scripts/audit_golden.py	골든 전용 오딧
+.claude/skills/pptx-build/scripts/compare_golden.py	_archive/code/scripts/compare_golden.py	골든 스냅샷 회귀 게이트
+.claude/skills/pptx-build/scripts/audit_deck.py	_archive/code/scripts/audit_deck.py	deck-spec 인자 러너 — spec이 사라짐
+.claude/skills/pptx-build/scripts/preflight_dense.py	_archive/code/scripts/preflight_dense.py	audit.density_band로 통합됨
+.claude/skills/pptx-build/scripts/fig_mockup.py	_archive/code/scripts/fig_mockup.py	figures 목업
+.claude/skills/pptx-build/scripts/pick_parts.py	_archive/code/scripts/pick_parts.py	select 래퍼
+.claude/skills/pptx-build/scripts/verify_content_contract.py	_archive/code/scripts/verify_content_contract.py	content_contract 검사
+.claude/skills/pptx-build/scripts/verify_selection.py	_archive/code/scripts/verify_selection.py	select 검사
+.claude/skills/pptx-build/scripts/dump_contract.py	_archive/code/scripts/dump_contract.py	contract 덤프
+.claude/skills/pptx-build/scripts/test_wiring.py	_archive/code/scripts/test_wiring.py	archive 대상들의 배선 테스트 1048줄
+golden/build_golden.py	_archive/code/golden-build/build_golden.py	골든 생산 코드 — 기준선은 pptx+PNG로 고정

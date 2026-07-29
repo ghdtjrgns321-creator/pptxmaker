@@ -1,0 +1,9 @@
+_workspace_prev	_archive/workspace_prev	이전 파이프라인 워크스페이스 전량
+_workspace_kifrs	_archive/workspace_kifrs	K-IFRS 파일럿 워크스페이스
+golden/LEGACY	_archive/golden-LEGACY	이미 LEGACY 표시된 골든 구판
+golden/_pilot_s06	_archive/golden-pilot_s06	S06 승격 파일럿 산출물
+golden/variants	_archive/golden-variants	골든 시안 비교표
+results/k-ifrs1115	_archive/results-k-ifrs1115	이전 프로젝트 산출 덱
+input/k-ifrs-1115	_archive/input-k-ifrs-1115	이전 프로젝트 입력 재료
+results/검토	_archive/results-검토	부품 렌더 9건 + 골든 S6 승격 중간 산출
+.claude/skills/pptmaker/_workspace_prev	_archive/skill-pptmaker-workspace_prev	스킬 디렉토리에 섞여있던 이전 워크스페이스(오염)

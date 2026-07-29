@@ -55,15 +55,67 @@ def arrow(slide, x1, y1, x2, y2, color, w=1.5):
 BAND_RULE_DY = 0.36
 
 
-def band_head(slide, y, text):
-    """밴드 소제목 + 풀폭 룰 — 한 장 안의 구획을 여백이 아니라 장치로 나눈다.
+def band_head(slide, y, text, x=None, w=None):
+    """밴드 소제목 + 룰 — 한 장 안의 구획을 여백이 아니라 장치로 나눈다.
 
     페이지 요소다(도해가 아니다). 2층 부품은 이걸 소유하지 않는다 — 부품은 box 안 그래픽
     하나만 그리고, 구획을 나눌지는 장이 정한다.
+
+    `x`·`w`를 주면 **그 자리 폭만큼**만 그린다. 골든이 좌우 두 자리를 쓸 때 소제목도 자리마다
+    따로다(S12 좌 x0.60 w5.10 · S11 우 x6.60). 기본값(전폭)은 골든 sparse 장 호환.
     """
-    w = G.RIGHT_EDGE - G.MARGIN_L
-    add_text(slide, G.MARGIN_L, y, w, 0.32, text, S["head"], F["head"], C["primary"], bold=True)
-    add_box(slide, G.MARGIN_L, y + BAND_RULE_DY, w, 0.012, fill=C["muted"])
+    x = G.MARGIN_L if x is None else x
+    w = (G.RIGHT_EDGE - G.MARGIN_L) if w is None else w
+    add_text(slide, x, y, w, 0.32, text, S["head"], F["head"], C["primary"], bold=True)
+    add_box(slide, x, y + BAND_RULE_DY, w, 0.012, fill=C["muted"])
+
+
+def figure_caption(slide, x, y, w, text):
+    """도해 바로 밑 한 줄 — 그림이 말하지 못하는 분해·단서를 붙인다(골든 s08 실측 y3.36).
+
+    조립 장이 얕아 보이는 가장 큰 이유가 **도해와 카드 사이가 통째로 비는 것**이었다
+    (2026-07-29 실측: 골든 최대 백지 0.3" vs 조립 1.1~1.3"). 골든은 그 자리를 이 줄로 잇는다.
+    """
+    add_text(slide, x, y, w, 0.18, text, S["foot"], F["body"], C["muted"])
+
+
+DETAIL_HEAD_H = 0.28
+DETAIL_BODY_DY = 0.33
+DETAIL_BODY_H = 1.05
+DETAIL_GAP = 0.35
+
+
+def detail_columns(slide, x, y, w, items, *, gap=DETAIL_GAP, body_h=DETAIL_BODY_H):
+    """설명 칼럼 N개 — 머리글 + (볼드 리드 + 평어 본문) + 칼럼 사이 세로 구분선.
+
+    골든 s06이 얇은 레인 도해 아래를 이 층으로 채운다. **같은 도해로도 장이 차는 이유**가
+    여기다 — 새 사실을 만드는 게 아니라 같은 내용의 설명 층을 얹는 것이다.
+    골든과 조립이 이 함수 하나를 공유한다(관용구가 두 벌이 되면 곧 갈라진다).
+
+    items = [(머리글, 볼드 리드, 평어 본문), ...]
+    """
+    n = len(items)
+    cw = (w - (n - 1) * gap) / n
+    for i, (head, lead, body) in enumerate(items):
+        dx = x + i * (cw + gap)
+        add_text(
+            slide, dx, y, cw, DETAIL_HEAD_H, head, S["caption"], F["head"], C["primary"], bold=True
+        )
+        add_text(
+            slide,
+            dx,
+            y + DETAIL_BODY_DY,
+            cw,
+            body_h,
+            [[(lead, {"bold": True, "color": C["primary"]}), (body, {})]],
+            S["caption"],
+            F["body"],
+            C["muted"],
+            line_spacing=1.25,
+        )
+        if i < n - 1:
+            add_box(slide, dx + cw + gap / 2, y, 0.012, body_h, fill=C["bg_alt"])
+    return cw
 
 
 def compact_header(slide, kicker, headline):

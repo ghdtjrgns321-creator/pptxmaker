@@ -1,42 +1,59 @@
 # archetype-catalog — 시각 어휘 카탈로그 (v5 · 두 축)
 
-> **위치(2026-07-25 재수립).** 어휘는 **두 축**이다. (A) 골든 도해 문법(`goldenfab` 장 아키타입)과
-> (B) 범용 L-ID(`visuals` generic 렌더러). 물성 결정표(`deck-compose/references/layout-matching.md`)가
-> 입력 축의 정본이고, 이 카탈로그는 **그 표가 가리키는 부품의 정형·계약·세트제약 단일 출처**다.
-> v4까지 이 카탈로그에 (B)만 있었다 — 그래서 자동 경로(컴포저)가 골든 문법을 **고를 수조차 없었고**
-> 실전 덱이 범용 폴백으로 샜다(근거: `docs/2026-07-25-골든-도해-어휘-인벤토리.md` §2).
-> 이번 재수립은 그 구멍만 메운다. (B) 행은 하나도 지우지 않았다(폐기 판정은 별도 단계).
+> **위치(2026-07-29 재정의).** 어휘는 **두 축**이다. (A) 골든 도해 문법과 (B) 범용 L-ID.
+> 둘의 성격이 2026-07-29 하네스 정리로 갈라졌다:
+>
+> - **(A)는 그림 사전이 됐다.** 장 렌더러(`goldenfab/sNN_*.py`)와 부품(`figures/`)이 전부
+>   `_archive/`로 갔다. 표의 `골든 출처`·`dense 기준작`·`데이터 계약` 열은 이제 **역사 기록**이다 —
+>   부를 수 있는 코드가 아니다. 남은 것은 **물성 지식**(어떤 질문에 어떤 형태가 맞나)이고,
+>   그건 코드 없이도 유효하다.
+> - **(B)는 그대로 코드다.** `visuals.py`·`mpl_exhibits.py`가 살아 있고 직접 호출한다
+>   (필드는 `spec-fields.md`).
 
 **철칙 ①(B): 모든 L-ID 행은 렌더러가 실존한다** — 렌더러 없는 아키타입 등재 금지(hollow 카탈로그
 방지). 새 L-ID는 렌더러 구현·스모크 통과 후에만 추가한다.
-**철칙 ②(A): 모든 골든 문법 행은 `모듈:심볼`이 실존하고, 선언한 데이터 계약 키가 실제로 읽힌다** —
-"이 키를 주면 바뀐다"는 거짓 주장 금지. 두 철칙 모두 `test_wiring.py`가 기계 미러로 강제한다
-(①=통합C, ②=통합E·통합F).
+
+~~철칙 ②(A): 모든 골든 문법 행은 `모듈:심볼`이 실존한다~~ — 2026-07-29 무효. 그 코드도, 이를
+강제하던 기계 미러(`test_wiring.py` 통합E·F)도 아카이브됐다. (A) 행의 코드 경로를 **호출하려
+들지 마라** — 실존하지 않는다.
+
+## (A)를 쓰는 법 — 코드가 아니라 그림을 본다
+
+물성이 맞는 행을 찾고, **골든 렌더 PNG를 열어서 보고**, 그 형태를 지금 재료에 맞게 새로 조판한다.
+그대로 베끼는 것이 아니다(pptmaker 확정 규칙 4 — 부품함·골든덱은 재료로만).
+
+| 골든 타입 | 볼 그림 | 골든 타입 | 볼 그림 |
+| --- | --- | --- | --- |
+| `problem_grid` | `golden/render/s04.png` | `tech_capture` | `golden/render/s12.png` |
+| `exec_graph` | `golden/render/s06.png` | `ab_simulation` | `golden/render/s14.png` |
+| `tech_evidence` | `golden/render/s08.png` | `validation` | `golden/render/s15.png` |
+| `tech_tree` | `golden/render/s09.png` | `boundary` | `golden/render/s16.png` |
+| `tech_mechanism` | `golden/render/s11.png` | | |
+
+부품 단위 그림은 `golden/render-부품/<부품명>/s01.png`(27장).
 
 ## 두 축 — 무엇이 어떻게 다른가
 
-| 축                     | 등재 단위                 | 렌더 경로                                                     | spec 타입                              | 임의 데이터 호출          |
-| ---------------------- | ------------------------- | ------------------------------------------------------------- | -------------------------------------- | ------------------------- |
-| **(A) 골든 도해 문법** | 장 아키타입 안의 **도해** | `goldenfab/sNN_*.py` 장 함수 (`visuals.py` 참조 **0건**)      | `golden.<layout>` / `adapted.<layout>` | **불가** — 장 함수다      |
-| **(B) 범용 L-ID**      | generic 부품 1개          | `visuals.add_chart/add_diagram` · `mpl_exhibits` · build_pptx | `chart` / `diagram` / `table` …        | 가능 — `layout=` 디스패치 |
+| 축 | 등재 단위 | 지금 상태 | 쓰는 법 |
+| --- | --- | --- | --- |
+| **(A) 골든 도해 문법** | 장 아키타입 안의 **도해** | 코드 아카이브 · 렌더 PNG 유지 | 그림을 보고 물성을 배워 **새로 조판** |
+| **(B) 범용 L-ID** | generic 부품 1개 | `visuals`·`mpl_exhibits` 실존 | `add_chart`/`add_diagram`/`render` **직접 호출** |
 
-**한 축에 섞지 마라.** (A)는 `add_diagram(layout="gate_causality")`처럼 부를 수 없다 — 그렇게 등재하면
-즉시 hollow 행이 된다(2026-07-25 삭제한 hollow 3행 process_grid·category_spine_table·mapping과 같은 결함).
-(A)의 사용법은 **장 타입 배정**이다: 항목 수가 골든과 맞으면 `golden.<layout>`+content, 다르면
-`adapted.<layout>`+장 스크립트로 변형(design-rules Ⅲ부 P5 · `build_pptx._render_scripted`).
+**한 축에 섞지 마라.** (A)는 `add_diagram(layout="gate_causality")`처럼 부를 수 없다 — 그런 렌더러는
+없다(2026-07-25 삭제한 hollow 3행과 같은 결함이 된다).
 
 ## (A) 골든 도해 문법 — 등재 15종
 
-행 토큰 규약(기계 검증 대상 · 통합E):
+행 토큰 규약:
 
-- **골든 출처 / dense 기준작** = `` `goldenfab/모듈.py:심볼` `` — 파일 실존 + 심볼이 모듈 최상위에 실존.
-  *골든 출처* = registry가 부르는 렌더러(= content 주입이 실제로 먹는 쪽), *dense 기준작* = 사용자
-  승인 고밀도판(= `adapted` 변형의 출발점, registry 미승격).
-- **데이터 계약** = `` `c:키` ``(그 문법이 그리려면 있어야 하는 content 키 — 선언한 키는 출처 모듈에서
-  **실제로 읽혀야** 통과) · `` `const:이름` ``(모듈 상수에 **하드코딩**된 데이터 = content로 못 바꾼다).
+- **볼 그림** = 그 문법이 실제로 쓰인 골든 슬라이드의 렌더 PNG. **여기서부터 시작한다** — 열어서
+  보고, 물성을 배워, 지금 재료에 맞게 새로 조판한다. (~~골든 출처·dense 기준작·데이터 계약 열~~은
+  2026-07-29 삭제 — 가리키던 코드가 전부 아카이브됐고, 없는 코드를 가리키는 열은 거짓 주장이다.)
 - **항목 수** = `` `[파생]` ``(항목 수에서 피치·폭을 파생 — 개수 바뀌어도 안 깨짐) 또는
   `` `[고정:N]` ``(좌표·스타일 리스트와 `zip` — **초과분은 조용히 사라지고** 미달분은 빈칸이 된다).
-  현재 **파생 5 · 고정 10**. `test_wiring.ARITY_DERIVED`가 증가 전용 래칫.
+  현재 **파생 5 · 고정 10**(~~`test_wiring.ARITY_DERIVED` 래칫~~ 2026-07-29 아카이브).
+  **이 항목 수 표기가 (A)에서 가장 오래 쓸모 있는 열이다** — 새로 조판할 때 "개수가 바뀌면
+  깨지는 형태인가"를 알려준다.
   파생의 자는 `goldenfab/grid.py`의 **`pitch`(세로)·`track`(가로) 단일 출처**이고, 수용 한계를
   넘으면 조용히 겹치지 않고 **시끄럽게 죽는다**(design-rules §E-2·§F). 그래서 `[파생]`은
   "무한히 늘어난다"가 아니라 **"개수에서 좌표가 나오고, 한계는 빌드가 알려준다"**는 뜻이다.
@@ -44,43 +61,43 @@
 
 ### A-1 관계·인과 (8종)
 
-| ID  | 문법명                  | 물성 — 답하는 질문                               | 골든 출처(정본 렌더러)                      | dense 기준작                                | 데이터 계약                                                                                                                                               | 항목 수        | 변형 경로                | (B) 대응                         |
-| --- | ----------------------- | ------------------------------------------------ | ------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------- | ------------------------ | -------------------------------- |
-| G01 | `gate_causality`        | 같은 입력인데 왜 결과가 갈리나(◇판정 게이트)     | `goldenfab/figures/gate_branch.py:draw`     | `goldenfab/s04_dense.py:build`              | `c:band1_head` `c:question` `c:gate` `c:branch_ok` `c:branch_lack` `c:ok_chip` `c:ok_note` `c:lack_chip` `c:rows`                                         | `[고정:2]`     | `golden.problem_grid`    | ~~L16 branch~~(열위)       |
-| G02 | `cause_fanin`           | 여러 원인이 결국 한 곳에서 만나나(N→1 수렴)      | `goldenfab/figures/fan_in.py:draw`          | `goldenfab/s04_dense.py:build`              | `c:band2_head` `c:limits` `c:gate` `c:converge_mark` `c:converge_note`                                                                                    | `[파생]`       | `golden.problem_grid`    | **없음**                         |
-| G04 | `routing_band`          | 정상 경로와 거절 경로가 어디서 갈리나            | `goldenfab/figures/routing_lane.py:draw`     | `goldenfab/s06_variants.py:variant_c`       | `c:node_names` `c:node_tags` `c:in_label` `c:out_label` `c:reject_box` `c:reject_desc`                                                                    | `[파생]`       | `golden.exec_graph`      | ~~L20 process_band~~       |
-| G05 | `bipartite_map`         | A 집합과 B 집합이 어떻게 갈라지고 모이나(N:M)    | `goldenfab/figures/bipartite_map.py:draw`    | `goldenfab/s08_dense.py:build`              | `c:terms` `c:map_head` `c:map_caption` `c:map_legend`                                                                                                     | `[파생]`       | `golden.tech_evidence`   | ~~L19 from_to~~(열위)      |
-| G09 | `applied_decision_tree` | 실제 질문 하나가 시스템 안에서 어떻게 갈리나     | `goldenfab/s11_dense.py:_decision_tree`     | `goldenfab/s11_dense.py:build`              | `c:flow_head` `c:question` `c:topic_label` `c:tree_chip` `c:diamond` `c:diamond_anchor` `c:method1_head` `c:method1_sub` `c:method2_head` `c:method2_sub` | `[고정:2]`     | `golden.tech_mechanism`  | ~~L16 branch~~(열위)       |
-| G11 | `n_branch`              | 하나가 몇 갈래로 갈리나(분기 수가 메시지)        | `goldenfab/figures/n_branch.py:draw`        | `goldenfab/s11_dense.py:build`              | `c:branch_label` `c:branch_source` `c:branches`                                                                                                          | `[파생]`(≤4)   | `adapted.tech_mechanism` | ~~L16 branch~~             |
-| G15 | `isolation_flow`        | 무엇을 주고 무엇을 막았나(시험의 공정성)         | `goldenfab/s15_dense.py:build`              | (승격 완료 — 출처와 동일)                   | `c:dests`                                                                                                                                                 | `[고정:3]`     | `golden.validation`      | ~~L16 branch~~(열위)       |
-| G19 | `boundary_containment`  | 어디까지 하고 어디서 멈추나(경계=상자·차단=충돌) | `goldenfab/s16_dense.py:build`              | (승격 완료 — 출처와 동일)                   | `c:outside_label` `c:inside_title` `c:inside_policy` `c:limits`                                                                                           | `[고정:밖1+1 · 파생:한계≤4]` | `golden.boundary`        | ~~L34 pro_con~~(다른 주장) |
+| ID | 문법명 | 물성 — 답하는 질문 | 항목 수 | 볼 그림 | (B) 대응 |
+| --- | --- | --- | --- | --- | --- |
+| G01 | `gate_causality` | 같은 입력인데 왜 결과가 갈리나(◇판정 게이트) | `[고정:2]` | `golden/render/s04.png` | ~~L16 branch~~(열위) |
+| G02 | `cause_fanin` | 여러 원인이 결국 한 곳에서 만나나(N→1 수렴) | `[파생]` | `golden/render/s04.png` | **없음** |
+| G04 | `routing_band` | 정상 경로와 거절 경로가 어디서 갈리나 | `[파생]` | `golden/render/s06.png` | ~~L20 process_band~~ |
+| G05 | `bipartite_map` | A 집합과 B 집합이 어떻게 갈라지고 모이나(N:M) | `[파생]` | `golden/render/s08.png` | ~~L19 from_to~~(열위) |
+| G09 | `applied_decision_tree` | 실제 질문 하나가 시스템 안에서 어떻게 갈리나 | `[고정:2]` | `golden/render/s11.png` | ~~L16 branch~~(열위) |
+| G11 | `n_branch` | 하나가 몇 갈래로 갈리나(분기 수가 메시지) | `[파생]`(≤4) | `golden/render/s11.png` | ~~L16 branch~~ |
+| G15 | `isolation_flow` | 무엇을 주고 무엇을 막았나(시험의 공정성) | `[고정:3]` | `golden/render/s15.png` | ~~L16 branch~~(열위) |
+| G19 | `boundary_containment` | 어디까지 하고 어디서 멈추나(경계=상자·차단=충돌) | `[고정:밖1+1 · 파생:한계≤4]` | `golden/render/s16.png` | ~~L34 pro_con~~(다른 주장) |
 
 G11 기하 오라클: 부품 `n_branch`가 `grid.pitch`로 갈래 y를 파생하고 밴드를 넘으면 죽는다 (2026-07-26 부품화 전에는 `s11_branch_snap.py:audit`이 그 검산을 맡았다).
 
 ### A-2 구조·위계 (4종)
 
-| ID  | 문법명             | 물성 — 답하는 질문                            | 골든 출처(정본 렌더러)                    | dense 기준작                                | 데이터 계약                                                 | 항목 수      | 변형 경로               | (B) 대응                                   |
-| --- | ------------------ | --------------------------------------------- | ----------------------------------------- | ------------------------------------------- | ----------------------------------------------------------- | ------------ | ----------------------- | ------------------------------------------ |
-| G06 | `node_class`       | 이 상자는 어떤 종류인가(색 대신 모양+채움)    | `goldenfab/figures/elements.py:node_chip`  | `goldenfab/s09_dense.py:_tree`              | `c:root` `c:concepts` `c:paras` `c:term_chip` `c:case_chip` | `[고정:5종]` | `golden.tech_tree`      | **없음**((B) 노드는 단일 스타일이었다)          |
-| G08 | `relation_catalog` | 무엇이 무엇을 잇고 그 근거는 어디서 왔나      | `goldenfab/figures/relation_catalog.py:draw` | `goldenfab/s09_dense.py:build`              | `c:cat_rows` `c:cat_title`                                  | `[파생]`     | `golden.tech_tree`      | ~~L21 band_table~~·L26 표(관계 뭉갬) |
-| G10 | `numbered_steps`   | 절차가 몇 단계인가(박스 없이 · 죽은 여백 0)   | `goldenfab/figures/numbered_steps.py:draw` | `goldenfab/s11_dense.py:build`              | `c:steps_head` `c:steps`                | `[파생]`(골든≤3·dense≤4) | `golden.tech_mechanism` | ~~L35 icon_rows~~(진행 화살표 없음)  |
-| G14 | `evidence_chain`   | 결론에 어떻게 도달했나(도달 경로 자체가 근거) | `goldenfab/s14_dense.py:build`            | `goldenfab/s14_dense.py:build`              | `c:steps` `c:right_title` `c:right_note`                    | `[파생]`(≤4) | `golden.ab_simulation`  | ~~L15 layers~~(주석열 없음)          |
+| ID | 문법명 | 물성 — 답하는 질문 | 항목 수 | 볼 그림 | (B) 대응 |
+| --- | --- | --- | --- | --- | --- |
+| G06 | `node_class` | 이 상자는 어떤 종류인가(색 대신 모양+채움) | `[고정:5종]` | `golden/render/s09.png` | **없음**((B) 노드는 단일 스타일이었다) |
+| G08 | `relation_catalog` | 무엇이 무엇을 잇고 그 근거는 어디서 왔나 | `[파생]` | `golden/render/s09.png` | ~~L21 band_table~~·L26 표(관계 뭉갬) |
+| G10 | `numbered_steps` | 절차가 몇 단계인가(박스 없이 · 죽은 여백 0) | `[파생]`(골든≤3·dense≤4) | `golden/render/s11.png` | ~~L35 icon_rows~~(진행 화살표 없음) |
+| G14 | `evidence_chain` | 결론에 어떻게 도달했나(도달 경로 자체가 근거) | `[파생]`(≤4) | `golden/render/s14.png` | ~~L15 layers~~(주석열 없음) |
 
 `node_class`는 **원소 문법**이다 — 트리·카탈로그가 공용하며 노드를 그리는 길은 `_node_chip` 하나뿐이다
 (2026-07-15 제3자 채점 FAIL의 원인: 같은 회색이 좌에선 내부 노드, 우에선 사례를 뜻했다).
 
 ### A-3 결과·수량 (2종)
 
-| ID  | 문법명              | 물성 — 답하는 질문                          | 골든 출처(정본 렌더러)                | dense 기준작                   | 데이터 계약                                                                                                              | 항목 수      | 변형 경로              | (B) 대응                              |
-| --- | ------------------- | ------------------------------------------- | ------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------ | ------------ | ---------------------- | ------------------------------------- |
-| G13 | `rank_cut_reject`   | 점수 순위가 정답을 어떻게 버리나(컷선 아래) | `goldenfab/s14_dense.py:build`        | `goldenfab/s14_dense.py:build` | `c:question` `c:rank_labels` `c:surface_card` `c:cut_label` `c:reject_mark` `c:reject_card` `c:left_title` `c:left_note` | `[고정:3]`   | `golden.ab_simulation` | **없음**(컷·기각 어휘 부재)           |
-| G17 | `asymmetric_blocks` | 폭 자체가 비대칭을 말한다(13 vs 1)          | **없음**(dense 전용)                  | `goldenfab/s15_dense.py:build` | `c:miss_head` `c:unfix_head` `c:unfix` `c:fix_head` `c:fix_lead` `c:fix_points`                                          | `[고정:4+2]` | `adapted.validation`   | ~~L37 contrast_split~~(균등 폭) |
+| ID | 문법명 | 물성 — 답하는 질문 | 항목 수 | 볼 그림 | (B) 대응 |
+| --- | --- | --- | --- | --- | --- |
+| G13 | `rank_cut_reject` | 점수 순위가 정답을 어떻게 버리나(컷선 아래) | `[고정:3]` | `golden/render/s14.png` | **없음**(컷·기각 어휘 부재) |
+| G17 | `asymmetric_blocks` | 폭 자체가 비대칭을 말한다(13 vs 1) | `[고정:4+2]` | `golden/render/s15.png` | ~~L37 contrast_split~~(균등 폭) |
 
 ### A-4 실물 증거 (1종)
 
-| ID  | 문법명             | 물성 — 답하는 질문                          | 골든 출처(정본 렌더러)                  | dense 기준작                   | 데이터 계약                                | 항목 수                 | 변형 경로           | (B) 대응 |
-| --- | ------------------ | ------------------------------------------- | --------------------------------------- | ------------------------------ | ------------------------------------------ | ----------------------- | ------------------- | -------- |
-| G21 | `capture_with_ops` | 정말 돌아가나(캡처 + 캡처가 못 증명하는 것) | `goldenfab/s10_dense.py:build` | `goldenfab/s10_dense.py:build` | `c:img` `c:points` `const:OPS` | `[고정:4]`(폭은 n 파생) | `golden.screenshot` | **없음** |
+| ID | 문법명 | 물성 — 답하는 질문 | 항목 수 | 볼 그림 | (B) 대응 |
+| --- | --- | --- | --- | --- | --- |
+| G21 | `capture_with_ops` | 정말 돌아가나(캡처 + 캡처가 못 증명하는 것) | `[고정:4]`(폭은 n 파생) | `golden/render/s10.png` | **없음** |
 
 `img`는 자산(캡처 파일)이 필수다 — 없으면 이 문법을 고를 수 없다(§F 경계: 다이어그램이 증명 못 하는
 것만 곁들인다).

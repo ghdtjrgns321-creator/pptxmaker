@@ -1,9 +1,8 @@
 """goldenfab.layouts — 골든 확정 레이아웃 cover·toc·part.
 
-**여기가 이 3종의 확정 구현이자 유일 소스다**(2026-07-15 단일화. 전에는 golden/build_golden.py에
-같은 코드가 한 벌 더 있었고 그쪽이 "기준"이었다 — 사본 삭제로 해소).
+**여기가 이 3종의 확정 구현이자 유일 소스다**(2026-07-15 단일화).
 좌표·서식 임의 변경 금지(design-rules). 콘텐츠만 인자(dict)로 받는다.
-회귀 검증: scripts/compare_golden.py(기준선 스냅샷 대조).
+회귀 검증기(compare_golden)는 2026-07-29 아카이브 — 골든이 고정 기준선이 되어 대조 대상이 없다.
 """
 
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN

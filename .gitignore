@@ -10,14 +10,16 @@ __pycache__/
 # 빌드 산출물 (생성된 발표자료)
 *.pptx
 !**/assets/**/*.pptx
+# 예외: 골든 덱은 산출물이 아니라 **고정 기준선**이다. 생산 코드(build_golden·reference)를
+# 2026-07-29에 아카이브했으므로 재생성이 불가능하다 — 잃으면 끝이라 반드시 커밋한다.
+# 같은 이유로 golden/render(17장)·golden/render-부품(27장)도 ignore하지 않는다.
+!golden/golden-deck.pptx
 
 # 로컬 상태 (세션별 계약)
 .claude/state/
 
 # 파이프라인 작업물 (재료·중간 산출물 — 재생성 가능)
 _workspace/
-_workspace_prev/
-_workspace_kifrs/
 
 # 레퍼런스 원본 (대용량·저작물 PDF — 로컬 보관만)
 data/
@@ -29,19 +31,19 @@ ref/
 docs/user/
 docs/handoff-*.md
 
+# 아카이브 (2026-07-29 하네스 정리로 물러난 것 전부 — 로컬 보관)
+# 추적이던 것들(golden/LEGACY 198개·input 3개)은 git 히스토리에 남아 필요하면 거기서 복원한다.
+_archive/
+
+# 실험판 작업 디렉토리 (덱 한 벌이 끝나면 _workspace/로 정리)
+_lab/
+
 # OS
 .DS_Store
 Thumbs.db
-
-# 렌더 중간 산출물·세션 상태·OS 잡동사니 (골든 시안 PNG는 golden/variants/*.png로 보존)
-golden/.claude/
-golden/render/
 desktop.ini
+golden/.claude/
 
-# 골든 렌더 산출물 — build_golden.py로 재생성. 대표본은 docs/images/에 보존
-golden/render_v6/
-golden/_pilot_s06/render/
-golden/_pilot_s06/render_operating/
-golden/_pilot_s06/_ref_crops/
-golden/_proto_s06_f_render/
-golden/backup/**/render/
+# 정리 시점 조사 스냅샷 (일회성 — 대장·검증기만 보존)
+_plan/tracked.txt
+_plan/untracked.txt
