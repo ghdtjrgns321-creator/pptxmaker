@@ -1,8 +1,10 @@
 """BCG풍 복합 익스히빗 렌더러 — matplotlib 고해상도 PNG (pptx-visuals 스킬 단일 출처).
 
 네이티브 차트(visuals.py)가 표현 못 하는 유형만 담당한다: waterfall·heatmap·dumbbell·
-slope·funnel·annotated_scatter·histogram. 산출물은 이미지라 PPT에서 수치 편집이 불가하며,
-수정은 deck-spec 경유 재빌드가 공식 경로다(목업 갤러리에 "수치편집불가" 라벨로 고지).
+slope·funnel·annotated_scatter·histogram·bubble·waffle. 산출물은 이미지라 **PPT에서 수치
+편집이 불가하다** — 고치려면 데이터를 바꿔 이 함수를 다시 부르고 PNG를 갈아끼운다.
+`render(spec, brand, out_png, w_in, h_in)`으로 직접 부른다(2026-07-29: 이 모듈을 감싸던
+빌더와 deck-spec 경로는 아카이브됐다). 데이터 필드는 `references/spec-fields.md`.
 
 스타일 단일 경로: 모든 렌더러는 _fig()로 시작해 _save()로 끝나고, 색은 반드시
 _palette(brand)가 주는 회색 베이스 + accent 1색만 쓴다 — "전부 회색, 강조 데이터만
@@ -21,7 +23,7 @@ from matplotlib.patches import Circle  # noqa: E402
 
 DPI = 220
 
-# 렌더 경로 판별용 — build_pptx가 chart_type이 여기 있으면 이미지 경로로 보낸다
+# 이 chart_type들은 네이티브가 아니라 PNG로 굽는다(호출자가 이 집합으로 경로를 가른다)
 MPL_TYPES = {
     "waterfall",
     "heatmap",

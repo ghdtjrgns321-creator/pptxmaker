@@ -1,8 +1,10 @@
 """차트·다이어그램 렌더 모듈 — pptx-visuals 스킬의 단일 출처.
 
-build_pptx.py가 import해서 사용한다. 차트는 네이티브 차트(PPT에서 데이터 수정 가능),
-다이어그램은 도형+커넥터 조합(timeline·matrix_2x2·venn 등 9종)으로 렌더한다.
+**조판 스크립트가 직접 import해서 부른다** — 자리(x,y,w,h 인치)를 인자로 주면 그 자리에
+그린다(2026-07-29: 이 모듈을 감싸던 빌더는 아카이브됐다. spec 파일도 파이프라인도 필요 없다).
+차트는 네이티브 차트(PPT에서 데이터 수정 가능), 다이어그램은 도형+커넥터 조합 9종.
 색·폰트·크기는 인자로 받은 brand dict(brand-kit.yaml)에서만 나온다.
+데이터 필드는 `references/spec-fields.md`가 단일 출처.
 """
 
 from pathlib import Path
