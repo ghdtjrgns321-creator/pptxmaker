@@ -41,8 +41,9 @@ consistency-qa)과 deck-spec 경로는 `_archive/`에 있다 — 되살리지 �
 
 ## 재료·단일 출처
 
-- 콘텐츠 재료: 사용자가 프로젝트별 `FINAL-REPORT/`(보고서형 md 묶음)로 미리 정리해둔다 — 추출
-  단계 없음. 재료를 기계가 세는 것은 `scan_material.py`.
+- 콘텐츠 재료: 사용자가 프로젝트별로 미리 정리해둔다 — 추출 단계 없음. **어느 정리본을 쓸지는
+  사용자가 지정한다**(`README.md` 완성판 / `FINAL-REPORT/` 창고 — 판단 기준은 `pptmaker/SKILL.md`).
+  재료를 기계가 세는 것은 `scan_material.py`.
 - 브랜드 일관성: `.claude/skills/pptx-build/assets/brand-kit.yaml` (이 파일만 고치면 전체 반영)
 - 조판 도구함: `goldenfab/` — `kit`(원시도구)·`grid`(좌표계)·`dense`(밀도 부품)·`layouts`(정형 장)
 - 차트·다이어그램: `pptx-visuals` 스킬 (필드는 `references/spec-fields.md`)
