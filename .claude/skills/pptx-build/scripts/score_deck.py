@@ -51,6 +51,7 @@ def main():
 
     total = 0
     checked = 0
+    icon_total = 0
     for i, slide in enumerate(prs.slides, 1):
         shapes = list(slide.shapes)
         if body is not None:
@@ -59,6 +60,7 @@ def main():
         elif len(shapes) < FIXED_MAX_SHAPES:
             continue  # 정형 장 — 밀도 대상 아님
         checked += 1
+        icon_total += A.count_icons(shapes)  # 덱 단위 어휘 검사용 누산
         res = A.generic_checks(shapes, accent, band, profile=args.profile)
         bad = [r for r in res if not r[1]]
         total += len(bad)
@@ -67,6 +69,15 @@ def main():
         for name, ok, msg, _n in res:
             if not ok:
                 print(f"    x {name}: {msg}")
+
+    # 덱 단위 — 장별로는 다 통과해도 어휘가 통째로 죽을 수 있다(2026-08-02 신설)
+    ok, msg, n = A.check_icon_vocab(icon_total, checked)
+    total += n
+    print(f"\n== 덱 전체  {'PASS' if ok else 'FAIL 1'}")
+    if not ok:
+        print(f"    x 아이콘 어휘: {msg}")
+    else:
+        print(f"    아이콘 어휘 {icon_total}개")
 
     print(
         f"\n본문 {checked}장 총 FAIL {total}건  (밀도 밴드 {band['chars_min']}자 · 도형 바닥 {band['shapes_floor']})"

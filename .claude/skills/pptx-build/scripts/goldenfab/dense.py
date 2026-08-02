@@ -203,7 +203,20 @@ def hero_card(slide, x, y, w, h, num, title, tag, ic, banner, items, chips, *, h
 
     배지→제목→태그→배너→히어로 아이콘(상단 고정) · 룰+칩(하단 고정) · 불릿(가운데 채움).
     위치를 콘텐츠·h에서 **파생**한다 — 불릿 수·카드 높이가 달라도 s06 룩 유지 + 죽은 여백 0.
-    (h≥3.2 권장. 이 함수만 카드를 그린다 — 장별 즉흥 카드 금지, design-rules §8.)"""
+    이 함수만 카드를 그린다 — 장별 즉흥 카드 금지(design-rules §8).
+
+    **좁은 자리에도 쓴다 — `hero`·칩 수·불릿 수가 전부 호출자 인자다.** 필요 높이는 고정값이
+    아니라 그 셋에서 나온다:
+
+        h ≥ 1.44(배지·제목·태그·배너) + hero + 0.24×칩수 + 한줄높이×불릿수
+
+    예) 불릿2·칩1·hero 0.30 → 2.50" · 불릿2·칩0·hero 0.26 → 2.22". 자리가 2.2"면 겹을 빼서
+    경량 카드를 만드는 게 아니라 **hero를 줄여** 이 함수를 그대로 쓴다.
+
+    (2026-08-02) 이 문단은 `h≥3.2 권장`을 대체한 것이다. 그 권장값은 07-29에 아카이브된
+    껍데기 `card_row`의 가드(`_archive/code/goldenfab/figures/card_row.py:86`)에서 숫자만
+    남은 잔해였고, **무엇을 줄이면 들어가는지가 없어서** "좁아서 못 쓴다"는 오판을 낳았다
+    (local-ai-assist 2026-08-02: 카드 14장 전부 즉흥 신설). 가드는 아래에 복원했다."""
     add_box(slide, x, y, w, h, fill=C["bg"], line=line_soft, line_w=1.0)
     badge = add_box(slide, x + 0.14, y + 0.13, 0.28, 0.28, fill=C["primary"], shape="oval")
     set_shape_text(badge, num, S["foot"], F["head"], C["bg"], bold=True)
@@ -245,4 +258,16 @@ def hero_card(slide, x, y, w, h, num, title, tag, ic, banner, items, chips, *, h
     b_top = y + 1.10 + hero + 0.14
     b_bottom = rule_y - 0.06
     step = (b_bottom - b_top) / max(len(items), 1)
+    # 자리 부족 가드 — 아카이브된 card_row(:86)에 있던 것을 알맹이로 옮긴 것(2026-08-02 복원).
+    # 없으면 step이 음수가 되어 **음수 높이 텍스트박스**가 든 pptx가 경고 없이 저장되고,
+    # PowerPoint가 파일 자체를 못 연다(재현: h1.81·칩1·불릿2 → step -0.06). 조용히 깨지는
+    # 대신 무엇을 줄이면 되는지를 수치로 낸다. 임계는 리터럴이 아니라 brand-kit 본문 크기 파생.
+    line_h = S["caption"] / 72 * 1.6
+    if items and step < line_h:
+        need = 1.44 + hero + 0.24 * len(chips) + line_h * len(items)
+        raise ValueError(
+            f'hero_card: h={h:.2f}"에서 불릿 간격이 {step:.2f}"다(한 줄 {line_h:.2f}" 필요). '
+            f'불릿 {len(items)}·칩 {len(chips)}·hero {hero:.2f} 기준 필요 h ≥ {need:.2f}". '
+            "자리를 넓히거나 hero·칩·불릿을 줄일 것 — 겹을 빼서 경량 카드를 만들지 말 것(§8)."
+        )
     two_col_bullets(slide, x + 0.15, b_top, w - 0.26, items, step=step, h=min(0.32, step))

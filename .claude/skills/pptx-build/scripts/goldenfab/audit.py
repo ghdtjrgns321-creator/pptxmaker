@@ -241,6 +241,9 @@ def check_fill_ratio(shapes, min_ratio=0.30, min_w=1.5):
     return not bad, f"채움률 < {min_ratio:.0%}: {len(bad)} {bad[:3]}", len(bad)
 
 
+H_VOCAB = 1.5  # 이보다 높은 카드는 좌변 바만으로 통과할 수 없다 — 아래 (2026-08-02) 참고
+
+
 def check_adhoc_card(shapes, w_min=2.4, h_min=0.9):
     """즉흥 밋밋 카드 금지 — 카드 크기 박스가 **구조 자식**(아이콘·배지·구분선·중첩 박스) 0이면 FAIL.
 
@@ -261,6 +264,19 @@ def check_adhoc_card(shapes, w_min=2.4, h_min=0.9):
     같으면 문턱도 같아야 한다. 오탐 실측(하향 승인 근거): dense 장 모듈 10/10 · 다이어그램
     18장 전수 · 개선 4장 = **0건**. 더 낮추면(2.4x0.6) s14_dense 1 · s16_dense 2가 오탐으로
     걸린다 — 그게 하한이 여기인 이유다(정밀 > 양: 오탐 게이트는 백스톱에 음소거된다).
+
+    **판정 상향 — 좌변 바는 구조로 치지 않는다(2026-08-02).** 초판은 구조 자식을 한 덩어리로
+    셌고, `sh < 0.06 or sw < 0.08`가 얇은 바를 "구분선"으로 인정했다. local-ai-assist에서
+    카드 14장 전부가 **accent 좌변 바(0.055") 하나로 통과**했고(어휘는 0), FAIL 메시지가
+    `hero_card 미사용`이라 적혀 있어 그 통과가 "hero_card 안 써도 괜찮다"로 오독됐다.
+    그래서 구조 자식을 **어휘**(아이콘 PICTURE · 배지 OVAL · 중첩 박스)와 **바**로 나누고,
+    `ch >= H_VOCAB(1.5)`인 카드는 어휘 0이면 FAIL로 잡는다. 메시지도 실물에 맞췄다.
+    `ch < 1.5`에는 초판 판정(구조 자식 전무)을 그대로 남긴다 — 다이어그램 노드가 그 대역이다.
+
+    오탐 실측(상향 승인 근거, 통과작 전수 152장): golden-deck 30 · golden-pilot_s06 11덱 45 ·
+    probe 8덱 42 · results-검토 3덱 35 = **0건**. `ch >= 1.5` 단서가 오탐 0의 핵심이다 —
+    없으면 골든 s16 다이어그램 노드(4.50x1.38 · 바 1개)가 걸린다. 대가로 local의 2.74x1.13
+    카드 1장은 빠져나간다(13/14 검출).
     """
     from pptx.enum.shapes import MSO_SHAPE_TYPE
 
@@ -285,7 +301,8 @@ def check_adhoc_card(shapes, w_min=2.4, h_min=0.9):
             continue  # 어두운 패널(코드/JSON/스키마/터미널 아티팩트) — 카드 아님(P0 #1 실물)
         c_area = cw * ch
         has_text = bool(c.has_text_frame and c.text_frame.text.strip())
-        n_struct = 0
+        n_vocab = 0  # 어휘 — 아이콘·배지·중첩 박스(배너·칩)
+        n_bar = 0  # 얇은 선·좌변 바 — 구조로 치지 않는다(아래 근거)
         for s in shapes:
             if s._element is c._element:
                 continue
@@ -295,20 +312,24 @@ def check_adhoc_card(shapes, w_min=2.4, h_min=0.9):
             if s.has_text_frame and s.text_frame.text.strip():
                 has_text = True
             if s.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                n_struct += 1  # 아이콘
+                n_vocab += 1  # 아이콘
             elif shape_kind(s) == MSO_SHAPE.OVAL:
-                n_struct += 1  # 배지
+                n_vocab += 1  # 배지
             elif line_hex(s) is not None or fill_hex(s) is not None:
                 if sh < 0.06 or sw < 0.08:
-                    n_struct += 1  # 구분선·세로 바
+                    n_bar += 1  # 구분선·세로 바
                 elif shape_kind(s) in (MSO_SHAPE.RECTANGLE, MSO_SHAPE.ROUNDED_RECTANGLE) and (
                     sw * sh < c_area * 0.7
                 ):
-                    n_struct += 1  # 중첩 박스(배너·칩·내부 패널)
-        if has_text and n_struct == 0:
+                    n_vocab += 1  # 중첩 박스(배너·칩·내부 패널)
+        if has_text and (n_vocab + n_bar == 0 or (ch >= H_VOCAB and n_vocab == 0)):
             lbl = c.text_frame.text.strip()[:14] if c.has_text_frame else "(카드)"
             bad.append((lbl, round(cw, 1), round(ch, 1)))
-    return not bad, f"즉흥 밋밋 카드(구조 0 · hero_card 미사용): {len(bad)} {bad[:3]}", len(bad)
+    return (
+        not bad,
+        f"카드 어휘 부재(아이콘·배지·중첩 박스 0 · 좌변 바만): {len(bad)} {bad[:3]}",
+        len(bad),
+    )
 
 
 def check_duplicate_nodes(shapes, allow=0):
@@ -730,6 +751,52 @@ def check_density(shapes, band, screenshot=False):
 
 
 PROFILES = ("sparse", "dense", "legacy")
+
+
+ICON_MAX = 0.8  # 이보다 큰 그림은 스크린샷으로 본다(assets/icons는 0.17~0.48 정사각)
+
+
+def count_icons(shapes):
+    """이 장이 쓴 **아이콘 어휘** 개수 — 작은 정사각 PICTURE만 센다.
+
+    스크린샷과 구분하는 자는 크기다. `dense.icon()`이 넣는 그림은 size×size(0.17~0.48)이고
+    `kit.fit_picture()`가 넣는 캡처는 폭·높이가 인치 단위로 크다.
+    """
+    from pptx.enum.shapes import MSO_SHAPE_TYPE
+
+    n = 0
+    for s in shapes:
+        if s.shape_type != MSO_SHAPE_TYPE.PICTURE:
+            continue
+        _x, _y, sw, sh = box(s)
+        if sw <= ICON_MAX and sh <= ICON_MAX and 0.6 <= (sw / sh if sh else 0) <= 1.6:
+            n += 1
+    return n
+
+
+def check_icon_vocab(icon_total, body_slides):
+    """덱 단위 — 본문 전체에서 아이콘 어휘가 **통째로** 죽었으면 FAIL(2026-08-02 신설).
+
+    출처: local-ai-assist 2026-08-02. 조판 스크립트 3,547줄에 `icon` 문자열이 0회였고 본문
+    19장의 아이콘 PICTURE가 0개였다(골든 17장은 96개). 사용자 반려는 "카드를 왜 안 썼냐 ·
+    비어 보인다"였는데, 골든의 리치함은 `hero_card`라는 **함수**가 아니라 배지·아이콘·배너라는
+    **잉크**에서 온다. 부품함을 import하고도 어휘를 안 집으면 이 상태가 되고, 장 단위 검사는
+    전부 통과한다(각 장은 그 나름 꽉 차 있으므로) — 그래서 덱 단위 자리가 필요했다.
+
+    **하한을 1보다 올리지 않는다.** 골든도 본문 14장 중 9장(64%)만 쓴다. "장별 커버리지 하한"을
+    만들면 그게 "카드 4장 써라"가 태어난 승격(한 장의 지적 → 모든 장의 명령)과 같은 경로다.
+    잡는 것은 **"어휘가 통째로 죽었다"** 하나뿐이다.
+
+    정직한 한계: 아이콘 하나 붙이고 통과시키는 건 여전히 가능하다. "의미에 맞게 골랐나"는
+    눈검증(⑥) 몫이다. 실측 — 골든 96개 PASS / local-ai-assist 0개 FAIL.
+    """
+    ok = icon_total > 0
+    return (
+        ok,
+        f"본문 {body_slides}장 아이콘 어휘 {icon_total}개 — 통째로 미사용"
+        f'(assets/icons {ICON_MAX}" 이하 정사각 PICTURE 기준)',
+        0 if ok else 1,
+    )
 
 
 def generic_checks(shapes, accent, band=None, dup_allow=0, screenshot=False, profile="sparse"):
