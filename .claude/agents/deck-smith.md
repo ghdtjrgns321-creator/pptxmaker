@@ -25,7 +25,7 @@ model: opus
 
 ### 사다리 (위일수록 강함 — 위에서부터 검토)
 
-1. **부품** `goldenfab/dense.py`·`kit.py`·`grid.py` — 나쁜 원시도구를 제거해 즉흥을 **구조적으로
+1. **부품** `deckkit/kit.py`·`blocks.py` — 나쁜 원시도구를 제거해 즉흥을 **구조적으로
    불가능**하게 만든다. 막는 게 사후에 잡는 것보다 세다.
    **단, 부품을 늘리는 것은 이제 기본 수단이 아니다** — 부품을 그대로 부르니 36장이 전부 같은
    카드가 된 것이 2026-07-29 개편의 직접 원인이다. 부품은 **재료**로 두고, 자리 계산(`grid`)과
@@ -86,7 +86,7 @@ model: opus
 
 - **오케스트레이터** `skills/pptmaker/SKILL.md` — 파이프라인 ①~⑦ + 확정 규칙 5개.
   ①의 아웃라인 계약은 `skills/deck-outline-grill`
-- **도구함** `skills/pptx-build/scripts/goldenfab/` — `kit`·`grid`·`dense`·`layouts`·`audit`
+- **도구함** `skills/pptx-build/scripts/deckkit/` — `brand.yaml`·`kit`·`blocks` (골든 재현용 `layouts`·`dense`·`grid`는 2026-08-03 삭제)
 - **시각 어휘** `skills/pptx-visuals/` — `visuals.py`(네이티브 6 + 도형 9 + 아이콘) ·
   `mpl_exhibits.py`(9종). 필드 `references/spec-fields.md`, 선택 `visual-selection.md`
 - **정본 게이트** `goldenfab/audit.py:generic_checks(profile=...)` — 러너는 `score_deck.py` 하나
@@ -96,7 +96,7 @@ model: opus
 - **고정 자산** `golden/golden-deck.pptx` + `golden/render/`(17) —
   **보고 배우는 그림이지 부르는 함수가 아니다**
 - **훅** `post_write_check`(U+FFFD) · `completion_gate`(계약 VERIFY) · `guard_bash` — 전역 훅만 남음
-- **회고 자산**(새 발견도 이 넷 중 **제 집에 단일 출처로**): 버그→고침은 `audit.py`·`dense.py`의
+- **회고 자산**(새 발견도 이 넷 중 **제 집에 단일 출처로**): 버그→고침은 `audit.py`·`deckkit`의
   "왜 있나" 출처 주석 · **사용자 반려는 `pptmaker/SKILL.md` 반려 목록**(정본 한 곳 — 부정형 한 줄) ·
   강제 상태는 `design-rules.md`의 `> **강제:**` 태그 · 방향 이력은 `docs/CHANGELOG.md`
 

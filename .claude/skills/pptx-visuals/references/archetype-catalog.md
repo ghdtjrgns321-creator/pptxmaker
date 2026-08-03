@@ -54,7 +54,7 @@
   현재 **파생 5 · 고정 10**(~~`test_wiring.ARITY_DERIVED` 래칫~~ 2026-07-29 아카이브).
   **이 항목 수 표기가 (A)에서 가장 오래 쓸모 있는 열이다** — 새로 조판할 때 "개수가 바뀌면
   깨지는 형태인가"를 알려준다.
-  파생의 자는 `goldenfab/grid.py`의 **`pitch`(세로)·`track`(가로) 단일 출처**이고, 수용 한계를
+  파생의 자는 `deckkit/kit.py`의 **`pitch`(세로)·`track`(가로) 단일 출처**이고, 수용 한계를
   넘으면 조용히 겹치지 않고 **시끄럽게 죽는다**(design-rules §E-2·§F). 그래서 `[파생]`은
   "무한히 늘어난다"가 아니라 **"개수에서 좌표가 나오고, 한계는 빌드가 알려준다"**는 뜻이다.
   각 문법의 실측 상한은 행의 `[파생]` 옆에 적는다.
@@ -72,7 +72,7 @@
 | G15 | `isolation_flow`        | 무엇을 주고 무엇을 막았나(시험의 공정성)         | `[고정:3]`                   | `golden/render/s15.png` | ~~L16 branch~~(열위)       |
 | G19 | `boundary_containment`  | 어디까지 하고 어디서 멈추나(경계=상자·차단=충돌) | `[고정:밖1+1 · 파생:한계≤4]` | `golden/render/s16.png` | ~~L34 pro_con~~(다른 주장) |
 
-G11 기하 오라클: 부품 `n_branch`가 `grid.pitch`로 갈래 y를 파생하고 밴드를 넘으면 죽는다 (2026-07-26 부품화 전에는 `s11_branch_snap.py:audit`이 그 검산을 맡았다).
+G11 기하 오라클: 부품 `n_branch`가 자리 파생로 갈래 y를 파생하고 밴드를 넘으면 죽는다 (2026-07-26 부품화 전에는 `s11_branch_snap.py:audit`이 그 검산을 맡았다).
 
 ### A-2 구조·위계 (4종)
 
@@ -120,13 +120,13 @@ G11 기하 오라클: 부품 `n_branch`가 `grid.pitch`로 갈래 y를 파생하
 
 | ID  | 문법                        | 지금 상태                                                      | 부품화 시 자리                   |
 | --- | --------------------------- | -------------------------------------------------------------- | -------------------------------- |
-| G03 | 복귀 호 (return arc)        | 함수 0 — `_line`×2 + `_arrow` 조립을 장에서 직접               | `goldenfab/dense.py`             |
-| G07 | 계층 트리 (3층)             | `concept_pos`·`para_pos` **좌표 리스트 하드코딩** + `zip` 절단 | `goldenfab/grid.py` 파생 + dense |
-| G12 | 다크 코드 카드(스키마 실물) | 같은 문법이 s12·s08에 각각 손으로(×2)                          | `goldenfab/dense.py`             |
-| G22 | accent 강조 패널            | 같은 문법이 s04·s15에 각각 손으로(×2)                          | `goldenfab/dense.py`             |
-| G23 | 소제목 + 룰                 | 같은 `_subhead`가 **10개 모듈에 각각 정의**                    | `goldenfab/dense.py`(정본 1개)   |
+| G03 | 복귀 호 (return arc)        | 함수 0 — `_line`×2 + `_arrow` 조립을 장에서 직접               | `deckkit/blocks.py`             |
+| G07 | 계층 트리 (3층)             | `concept_pos`·`para_pos` **좌표 리스트 하드코딩** + `zip` 절단 | `deckkit/kit.py` 파생 + dense |
+| G12 | 다크 코드 카드(스키마 실물) | 같은 문법이 s12·s08에 각각 손으로(×2)                          | `deckkit/blocks.py`             |
+| G22 | accent 강조 패널            | 같은 문법이 s04·s15에 각각 손으로(×2)                          | `deckkit/blocks.py`             |
+| G23 | 소제목 + 룰                 | 같은 `_subhead`가 **10개 모듈에 각각 정의**                    | `deckkit/blocks.py`(정본 1개)   |
 
-화살표도 같은 병이다: `dense.arrow` 정본이 **있는데도** 장별 재정의 14건(`_arrow`7·`_dash_arrow`3·
+화살표도 같은 병이다: 커넥터 정본이 **있는데도** 장별 재정의 14건(`_arrow`7·`_dash_arrow`3·
 `_solid_arrow`1·`_fan_arrow`1·`_map_line`2).
 
 ## 두 축 crosswalk — 같은 물성끼리 (1순위 판정)

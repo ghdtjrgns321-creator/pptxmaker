@@ -44,7 +44,7 @@ README를 골격·문장으로 쓰고 FINAL-REPORT는 근거 창고로 두기로
                절반 미만 담으면 exit 1 (2026-08-03: 후보 ④에서 5축을 통째로 빼 반려당함)
 ④ 선택         사용자가 번호로 회신 — "s04=1 · s07=2 · s09=전탈락"
                전탈락이면 그 장은 ②로 되돌아간다
-⑤ 본편         고른 형태로 장을 만든다. 파이썬 직접 조판(goldenfab kit·grid·dense·layouts)
+⑤ 본편         고른 형태로 장을 만든다. 파이썬 직접 조판(deckkit — 토큰·골격·블록 8종·커넥터)
 ⑥ 눈검증       render_deck.ps1 → PNG 전장 확인 → 겹침·잘림·넘침 수정. **이게 진짜 게이트다**
                수정 라운드는 규율이 다르다 — 아래 §수정 라운드
 ⑦ 기계 채점    score_deck.py — 튀는 곳만 본다(판정자 아님)
@@ -81,7 +81,7 @@ README를 골격·문장으로 쓰고 FINAL-REPORT는 근거 창고로 두기로
 ### 갤러리 후보는 스케치다 (2026-08-02 실측)
 
 축 B로 바꾸면 **후보 하나가 장 전체 내용을 담아야 한다.** 그런데 갤러리 미니 캔버스는 본편의
-약 1/4(5.75 × 2.08″)이다 — 전 항목 라벨을 넣으면 `grid.pitch`가 죽는다.
+약 1/4(5.75 × 2.08″)이다 — 전 항목 라벨을 넣으면 자리가 모자라 부품이 죽는다.
 
 |           | 갤러리 후보              | 본편    |
 | --------- | ------------------------ | ------- |
@@ -151,10 +151,8 @@ README를 골격·문장으로 쓰고 FINAL-REPORT는 근거 창고로 두기로
 
 ## 무엇으로 그리나
 
-- `goldenfab.kit` — 도형·텍스트·이미지 헬퍼, `load_kit()`(brand-kit), `new_presentation()`
-- `goldenfab.grid` — 좌표계(MARGIN_L·RIGHT_EDGE), 개수에서 자리 파생(pitch·track)
-- `goldenfab.dense` — 헤더·룰·카드 등 밀도 부품
-- `goldenfab.layouts` — 표지·목차·간지(정형 장은 이걸 그대로 쓴다)
+- `deckkit.kit` — 토큰(`brand.yaml`)·원시도구(T·R·BAR·IMAGE·CONNECT·LINK)·정형 장(cover·toc·divider)·`Panel`
+- `deckkit.blocks` — 블록 8종. 도해 부품은 없다 — 사각과 커넥터로 매번 새로 그린다
 - `pptx-visuals` — 차트 6종(네이티브)·mpl 익스히빗 9종·도형 DSL 9종.
   필드는 `pptx-visuals/references/spec-fields.md`, 형식 선택은 `visual-selection.md`
 - `pptx-build/references/design-rules.md` — 물성→형식, 색 규율, 타이포 위계
@@ -202,7 +200,7 @@ pwsh .claude/skills/pptx-build/scripts/render_deck.ps1 -Pptx <경로> -OutDir <�
 **즉흥 부품 신설 자체는 금지가 아니다.** 즉흥으로 만들어도 잘 나올 때가 있다. 문제는 만든
 것을 **끝까지 확인하지 않고 내보내는 것**이다.
 
-**단 카드는 예외다** — `dense.hero_card` 하나뿐이고 `audit.check_adhoc_card`가 강제한다.
+**단 카드는 예외다** — 카드가 하나뿐이면 전 장이 같아진다. `deckkit.blocks`의 카드류는 자리를 받아 그리기만 하고, 어디에 몇 개 놓을지는 장이 정한다.
 좁은 자리면 겹을 빼지 말고 `hero`(아이콘 크기)를 줄여 쓴다(2026-08-02 · 필요 높이 파생식은
 그 함수 docstring). 규칙을 여기 옮겨 적지 않는다 — 기계가 진다.
 
@@ -219,7 +217,7 @@ pwsh .claude/skills/pptx-build/scripts/render_deck.ps1 -Pptx <경로> -OutDir <�
 
 - `registry`가 장을 통째로 배정 → 15타입이 돌아가며 나와 **전 장이 같은 형식**
 - `figures/*.LAYOUT` 기본값이 골든 실측 좌표 → 그대로 부르면 **골든이 딸려옴**
-- `dense.hero_card`가 유일한 카드 → 36장이 **동일한 4카드**
+- 카드가 하나뿐이라 36장이 **동일한 4카드** (그 부품은 2026-08-03에 삭제)
 - Stop 훅이 "덱 에이전트 경유"를 강제 → 메인 대화가 직접 만드는 경로를 **차단**
 
 전부 `_archive/`로 옮겼다. 이력·근거는 `docs/CHANGELOG.md`.
