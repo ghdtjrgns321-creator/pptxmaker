@@ -407,57 +407,6 @@ def check_node_class(shapes, min_len=2):
     return not bad, f"같은 노드 다른 채움: {len(bad)} {[b[0] for b in bad][:3]}", len(bad)
 
 
-def check_ink_collision(shapes, ink, allow=1):
-    """같은 채움색이 서로 다른 뜻을 지지 않는가(P4⑩) — 근사: 그 색 채움 도형 수.
-
-    출처: v4에서 '재무제표 반영'(파국)과 결론 바(우리 원칙)가 **바이트 동일**한
-    primary+샤프+흰볼드였다. 훑는 사람은 검은 덩어리 둘을 같은 종류로 분류한다.
-    """
-
-    # 번호 배지(작은 원 안 한두 자리 숫자)는 제외한다 — 그건 "검은 덩어리"가 아니라 **계열**이고,
-    # 같은 뜻(순번)을 진다. 카드가 늘면 배지도 느는데 상한으로 막으면 항목 수에 따라 게이트가
-    # 깨진다(2026-07-26 dense 승격에서 hero_card 배지 4개가 4개 장을 한꺼번에 적색으로 만들었다).
-    def _badge(s):
-        _x, _y, w, h = box(s)
-        if w > 0.45 or h > 0.45 or abs(w - h) > 0.06:
-            return False
-        t = s.text_frame.text.strip() if s.has_text_frame else ""
-        return len(t) <= 2 and t.isdigit()
-
-    f = [s for s in shapes if fill_hex(s) == ink and not _badge(s)]
-    txt = [s.text_frame.text[:16] for s in f if s.has_text_frame and s.text_frame.text.strip()]
-    return len(f) <= allow, f"{ink} 채움 {len(f)} (허용 {allow}) {txt}", len(f)
-
-
-def check_node_heights(shapes, top_max, left_min=1.0, h_min=0.3):
-    """같은 계열(행 노드) 높이 균일(P4⑧).
-
-    출처: v4에서 확정 61 / 2종 69 / 일반LLM 71 / band2 84px — 한 종류에 높이 4종.
-    계열 제외: ◇(다른 도형) · 풀폭 바 · 뿌리 카드(흐름 시작점) · 작은 칩.
-    """
-    nodes = [
-        s
-        for s in shapes
-        if fill_hex(s)
-        and shape_kind(s) != MSO_SHAPE.DIAMOND
-        and box(s)[2] < 11
-        and box(s)[0] > left_min
-        and box(s)[1] < top_max
-        and box(s)[3] > h_min
-    ]
-    hs = sorted({round(box(s)[3], 3) for s in nodes})
-    return len(hs) <= 1, f"행 노드 {len(nodes)}개 · 높이 종류 {hs}", len(hs)
-
-
-def check_progress_shapes(shapes, allowed=0):
-    """§5 셰브런·펜타곤은 **분기 없는 단순 진행**에만.
-
-    출처: XOR을 셰브런 밴드로 그려 "확정한 다음 유보한다"는 거짓 인과를 만든 반려 4회.
-    """
-    prog = [s for s in shapes if shape_kind(s) in (MSO_SHAPE.CHEVRON, MSO_SHAPE.PENTAGON)]
-    return len(prog) <= allowed, f"진행형 도형 {len(prog)} (허용 {allowed})", len(prog)
-
-
 def text_need_height(sh):
     """이 상자의 텍스트를 다 그리는 데 필요한 높이(인치) 근사 — 넘침·겹침 검사의 단일 출처.
 
@@ -648,21 +597,6 @@ def check_bounds(shapes, bottom=CONTENT_BOTTOM, right=RIGHT_EDGE, skip_tops=()):
     )
 
 
-def check_air(pairs, air_min=AIR_MIN):
-    """§6 공기 — (이름, 위 요소 bottom, 아래 요소 top) 목록을 받아 간격 검사.
-
-    전체 쌍 자동 검사는 오탐이 많다(헤더 킥커→헤드라인 0.02는 확정 설계) — 설계상
-    붙으면 안 되는 지점만 명시적으로 넘긴다.
-    """
-    bad = [(n, round(t - b, 3)) for n, b, t in pairs if t - b < air_min]
-    lines = [
-        f"  {n:28} 공기 {t - b:+.3f} {'OK' if t - b >= air_min else '**FAIL**'}"
-        for n, b, t in pairs
-    ]
-    return not bad, "\n".join(lines), len(bad)
-
-
-# 밀도 파생·검사에서 제외할 골든 본문 장 — 스크린샷은 캡처가 내용을 지므로 글자가 적다(§F).
 DENSITY_EXEMPT = {"screenshot"}
 
 # 골든 스냅샷 17장의 장 종류 키 — assets/golden-snapshot.json의 slides 배열과 같은 순서.

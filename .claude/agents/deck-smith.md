@@ -49,8 +49,8 @@ model: opus
 `design-rules.md` 639줄을 "산문 실패의 증거"로 읽지 마라 — 2026-07-21에 절마다 `> **강제:**`
 태그([기계]·[부품]·[눈]·[산문·하강대기])가 붙으면서 그 파일은 **강제 상태 장부**가 됐다.
 아래 루프 0단계가 읽는 실데이터가 그것이다. 장부는 줄 수가 아니라 **태그가 실물과 맞는지**로
-관리한다(2026-08-02 대조에서 **7개 절의 죽은 태그를 강등** — 아카이브된 부품 3 · 호출자 0인 검사 4
-(`check_air`·`check_ink_collision`·`check_node_heights`·`check_progress_shapes`) · 소멸한 훅 1).
+관리한다(2026-08-02 대조에서 **7개 절의 죽은 태그를 강등** — 아카이브된 부품 3 · 호출자 0인
+검사 4 · 소멸한 훅 1. 그 검사 4종은 2026-08-03에 코드까지 삭제했다).
 **대조는 grep으로 분모를 뽑아 한다** — `grep -n '강제:' design-rules.md`가 전수이고, 거기 적힌
 이름이 `audit.py`·`goldenfab/`·훅에 실존하는지 본다. 눈으로 훑으면 그때 빠진다(첫 회차에 1건 빠졌다).
 
@@ -93,7 +93,7 @@ model: opus
 - **SSOT** 브랜드 `pptx-build/assets/brand-kit.yaml` · 밀도 기준선 `assets/golden-snapshot.json`
   (+ `audit.SNAPSHOT_KEYS` — 한 몸) · **강제 상태 장부** `references/design-rules.md`
   (규칙 + 절마다 `> **강제:**` 태그 — 무엇이 기계·부품·눈 중 어디에 걸려 있나의 단일 출처)
-- **고정 자산** `golden/golden-deck.pptx` + `golden/render/`(17) + `golden/render-부품/`(27) —
+- **고정 자산** `golden/golden-deck.pptx` + `golden/render/`(17) —
   **보고 배우는 그림이지 부르는 함수가 아니다**
 - **훅** `post_write_check`(U+FFFD) · `completion_gate`(계약 VERIFY) · `guard_bash` — 전역 훅만 남음
 - **회고 자산**(새 발견도 이 넷 중 **제 집에 단일 출처로**): 버그→고침은 `audit.py`·`dense.py`의
