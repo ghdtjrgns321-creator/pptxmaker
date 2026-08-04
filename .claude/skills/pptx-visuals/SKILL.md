@@ -67,7 +67,7 @@ mpl_exhibits.render(spec, brand, out_png, w_in, h_in)  # PNG 경로 반환 — �
 
 `add_icon`이 `pptx-build/assets/icons/`의 브랜드색 PNG를 삽입한다. 아이콘 추가·브랜드 색 변경 시
 `scripts/make_icons.py`의 ICONS 목록을 고치고 `uv run --with pymupdf python make_icons.py` 재실행
-(브랜드 색은 brand-kit에서 자동 반영). **AI 이미지 생성 아이콘 금지** — 스타일 비일관·재현 불가.
+(브랜드 색은 `deckkit/brand.yaml`에서 자동 반영). **AI 이미지 생성 아이콘 금지** — 스타일 비일관·재현 불가.
 
 ## 확장 시
 

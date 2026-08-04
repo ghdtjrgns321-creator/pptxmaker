@@ -1,6 +1,12 @@
-"""brand-kit.yaml 로더 + 공용 도형 헬퍼 — **유일 소스**(2026-07-15 단일화로 golden/ 사본 삭제).
+"""브랜드 토큰 로더 + 공용 도형 헬퍼. 이 모듈에 hex·pt 리터럴을 두지 않는다.
 
-색·폰트·크기는 전부 brand-kit.yaml에서 온다. 이 모듈에 hex·pt 리터럴을 두지 않는다.
+값의 단일 출처는 **`deckkit/brand.yaml` 하나**다(2026-08-04 통합). 그전에는 조판·게이트가
+`deckkit/brand.yaml`을, 오딧·시각이 아카이브로 간 `assets/brand-kit.yaml`을 읽었고 각자 자기가
+단일 출처라고 적고 있었다 — 색을 한쪽만 고치면 덱과 채점 기준이 조용히 어긋나는 배선이었다.
+합칠 때 두 파일의 색·글꼴 값이 전부 같았으므로 렌더는 바뀌지 않는다. 바뀐 것은 차트 본문
+글자 하나뿐이다(12 → 10.5pt = 덱의 `body` 단. 차트가 덱과 다른 자를 쓸 이유가 없다).
+
+소비자(`score_deck.py` · `pptx-visuals`)는 오래된 이름으로 읽으므로 여기서 이름만 덧댄다.
 """
 
 from pathlib import Path
@@ -12,15 +18,26 @@ from pptx.enum.text import PP_ALIGN
 from pptx.util import Inches, Pt
 
 ROOT = Path(__file__).resolve().parents[2]  # goldenfab -> scripts -> pptx-build
-BRAND_KIT = ROOT / "assets/brand-kit.yaml"
+BRAND = ROOT / "scripts/deckkit/brand.yaml"
+
+# 옛 이름 -> deckkit 토큰. 값은 안 만들고 이름만 잇는다.
+_COLOR_ALIAS = {"primary": "dark", "text": "ink", "bg": "white", "bg_alt": "panel"}
+_SIZE_ALIAS = {"caption": "small"}  # body·title은 이름이 같다
 
 SLIDE_W, SLIDE_H = 13.333, 7.5  # 16:9 inch
 
 
 def load_kit() -> dict:
-    kit = yaml.safe_load(BRAND_KIT.read_text(encoding="utf-8"))
-    kit["rgb"] = {k: RGBColor.from_string(v) for k, v in kit["colors"].items()}
-    return kit
+    b = yaml.safe_load(BRAND.read_text(encoding="utf-8"))
+    colors = {**b["colors"], **{k: b["colors"][v] for k, v in _COLOR_ALIAS.items()}}
+    sizes = {**b["sizes"], **{k: b["sizes"][v] for k, v in _SIZE_ALIAS.items()}}
+    return {
+        "colors": colors,
+        "sizes": sizes,
+        "fonts": {"head": b["font"], "body": b["font"]},
+        "frame": b["frame"],
+        "rgb": {k: RGBColor.from_string(v) for k, v in colors.items()},
+    }
 
 
 def new_presentation():

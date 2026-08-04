@@ -14,8 +14,8 @@
 | 서브 불릿(–)·캡션·라벨     | 8~10    | 들여쓴 2단계                              |
 | 각주·출처·파일명           | **7~8** | 하단                                      |
 
-→ 우리 brand-kit 적용값: section(제목)=24, sub(부제)=15, head(컬럼)=16, body=13, caption=9, foot=8.
-  (본문은 우리 슬라이드가 더 넓어 12→13으로 약간 상향)
+→ 2026-07-06 당시 적용값(폐기된 brand-kit 기준): section=24, sub=15, head=16, body=13, caption=9,
+  foot=8. 지금 쓰는 글꼴 9단은 `deckkit/brand.yaml`의 `sizes`가 단일 출처다 — 값은 거기서 본다.
 
 ## 텍스트 밀도
 

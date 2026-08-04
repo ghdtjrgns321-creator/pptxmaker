@@ -49,11 +49,11 @@
 | `.claude/skills/pptx-build/scripts/deckkit/outline.py` | 88 | 3 | tables, parts, part_of |
 | `.claude/skills/pptx-build/scripts/goldenfab/__init__.py` | 8 | 0 |  |
 | `.claude/skills/pptx-build/scripts/goldenfab/audit.py` | 829 | 23 | contrast, shape_kind, fill_hex, line_hex, runs_of, box |
-| `.claude/skills/pptx-build/scripts/goldenfab/kit.py` | 157 | 7 | load_kit, new_presentation, mix, fit_picture, add_box, set_shape_text |
+| `.claude/skills/pptx-build/scripts/goldenfab/kit.py` | 174 | 7 | load_kit, new_presentation, mix, fit_picture, add_box, set_shape_text |
 | `.claude/skills/pptx-build/scripts/scan_material.py` | 204 | 2 | scan, main |
 | `.claude/skills/pptx-build/scripts/score_deck.py` | 89 | 1 | main |
 
-합계 **2630줄**
+합계 **2647줄**
 
 ## 3. 기계 검사 배선
 

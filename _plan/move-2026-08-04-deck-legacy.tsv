@@ -13,3 +13,4 @@ _workspace/local-ai-assist/probe_s04.py	_archive/2026-08-04-local-ai-assist-구�
 _workspace/local-ai-assist/probe_s04b.pptx	_archive/2026-08-04-local-ai-assist-구덱/probe_s04b.pptx	S4 탐색본 b
 _workspace/local-ai-assist/probe_s04b.py	_archive/2026-08-04-local-ai-assist-구덱/probe_s04b.py	S4 탐색 코드 b
 _workspace/local-ai-assist/__pycache__	_archive/2026-08-04-local-ai-assist-구덱/__pycache__	캐시
+.claude/skills/pptx-build/assets/brand-kit.yaml	_archive/2026-08-04-brand-kit-통합/brand-kit.yaml	브랜드 토큰 이중 출처 해소 — 값 단일 출처는 deckkit/brand.yaml, 옛 이름은 goldenfab.kit.load_kit()이 덧댄다

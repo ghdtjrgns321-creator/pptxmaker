@@ -77,8 +77,9 @@ consistency-qa)과 deck-spec 경로는 `_archive/`에 있다 — 되살리지 �
 - 콘텐츠 재료: 사용자가 프로젝트별로 미리 정리해둔다 — 추출 단계 없음. **어느 정리본을 쓸지는
   사용자가 지정한다**(`README.md` 완성판 / `FINAL-REPORT/` 창고 — 판단 기준은 `pptmaker/SKILL.md`).
   재료를 기계가 세는 것은 `scan_material.py`.
-- 브랜드 일관성: 덱 조판과 `check_deck.py`가 읽는 것은 `deckkit/brand.yaml` — 덱을 바꾸려면 이
-  파일이다. `assets/brand-kit.yaml`은 오딧 러너(`score_deck.py`→`goldenfab.kit`) 전용으로 남아 있다
+- 브랜드 일관성: `deckkit/brand.yaml` **하나**. 조판·게이트가 직접 읽고, 오딧·시각(`goldenfab.kit
+  .load_kit()`)은 옛 이름으로 덧대 읽는다. 2026-08-04 통합 — 그전엔 파일이 둘이라 한쪽만 고치면
+  덱과 채점 기준이 조용히 어긋났다
 - 조판 도구함: `deckkit/` — `kit`(원시도구·페이지 골격 4)·`blocks`(블록 8종)·`outline`(계약 판독)
 - 차트·다이어그램: `pptx-visuals` 스킬 (필드는 `references/spec-fields.md`)
 - 오딧 검사: `audit.py:generic_checks` 단일 출처, 러너는 `score_deck.py`
