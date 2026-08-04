@@ -77,9 +77,9 @@ flowchart LR
 
 <p align="center"><img src="images/gallery/s07.png" width="860" alt="07장 형태 후보 목업 — 같은 내용을 담은 배치 4안을 2×2로, 상단에 계약이 확정한 초점과 고정 항목, 하단에 번호 회신 안내"></p>
 
-### 4. 변동성 검증
+### 4. 렌더링 변동성 검증
 
-같은 계약·같은 재료로 10장을 3회 생성 — 서식은 고정되고 형태만 내용따라 달라진다
+동일 계약 및 원천 데이터를 기반으로
 
 | 측정        | 3회 결과        |
 | ----------- | --------------- |
@@ -87,8 +87,15 @@ flowchart LR
 | 시각 요소   | 57~92           |
 | 검증 게이트 | 3회 전부 결함 0 |
 
-<p align="center"><img src="images/variance-s10-r1.png" width="32%" alt="10장 1회차 — 출처 둘을 나란한 박스로 두고 우측에 활성 룰 6그룹을 값 막대로"><img src="images/variance-s10-r2.png" width="32%" alt="10장 2회차 — 29칸을 전수 격자로 펼치고 상단에 출처 두 줄"><img src="images/variance-s10-r3.png" width="32%" alt="10장 3회차 — 출처를 근흑 띠로 얹고 하단에 폭 비례 6분할 띠"></p>
-<p align="center"><sub>같은 「룰 29종」이 그룹별 막대 / 29칸 전수 격자 / 폭 비례 6분할 띠로 갈렸다 — 상세는 <a href="#4-검증">4. 검증</a></sub></p>
+<p align="center"><img src="images/variance-s10-r1.png" width="820" alt="10장 1회차 — 출처 둘을 나란한 박스로 두고 우측에 활성 룰 6그룹을 값 막대로"></p>
+<p align="center"><sub>1회차, 그룹별 값 막대</sub></p>
+
+<p align="center"><img src="images/variance-s10-r2.png" width="820" alt="10장 2회차 — 29칸을 전수 격자로 펼치고 상단에 출처 두 줄"></p>
+<p align="center"><sub>2회차, 29칸 전수 격자</sub></p>
+
+<p align="center"><img src="images/variance-s10-r3.png" width="820" alt="10장 3회차 — 출처를 근흑 띠로 얹고 하단에 폭 비례 6분할 띠"></p>
+<p align="center"><sub>3회차, 폭 비례 6분할 띠</sub></p>
+
 
 ### 5. 최종 산출물 — 19장 자동 렌더링 원본 (수동 편집 없는 자동 생성 원본)
 
