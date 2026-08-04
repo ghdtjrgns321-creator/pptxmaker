@@ -8,7 +8,7 @@
 
 ### 1. 프로젝트 소개
 **규격화된 서식으로 내용에 맞춰 슬라이드를 생성하는 파이썬 PPT 렌더링 도구**
-> **완성본 예시** : [`local-ai-assist`](https://github.com/ghdtjrgns321-creator/local-ai-journal-assist) 소개 덱 19장 ([전장 보기](#6-완성본-19장)), **수동 편집 없는 자동 생성 원본**
+> **완성본 예시** : [`local-ai-assist`](https://github.com/ghdtjrgns321-creator/local-ai-journal-assist) 소개 덱 19장 ([전장 보기](#5-완성본-19장)), **수동 편집 없는 자동 생성 원본**
 <p align="center"><img src="images/deck/s01.png" width="48%" alt="완성본 표지 — 근흑 배경에 좌측 오렌지 세로 띠, 킥커, 표제, 프로젝트명, 리드, 하단 지표 카드 4장"><img src="images/deck/s07.png" width="48%" alt="본문 07장 합성 데이터 생성 — 상단 지표 4개, 좌측 생성 8단계, 우측 거래 시나리오 20종 비례 막대, 하단 무결성 검증 3관문"></p>
 <p align="center"><img src="images/deck/s11.png" width="48%" alt="본문 11장 — 조작 대상 9종과 수법 10종을 AND로 교차, 하단 프리셋 5종 비례 막대, 우측 화면 캡처 2종"><img src="images/deck/s17.png" width="48%" alt="본문 17장 — 상단 지표 4개, 4세트 재측정 막대와 항목별 기여 배율, 우측 화면 캡처, 하단 해설 3칸"></p>
 
@@ -72,55 +72,26 @@ flowchart LR
 #### 3-4. 목업 이미지 생성
 
 생성된 후보군을 이미지 형태로 제공 → 사용자 선호에 맞게 최종 규격 확정<br>
-목업은 배치만 고르는 스케치라 라벨을 줄여 그린다 — 확정 후 조판에서 내용을 전부 채운다
+목업 이미지는 배치만 고르는 단순 스케치 → 빈 내용은 확정 후 채워짐
 
 
 <p align="center"><img src="images/gallery/s07.png" width="860" alt="07장 형태 후보 목업 — 같은 내용을 담은 배치 4안을 2×2로, 상단에 계약이 확정한 초점과 고정 항목, 하단에 번호 회신 안내"></p>
-<p align="center"><sub>07장 목업, 네 후보는 전부 같은 내용이고 다른 것은 배치뿐이다 — 고르는 것은 무엇을이 아니라 어떻게</sub></p>
+
 
 
 ### 4. 주요 검증 결과
 
-위 3-3의 검증 모듈 4개를 완성본 19장에 그대로 돌린 결과, 2026-08-03에서 08-04 실행
+local-ai-assist 소개 덱 완성 기준
 
-| 검증 모듈          | 무엇을 봤나                        | 결과                                                                     |
-| ------------------ | ---------------------------------- | ------------------------------------------------------------------------ |
-| `check_outline.py` | 슬라이드 제목이 자료에 있는 말인가 | 제목 17개 중 자료 밖 **0개**                                             |
-| `check_deck.py`    | 완성 PPT가 계약 규격대로인가       | 19장 **결함 0건**, 부 내비 도형 60개가 계약 부 수와 일치                 |
-| `score_deck.py`    | 디자인 품질 채점                   | 검사 12종 **전부 러너에 연결**, 통과·탈락을 가르지 않는 참고 점수        |
-| `render_deck.ps1`  | 사람이 최종 판정                   | 19장 전량을 PNG로 보고 승인, 반려는 수치가 아니라 계약 수정으로 되돌아감 |
+| 검증 모듈          | 검증 대상                        | 검증 결과                                                                |
+| ------------------ | -------------------------------- | ------------------------------------------------------------------------ |
+| `check_outline.py` | 도출된 제목이 원천 데이터에 존재 | 총 17개 제목 중 0건 검출                                                 |
+| `check_deck.py`    | 산출물이 규격 계약(Contract) 규격을 준수     | 19장 **결함 0건**, 부 내비 도형 60개가 계약 부 수와 일치                 |
+| `score_deck.py`    | 디자인 품질 채점                 | 검사 12종 **전부 러너에 연결**, 통과·탈락을 가르지 않는 참고 점수        |
+| `render_deck.ps1`  | 사람이 최종 판정                 | 19장 전량을 PNG로 보고 승인, 반려는 수치가 아니라 계약 수정으로 되돌아감 |
+| `census` 스킬      | 문서를 빠짐없이 읽고 고쳤나      | **58/58** (루트 30, 하네스 28), 분모를 손이 아니라 스크립트로 고정       |
 
-- 여기 없는 값(같은 계약 3회 반복의 형태 변동, 부품 하나를 지운 전후 대조, 지도 경고 0건, 전수 정독 58/58)은 해석이 따로 필요해 [4. 검증](#4-검증)에 두었고, 한계는 [6. 한계](#6-한계)
-
-### 5. 빠른 실행
-
-```bash
-uv sync                                          # Python 3.13 고정, .venv 생성
-
-# 지금 무엇이 살아 있나 — 다른 문서와 다르면 이 산출물이 이긴다
-uv run python scripts/make_map.py                # exit 0이어야 한다
-
-# 덱 진행 상태 만들기, 대조
-uv run python scripts/deck_state.py init  <프로젝트>
-uv run python scripts/deck_state.py check <프로젝트>
-
-# 계약이 재료에서 나왔나
-uv run python scripts/check_outline.py <계약.md> <재료.md>
-
-# 덱이 계약대로인가
-uv run python .claude/skills/pptx-build/scripts/check_deck.py <deck.pptx> --outline=<계약.md>
-
-# 렌더 — 여기서 나온 PNG를 사용자가 보고 통과·반려를 정한다
-pwsh -File .claude/skills/pptx-build/scripts/render_deck.ps1 -Pptx <deck.pptx> -OutDir <폴더>
-
-# 오딧 채점, 튀는 곳만 본다
-uv run python .claude/skills/pptx-build/scripts/score_deck.py <deck.pptx>
-```
-
-- 실행 전 확인 : 렌더가 파워포인트 COM을 쓰므로 윈도우와 파워포인트 설치가 필요
-- 자동 실행은 없음 : 프로젝트 훅이 0개라 모든 게이트가 수동, 이유는 [6. 한계](#6-한계)
-
-### 6. 완성본 19장
+### 5. 완성본 19장
 
 `local-ai-assist` 소개 덱, 5부 구성으로 표지 1, 목차 1, 간지 5, 본문 12
 
@@ -744,3 +715,19 @@ and not sh.name.startswith("부내비:")
 | [`FINAL-REPORT/`](FINAL-REPORT)          | 전수 기반 최종 보고서 11장, 사고 12건과 한계 17건      |
 | [`CLAUDE.md`](CLAUDE.md)                 | 작업 모드 판별과 하네스 변경 경계                      |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | 하네스 변경의 전체 이력과 근거                         |
+
+---
+
+## 빠른 실행
+
+```bash
+uv sync                                                      # Python 3.13 · .venv 생성
+
+uv run python scripts/check_outline.py <계약.md> <재료.md>    # 제목이 자료에서 나왔나
+uv run python .claude/skills/pptx-build/scripts/check_deck.py <deck.pptx> --outline=<계약.md>
+uv run python .claude/skills/pptx-build/scripts/score_deck.py <deck.pptx>
+pwsh .claude/skills/pptx-build/scripts/render_deck.ps1 -Pptx <deck.pptx> -OutDir <폴더>
+```
+
+- 렌더는 파워포인트 COM을 쓴다 — 윈도우와 파워포인트가 있어야 돈다
+- 지금 무엇이 살아 있는지는 `uv run python scripts/make_map.py`
