@@ -32,6 +32,9 @@ AUDIT = ROOT / ".claude/skills/pptx-build/scripts/goldenfab/audit.py"
 DOC_DIRS = [ROOT / "docs", ROOT / ".claude/skills", ROOT / ".claude/agents"]
 # 지도가 훑는 문서 확장자 — 코드 참조가 살아있는지 대조할 대상
 DOC_GLOB = "*.md"
+# 지도에 올리지 않는 디렉토리. 지도가 경로를 적으면 "지도가 가리키니 커밋해야 한다"가 되어
+# 개인 자료가 공개 리포로 딸려 올라간다 — 2026-08-04에 실제로 그렇게 유출됐다.
+DOC_SKIP = {"_archive", "methodology"}
 
 
 # ── 1. 절차 ────────────────────────────────────────────────────────────────
@@ -191,7 +194,7 @@ def doc_inventory(symbols: str) -> list[tuple[str, int, str, bool, list[str]]]:
     rows = []
     for d in DOC_DIRS:
         for p in sorted(d.rglob(DOC_GLOB)):
-            if "_archive" in p.parts or p.resolve() == OUT.resolve():
+            if DOC_SKIP & set(p.parts) or p.resolve() == OUT.resolve():
                 continue  # 자기 자신은 안 센다 — 경고 목록을 다시 참조로 읽는다
             txt = p.read_text(encoding="utf-8")
             hist = is_history(p)
