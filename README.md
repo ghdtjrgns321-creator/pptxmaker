@@ -8,7 +8,7 @@
 
 ### 1. 프로젝트 소개
 **규격화된 서식으로 내용에 맞춰 슬라이드를 생성하는 파이썬 PPT 렌더링 도구**
-> **완성본 예시** : [`local-ai-assist`](https://github.com/ghdtjrgns321-creator/local-ai-journal-assist) 소개 덱 19장 ([전장 보기](#5-완성본-19장)), **수동 편집 없는 자동 생성 원본**
+> **완성본 예시** : [`local-ai-assist`](https://github.com/ghdtjrgns321-creator/local-ai-journal-assist) 소개 덱 19장 ([전장 보기](#4-최종-산출물--19장-자동-렌더링-원본-수작업-보정-없는-무수정-결과물)), **수동 편집 없는 자동 생성 원본**
 <p align="center"><img src="images/deck/s01.png" width="48%" alt="완성본 표지 — 근흑 배경에 좌측 오렌지 세로 띠, 킥커, 표제, 프로젝트명, 리드, 하단 지표 카드 4장"><img src="images/deck/s07.png" width="48%" alt="본문 07장 합성 데이터 생성 — 상단 지표 4개, 좌측 생성 8단계, 우측 거래 시나리오 20종 비례 막대, 하단 무결성 검증 3관문"></p>
 <p align="center"><img src="images/deck/s11.png" width="48%" alt="본문 11장 — 조작 대상 9종과 수법 10종을 AND로 교차, 하단 프리셋 5종 비례 막대, 우측 화면 캡처 2종"><img src="images/deck/s17.png" width="48%" alt="본문 17장 — 상단 지표 4개, 4세트 재측정 막대와 항목별 기여 배율, 우측 화면 캡처, 하단 해설 3칸"></p>
 
@@ -77,29 +77,18 @@ flowchart LR
 
 <p align="center"><img src="images/gallery/s07.png" width="860" alt="07장 형태 후보 목업 — 같은 내용을 담은 배치 4안을 2×2로, 상단에 계약이 확정한 초점과 고정 항목, 하단에 번호 회신 안내"></p>
 
-
-
-### 4. 주요 검증 결과
-
-local-ai-assist 소개 덱 완성 기준
-
-| 검증 모듈          | 검증 대상                        | 검증 결과                                                                |
-| ------------------ | -------------------------------- | ------------------------------------------------------------------------ |
-| `check_outline.py` | 도출된 제목이 원천 데이터에 존재 | 총 17개 제목 중 0건 검출                                                 |
-| `check_deck.py`    | 산출물이 규격 계약(Contract) 규격을 준수     | 19장 **결함 0건**, 부 내비 도형 60개가 계약 부 수와 일치                 |
-| `score_deck.py`    | 디자인 품질 채점                 | 검사 12종 **전부 러너에 연결**, 통과·탈락을 가르지 않는 참고 점수        |
-| `render_deck.ps1`  | 사람이 최종 판정                 | 19장 전량을 PNG로 보고 승인, 반려는 수치가 아니라 계약 수정으로 되돌아감 |
-| `census` 스킬      | 문서를 빠짐없이 읽고 고쳤나      | **58/58** (루트 30, 하네스 28), 분모를 손이 아니라 스크립트로 고정       |
-
-### 5. 완성본 19장
+### 4. 최종 산출물 — 19장 자동 렌더링 원본 (수작업 보정 없는 무수정 결과물)
 
 `local-ai-assist` 소개 덱, 5부 구성으로 표지 1, 목차 1, 간지 5, 본문 12
 
 <details>
 <summary><b>Ⅰ부 분석 범위와 문제 인식 (펼치기)</b></summary>
 
+<p align="center"><img src="images/deck/s01.png" width="820" alt="표지 — 근흑 배경에 좌측 오렌지 세로 띠, 킥커, 표제, 프로젝트명, 리드, 하단 지표 카드 4장"></p>
+<p align="center"><sub>01 표지, 하단 지표 카드 4장</sub></p>
+
 <p align="center"><img src="images/deck/s02.png" width="820" alt="목차 — 부 5개를 로마자 배지와 요약과 쪽범위로 나열"></p>
-<p align="center"><sub>목차, 부마다 한 행</sub></p>
+<p align="center"><sub>02 목차, 부마다 한 행</sub></p>
 
 <p align="center"><img src="images/deck/s03.png" width="820" alt="Ⅰ부 간지 — 근흑 배경에 로마자, 부 제목, 리드, 소속 장 칩"></p>
 <p align="center"><sub>간지, 그 부에 무엇이 들었는지 칩으로 미리 보인다</sub></p>
@@ -117,6 +106,9 @@ local-ai-assist 소개 덱 완성 기준
 
 <p align="center"><img src="images/deck/s06.png" width="820" alt="Ⅱ부 간지"></p>
 
+<p align="center"><img src="images/deck/s07.png" width="820" alt="07장 — 상단 지표 4개, 좌측 생성 8단계, 우측 거래 시나리오 20종 비례 막대, 하단 무결성 검증 3관문"></p>
+<p align="center"><sub>07, 단계와 비례 막대와 관문을 한 장에</sub></p>
+
 <p align="center"><img src="images/deck/s08.png" width="820" alt="08장 — 이상 데이터 시나리오 14종 카드 격자, 우측 주입 생성 4단계와 연계 전표 흐름, 하단 주입 밀도 비례 막대"></p>
 <p align="center"><sub>08, 카드 격자 형태</sub></p>
 
@@ -129,6 +121,9 @@ local-ai-assist 소개 덱 완성 기준
 
 <p align="center"><img src="images/deck/s10.png" width="820" alt="10장 — 두 출처에서 대상 9종과 수법 10종으로 갈라지는 인과 구도, 지적 빈도 비례 막대"></p>
 <p align="center"><sub>10, 인과 구도와 비례 막대</sub></p>
+
+<p align="center"><img src="images/deck/s11.png" width="820" alt="11장 — 조작 대상 9종과 수법 10종을 AND로 교차, 하단 프리셋 5종 비례 막대, 우측 화면 캡처 2종"></p>
+<p align="center"><sub>11, 교차 격자와 화면 캡처</sub></p>
 
 <p align="center"><img src="images/deck/s12.png" width="820" alt="12장 — 분석적 검토 지표 5종과 화면 캡처 4종"></p>
 <p align="center"><sub>12, 지표와 화면을 짝지은 형태</sub></p>
@@ -148,6 +143,9 @@ local-ai-assist 소개 덱 완성 기준
 
 <p align="center"><img src="images/deck/s16.png" width="820" alt="16장 — 룰별 lift 분포와 베이스라인 대조"></p>
 <p align="center"><sub>16, 분포 대조 형태</sub></p>
+
+<p align="center"><img src="images/deck/s17.png" width="820" alt="17장 — 상단 지표 4개, 4세트 재측정 막대와 항목별 기여 배율, 우측 화면 캡처, 하단 해설 3칸"></p>
+<p align="center"><sub>17, 지표와 기여 배율과 화면을 섞은 형태</sub></p>
 
 <p align="center"><img src="images/deck/s18.png" width="820" alt="Ⅴ부 간지"></p>
 
