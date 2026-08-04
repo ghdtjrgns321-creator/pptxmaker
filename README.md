@@ -25,40 +25,18 @@
 
 ```mermaid
 flowchart LR
-    IN(["재료"]) --> S1
+    IN(["자료<br/>사용자가 정리해둔 문서"])
+    FIX["인터뷰로 확정<br/>장 제목·헤드라인·형태를 사용자가 고른다"]
+    RUN["생성과 검증<br/>파이썬 조판 → 기계 검사 22종"]
+    OUT(["완성<br/>편집 가능한 pptx"])
 
-    subgraph FIX["내용 확정"]
-        direction TB
-        S1["① 계약<br/>제목·헤드라인·부 문구 고정"]
-    end
-
-    subgraph PICK["형태 확정"]
-        direction TB
-        S2["② 형태 후보"] --> S3["③ 갤러리 pptx"]
-        S3 --> S4["④ 사용자 선택"]
-    end
-
-    subgraph MAKE["생성과 검증"]
-        direction TB
-        S5["⑤ 조판"] --> S6["⑥ 눈검증 ★"]
-        S6 --> S7["⑦ 기계 채점"]
-    end
-
-    S1 --> S2
-    S4 --> S5
-    S7 --> OUT(["편집 가능한 pptx"])
-
-    S2 -.->|주제가 어긋나면| S1
-    S4 -.->|전탈락| S2
-    S6 -.->|반려| S5
+    IN --> FIX --> RUN --> OUT
+    RUN -.->|사용자가 렌더 이미지를 보고 반려| FIX
 
     classDef step fill:none,stroke:#9aa0a6,stroke-width:1px
     classDef port fill:none,stroke:#5f6368,stroke-width:1.5px
-    class S1,S2,S3,S4,S5,S6,S7 step
+    class FIX,RUN step
     class IN,OUT port
-    style FIX fill:none,stroke:#c8cdd2,stroke-dasharray:5 4
-    style PICK fill:none,stroke:#c8cdd2,stroke-dasharray:5 4
-    style MAKE fill:none,stroke:#c8cdd2,stroke-dasharray:5 4
 ```
 
 #### 3-1. 계약 — 상세 [3-1. 기술 설명 - 계약](#3-1-기술-설명---계약)
@@ -125,7 +103,7 @@ uv run python scripts/check_outline.py <계약.md> <재료.md>
 # 덱이 계약대로인가
 uv run python .claude/skills/pptx-build/scripts/check_deck.py <deck.pptx> --outline=<계약.md>
 
-# 렌더, 진짜 게이트는 여기서 눈으로 본다
+# 렌더 — 여기서 나온 PNG를 사용자가 보고 통과·반려를 정한다
 pwsh -File .claude/skills/pptx-build/scripts/render_deck.ps1 -Pptx <deck.pptx> -OutDir <폴더>
 
 # 오딧 채점, 튀는 곳만 본다
@@ -275,7 +253,7 @@ uv run python .claude/skills/pptx-build/scripts/score_deck.py <deck.pptx>
    - 골격 한 줄 : 제목 24포인트, 헤더 밑줄, 좌측 근흑 마디, 푸터, 우측 부 탭 5개
    - 본문 좌표 : 좌상에 출처 박스 2개, 커넥터 2개, 중단에 9행 비례 막대, 하단에 6그룹 카드, 우열에 화면 캡처 3장
    - 막대 규칙 : `147`을 1.0으로 정규화하고 최댓값만 포인트색
-5. **눈검증**
+5. **렌더 확인 — 판정자는 사용자**
    - 확인 대상 : 렌더 PNG 전장
    - 이 단계에서만 잡히는 것 : 부제가 「실무 관/행」으로 어절 중간에 꺾인 사고, 좌표 게이트는 통과시킴
 6. **기계 게이트**
@@ -463,7 +441,7 @@ def image_h(fname, w, caption=False, cap_h=0.24) -> float:
  계약과 재료   ──▶  제목이 재료 어휘에서 나왔나                 1종
  덱과 계약     ──▶  헤드라인, 부 내비, 좌표                     9종 하드페일, 보고 1종
  덱 품질       ──▶  오딧, 밀도와 대비와 겹침과 어휘            12종 참고 채점
- 렌더 PNG      ──▶  전장 눈검증                                 ★ 진짜 게이트
+ 렌더 PNG      ──▶  전장 확인, 사용자가 판정                    ★ 진짜 게이트
  진행 상태     ──▶  계약, 상태, pptx, 렌더 장 수 대조          9판정
 ```
 
@@ -524,7 +502,7 @@ and not sh.name.startswith("부내비:")
 - 글자 하한 계산식 : 골든 본문 장 최소 글자 수의 85%
 - 도형 수가 아니라 글자 수로 재는 이유 : 도형 수로 재면 밀도 부족을 카드 4장으로 메우는 반사를 유발
 
-### 눈검증의 규율
+### 렌더 확인의 규율
 
 | 축   | 신규 조판       | 수정 라운드                                |
 | ---- | --------------- | ------------------------------------------ |
