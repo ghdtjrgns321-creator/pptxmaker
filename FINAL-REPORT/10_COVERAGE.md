@@ -47,7 +47,7 @@ uv run python census.py inventory .claude  --out inventory-claude.json   # N = 2
 | `docs/CHANGELOG.md`                                                  | doc    | 9       | 사고·전환점 원천                                            |
 | `scripts/make_map.py`                                                | code   | 6       | 지도 생성기                                                 |
 | `scripts/deck_state.py`                                              | code   | 5, 6    | 상태·획일화·반려                                            |
-| `scripts/check_outline.py`                                           | code   | 3       | 계약↔재료. 미배선                                           |
+| `scripts/check_outline.py`                                           | code   | 3       | 계약↔재료. `deck_state init`이 부른다                       |
 | `_plan/verify_no_archive_refs.py`                                    | code   | 8       | 미배선 + 현재 exit 1                                        |
 | `_plan/tracked.txt`                                                  | text   | 9       | 2026-07-29 정리 직전 스냅샷(371행). 지금 안 쓰임            |
 | `_plan/untracked.txt`                                                | text   | 9       | 같음(20행)                                                  |

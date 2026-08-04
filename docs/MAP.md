@@ -11,6 +11,8 @@
 ① 재료 읽기    사용자가 지정한 재료(README 또는 FINAL-REPORT) + _workspace/01.5_outline.md
                계약이 없으면 deck-outline-grill로 먼저 확정 — 없이 진행 금지
                계약 확정 직후 `deck_state.py init <프로젝트>` — 이후 단계마다 STATE.md 갱신
+               init이 `check_outline.py`로 계약↔재료를 대조한다. 계약에 `- **재료**: `경로``
+               가 없거나 자료 밖 제목이 있으면 **STATE를 만들지 않고 exit 1**
 ② 형태 후보    **내용은 ①에서 이미 정해졌다.** 계약의 채록을 초점으로 삼고, 그 초점을
                담는 **배치·인코딩 4~6가지**를 낸다 — 고르는 건 "무엇을"이 아니라 "어떻게"다
 ③ 갤러리       후보를 **실제 pptx로 그려** 한 벌 만든다. 한 장에 한 주제, 후보를 나란히.
@@ -27,12 +29,15 @@
 ⑦ 기계 채점    score_deck.py — 튀는 곳만 본다(판정자 아님)
                끝내기 전 `deck_state.py check <프로젝트>` — 반려가 `하네스: 미정`이면 exit 1
                (미정으로 덮으면 다음 덱에서 같은 반려가 다시 나온다 — 2026-08-02 실측)
+               check가 `check_deck.py`로 덱↔계약·좌표도 대조한다 — 규격 결함이면 exit 1
 ```
 
 절차가 이름을 부르는 것들이 실재하는지:
 
 | 이름 | 실재 | 위치 |
 | --- | --- | --- |
+| `check_deck.py` | O | .claude/skills/pptx-build/scripts/check_deck.py |
+| `check_outline.py` | O | scripts/check_outline.py |
 | `deck-outline-grill` | O | .claude/skills/deck-outline-grill |
 | `deck_state.py` | O | scripts/deck_state.py |
 | `render_deck.ps1` | O | .claude/skills/pptx-build/scripts/render_deck.ps1 |
@@ -79,7 +84,7 @@
 | 파일 | 줄 | 최종 커밋 | 종류 | 없는 참조 |
 | --- | ---: | --- | --- | --- |
 | `.claude/skills/deck-outline-grill/SKILL.md` | 108 | 2026-08-03 | **살아있음** | — |
-| `.claude/skills/pptmaker/SKILL.md` | 226 | 2026-08-04 | **살아있음** | — |
+| `.claude/skills/pptmaker/SKILL.md` | 229 | 2026-08-04 | **살아있음** | — |
 | `.claude/skills/pptx-build/SKILL.md` | 90 | 2026-08-04 | **살아있음** | — |
 | `.claude/skills/pptx-build/references/design-rules.md` | 609 | 2026-08-04 | **살아있음** | — |
 | `.claude/skills/pptx-build/references/reference-metrics.md` | 38 | 2026-08-04 | **살아있음** | — |
@@ -98,7 +103,7 @@
 | `docs/2026-07-27-핸드오프-덱-완주.md` | 95 | 2026-07-27 | 역사 | 5개 |
 | `docs/2026-07-29-핸드오프-구성층-공백.md` | 202 | 2026-07-29 | 역사 | 10개 |
 | `docs/2026-07-29-핸드오프-조립-밀도.md` | 141 | 2026-07-29 | 역사 | 1개 |
-| `docs/CHANGELOG.md` | 30 | 2026-08-02 | 역사 | — |
+| `docs/CHANGELOG.md` | 31 | 2026-08-02 | 역사 | — |
 | `docs/handoff-2026-07-20-decision-table-catalog.md` | 54 | 미커밋 | 역사 | — |
 | `docs/handoff-2026-07-20-golden-dense.md` | 68 | 미커밋 | 역사 | 19개 |
 | `docs/handoff-2026-07-24-audit-and-inheritance.md` | 41 | 미커밋 | 역사 | 2개 |

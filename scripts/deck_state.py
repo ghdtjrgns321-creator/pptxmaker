@@ -12,15 +12,29 @@
     uv run python scripts/deck_state.py init    <프로젝트>   # 계약에서 뼈대 생성
     uv run python scripts/deck_state.py check   <프로젝트>   # 실물 대조 (어긋나면 exit 1)
     uv run python scripts/deck_state.py gallery <프로젝트>   # ③갤러리가 후보 자격을 갖췄나
+
+## 검사 러너를 여기서 부른다 (2026-08-04)
+
+`check_outline.py`·`check_deck.py`는 만들어만 두고 **아무도 부르지 않았다.** 절차 문서가
+"돌려라"라고 적어도 이 저장소에서 산문 지시는 예외 없이 무시됐고, 실제로 두 러너는 배선 0회로
+남아 있었다. 그래서 이미 게이트인 이 스크립트가 단계에 맞춰 직접 부른다 —
+`init`이 ①계약을, `check`가 ⑦덱을 본다.
+
+**import하지 않고 subprocess로 부른다.** 러너 셋이 서로를 import하지 않는 것은 지켜야 할
+성질이다(한쪽 임계를 고치면 다른 쪽 판정이 조용히 따라 움직인다). 종료코드만 받는다.
 """
 
 import importlib.util
+import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 WS = ROOT / "_workspace"
+CHECK_OUTLINE = ROOT / "scripts" / "check_outline.py"
+CHECK_DECK = ROOT / ".claude" / "skills" / "pptx-build" / "scripts" / "check_deck.py"
 STEPS = ["①계약", "②형태후보", "③갤러리", "④선택", "⑤조판", "⑥눈검증", "⑦채점"]
 FORMAL = ("표지", "목차", "간지")  # 정형 장 — 갤러리를 만들지 않는다
 CORE_MIN = 0.5  # 후보 하나가 담아야 할 핵심 실체 비율 (v1 실측: 최저 3/5=60%, 불량 0/5)
@@ -39,6 +53,47 @@ def contract_slides(proj: Path) -> list[tuple[str, str]]:
     if not rows:
         raise SystemExit(f"계약에서 장 목록 표를 못 찾았다: {f.relative_to(ROOT)}")
     return rows
+
+
+def material(proj: Path) -> Path | None:
+    """계약이 밝힌 재료 파일. 계약의 `- **재료**: \\`경로\\`` 줄에서 읽는다.
+
+    경로를 계약에 적게 만드는 것 자체가 목적이다 — 안 적히면 `check_outline`이 영원히 안 돈다.
+    재료는 이 저장소 밖(다른 프로젝트의 README)에 있는 게 정상이라 상위 폴더까지 훑는다.
+    """
+    f = proj / "01.5_outline.md"
+    if not f.exists():
+        return None
+    m = re.search(r"^-\s*\*\*재료\*\*\s*:\s*`([^`]+)`", f.read_text(encoding="utf-8"), re.M)
+    if not m:
+        return None
+    raw = m.group(1).strip()
+    for base in (proj, ROOT, ROOT.parent):
+        p = base / raw
+        if p.is_file():
+            return p
+    return None
+
+
+def run_check(script: Path, *args) -> tuple[int, str]:
+    """검사 러너를 별도 프로세스로 돌리고 (종료코드, 출력)을 준다.
+
+    한글 출력이 깨지지 않게 자식 쪽 표준출력 인코딩을 못 박는다 — 윈도우 기본은 cp949라
+    안 박으면 검사 결과가 U+FFFD로 돌아온다.
+    """
+    if not script.exists():
+        return 1, f"검사기가 없다: {script.relative_to(ROOT)}"
+    env = {**os.environ, "PYTHONIOENCODING": "utf-8"}
+    r = subprocess.run(
+        [sys.executable, str(script), *(str(a) for a in args)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        cwd=ROOT,
+        env=env,
+    )
+    return r.returncode, (r.stdout + r.stderr).strip()
 
 
 def build(proj: Path) -> str:
@@ -253,6 +308,19 @@ def check(proj: Path) -> int:
         except Exception as e:
             warn.append(f"deck.pptx를 못 읽는다: {type(e).__name__}")
 
+        # ⑦ 규격 대조 — 여기가 `check_deck.py`의 유일한 호출처다(위 docstring 참조).
+        args = [deck, f"--outline={proj / '01.5_outline.md'}"]
+        mat = material(proj)
+        if mat:
+            args.append(f"--material={mat}")
+        rc, out = run_check(CHECK_DECK, *args)
+        for ln in out.splitlines():
+            print("  │", ln)
+        if rc:
+            warn.append(f"`check_deck.py`가 규격 결함을 잡았다 (exit {rc}) — 위 `│` 줄")
+        elif not mat:
+            warn.append("계약에 `- **재료**: `경로`` 가 없어 재료 커버리지를 못 쟀다")
+
     rend = proj / "deck-render"
     if rend.exists():
         pngs = len(list(rend.glob("s*.png")))
@@ -310,6 +378,19 @@ def main() -> int:
         out = proj / "STATE.md"
         if out.exists():
             raise SystemExit(f"이미 있다: {out.relative_to(ROOT)} — 덮지 않는다. 직접 고칠 것")
+        # ① 계약 대조 — 여기가 `check_outline.py`의 유일한 호출처다(위 docstring 참조).
+        # 지어낸 제목 위에 STATE를 세우면 그 창작이 뼈대가 되어 끝까지 간다. 계약을 먼저 고친다.
+        mat = material(proj)
+        if not mat:
+            raise SystemExit(
+                f"계약에 재료가 없다: {(proj / '01.5_outline.md').relative_to(ROOT)} —"
+                " `- **재료**: `경로`` 한 줄을 적어야 제목이 자료에서 나왔는지 대조할 수 있다"
+            )
+        rc, msg = run_check(CHECK_OUTLINE, proj / "01.5_outline.md", mat)
+        for ln in msg.splitlines():
+            print("  │", ln)
+        if rc:
+            raise SystemExit("★ 계약에 자료 밖 제목이 있다 — 계약을 고친 뒤 다시 `init`")
         out.write_text(build(proj), encoding="utf-8")
         print(f"생성: {out.relative_to(ROOT)} — 장 {len(contract_slides(proj))}개")
         return 0
