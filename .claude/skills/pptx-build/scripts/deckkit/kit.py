@@ -41,12 +41,13 @@ NAVY, NAVY_LT = COLORS["dark"], COLORS["dark_lt"]
 BLUE, BLUE_LT = COLORS["struct"], COLORS["struct_lt"]
 AMBER, AMBER_LT = COLORS["accent"], COLORS["accent_lt"]
 GRAY, LINE, PANEL, WHITE = COLORS["muted"], COLORS["line"], COLORS["panel"], COLORS["white"]
-DARK, DARK_LT = NAVY, NAVY_LT       # 뜻이 드러나는 이름 — 새 코드는 이쪽을 쓴다
+DARK, DARK_LT = NAVY, NAVY_LT  # 뜻이 드러나는 이름 — 새 코드는 이쪽을 쓴다
 STRUCT, STRUCT_LT = BLUE, BLUE_LT
 ACCENT, ACCENT_LT = AMBER, AMBER_LT
 
 SW, SH = FR["slide_w"], FR["slide_h"]
 M, TOP, BOT = FR["margin"], FR["top"], FR["bottom"]
+RULE = FR["rule"]
 CW = SW - 2 * M
 RIGHT = SW - M
 
@@ -318,41 +319,103 @@ def blank(prs):
     return prs.slides.add_slide(prs.slide_layouts[6])
 
 
-def header(s, n, eyebrow, title, lead=None, footer_text=""):
+# ── 부(部) 내비게이션 ────────────────────────────────────────────────────────
+# 제목 옆 우측은 **덱 내내 같은 메뉴**다. 장마다 다른 문장을 넣던 자리였는데(2026-08-03 이전),
+# 그러면 "지금 어느 부에 있나"를 볼 곳이 간지밖에 없다 — 간지를 넘긴 순간부터 위치를 잃는다.
+# 목록은 조판이 정하지 않는다. `set_parts(outline.parts(계약))`로 계약에서 읽어 온다.
+PARTS: list[tuple[str, str]] = []
+# 탭 줄은 헤더 밑줄(`FR["rule"]`)에 앉는다 — 현재 부의 강조 바가 그 밑줄의 일부가 되어
+# "지금 열린 탭"으로 읽힌다. 좌측 1.15" 근흑 마디와 같은 선이라 요소를 새로 만들지 않는다.
+# x는 **고정**이다 — 장마다 탭이 움직이면 눈이 매번 찾아야 하고, 그러면 내비가 아니다.
+# 대신 항목 사이 간격을 남는 폭으로 나눠 우변까지 꽉 채운다.
+NAV = {"x": 6.00, "y": 0.60, "h": 0.30, "min_gap": 0.16, "bar": 0.030, "pad": 0.26}
+
+
+def set_parts(parts):
+    """부 목록을 덱 단위로 고정한다. parts = [(로마자, 제목, ...), ...] — 리드는 무시한다."""
+    PARTS[:] = [(str(p[0]), str(p[1])) for p in parts]
+
+
+def nav_label(roman, title) -> str:
+    return f"{roman} {title}"
+
+
+def _nav_widths() -> list[float]:
+    """항목마다 제 글자만큼 — 균등분할하면 짧은 부에 빈칸이 생기고 긴 부가 눌린다."""
+    return [_em(nav_label(r, t)) * SIZES["small"] / 72.0 + 0.06 for r, t in PARTS]
+
+
+def nav_gap() -> float:
+    """`NAV["x"]`부터 우변까지를 항목이 나눠 쓰고 남은 것이 간격이다."""
+    ws = _nav_widths()
+    if len(ws) < 2:
+        return 0.0
+    return (RIGHT - NAV["x"] - sum(ws)) / (len(ws) - 1)
+
+
+def part_nav(s, part):
+    """제목 옆을 가로로 채우는 부 탭 줄. 현재 부만 accent + 밑줄 위 강조 바."""
+    if not PARTS:
+        WARN.append(f"S{CUR['n']:02d} 부 목록이 비었다 — set_parts()를 먼저 부른다")
+        return
+    ws, gap = _nav_widths(), nav_gap()
+    if gap < NAV["min_gap"]:
+        WARN.append(
+            f'S{CUR["n"]:02d} 부 탭 간격 {gap:.2f}" < {NAV["min_gap"]}"'
+            " — 부 이름이 길거나 부가 많다. 계약의 부 제목을 줄인다"
+        )
+    x, hit = NAV["x"], False
+    for (roman, title), w in zip(PARTS, ws):
+        cur = roman == part
+        hit = hit or cur
+        tb = T(
+            s,
+            x,
+            NAV["y"],
+            w,
+            NAV["h"],
+            [
+                {
+                    "t": nav_label(roman, title),
+                    "s": SIZES["small"],
+                    "b": cur,
+                    "c": ACCENT if cur else GRAY,
+                    "a": "c",
+                }
+            ],
+            valign="m",
+            name=f"부내비:{roman}",
+        )
+        tb.name = f"부내비:{roman}"  # 게이트가 이 이름으로 찾는다
+        if cur:
+            R(s, x, RULE - 0.006, w, NAV["bar"], fill=ACCENT)
+        x += w + gap
+    if part and not hit:
+        WARN.append(f"S{CUR['n']:02d} 부 「{part}」가 계약 부 목록에 없다")
+
+
+def page_head(s, n, title, footer_text="", width=None):
+    """제목 + 밑줄 + 푸터. 내비 없는 골격 — 목차처럼 부에 속하지 않는 장이 쓴다."""
     set_context(n, title)
     T(
         s,
-        M,
-        0.34,
-        7.0,
-        0.26,
-        [{"t": eyebrow, "s": SIZES["small"], "b": True, "c": BLUE}],
-        name="눈썹",
-    )
-    T(
-        s,
         M - 0.02,
+        0.28,
+        width or CW,
         0.56,
-        5.9,
-        0.52,
         [{"t": title, "s": SIZES["title"], "b": True, "c": INK}],
         valign="m",
         name="제목",
     )
-    if lead:
-        T(
-            s,
-            6.50,
-            0.46,
-            6.21,
-            0.68,
-            [{"t": lead, "s": SIZES["body"], "c": GRAY, "a": "r", "ls": 1.2}],
-            valign="m",
-            name="리드",
-        )
-    R(s, M, 1.18, CW, 0.018, fill=LINE)
-    R(s, M, 1.18, 1.15, 0.018, fill=BLUE)
+    R(s, M, RULE, CW, 0.018, fill=LINE)
+    R(s, M, RULE, 1.15, 0.018, fill=BLUE)
     footer(s, n, footer_text)
+
+
+def header(s, n, part, title, footer_text=""):
+    """본문 장 상단. part = 로마자("Ⅲ") — 이 장이 속한 부, 계약 `장 목록`의 부 열이 정한다."""
+    page_head(s, n, title, footer_text, width=NAV["x"] - M - NAV["pad"])
+    part_nav(s, part)
 
 
 def footer(s, n, text=""):
@@ -521,7 +584,7 @@ def divider(prs, n, roman, title, lead=None, chapters=()):
 def toc(prs, n, parts, footer_text=""):
     """목차. parts = [(로마자, 부 제목, "S4 · S5", 요약), ...] — 부마다 한 행."""
     s = blank(prs)
-    header(s, n, "CONTENTS", "목차", f"{len(parts)}부 구성", footer_text)
+    page_head(s, n, "목차", footer_text, width=CW)
     rh = (BOT - TOP) / len(parts)
     for i, (roman, title, span, summary) in enumerate(parts):
         y = TOP + i * rh
@@ -570,42 +633,16 @@ def toc(prs, n, parts, footer_text=""):
     return s
 
 
-class Panel:
-    """소제목으로 가둔 구역. **세로 슬롯을 소유한다.**
-
-    `row(h)`로 아래로 쌓으면 폭이 구조적으로 같아진다 — 쌓은 블록의 좌우가 어긋나는 사고
-    (2026-08-03 지적)를 규칙이 아니라 구조로 막는다.
-    """
-
-    def __init__(self, s, x, y, w, h, title=None, sub=None, fill=PANEL, accent=BLUE, pad=0.18):
-        R(s, x, y, w, h, fill=fill, line=LINE)
-        self.s, self.x, self.y, self.w, self.h, self.pad = s, x, y, w, h, pad
-        head = 0.0
-        if title:
-            R(s, x, y, 0.055, h, fill=accent)
-            lines = [{"t": title, "s": SIZES["h"], "b": True, "c": INK}]
-            if sub:
-                lines.append({"t": sub, "s": SIZES["tiny"], "c": GRAY, "sb": 2})
-            head = 0.34 + (0.20 if sub else 0)
-            T(s, x + pad, y + 0.08, w - 2 * pad, head, lines, name="패널 제목")
-        self._cur = y + (0.08 + head + 0.06 if title else pad)
-
-    @property
-    def inner_x(self):
-        return self.x + self.pad
-
-    @property
-    def inner_w(self):
-        return self.w - 2 * self.pad
-
-    @property
-    def left(self):
-        return self._cur
-
-    def row(self, h, gap=0.06):
-        """다음 슬롯 (x, y, w, h)를 준다 — x·w는 패널이 정하므로 어긋날 수 없다."""
-        y = self._cur
-        self._cur = y + h + gap
-        if self._cur > self.y + self.h + 0.02:
-            WARN.append(f"S{CUR['n']:02d} 패널 세로 초과 — 슬롯이 패널 밖으로 나갔다")
-        return self.inner_x, y, self.inner_w, h
+# ── 여기 `Panel`이 있었다 (2026-08-03 삭제) ──────────────────────────────────
+#
+# 소제목으로 가둔 구역을 그리고 `row(h)`로 세로 슬롯을 나눠 주던 클래스다. 만든 이유는
+# "쌓은 블록의 좌우가 어긋나는 사고를 규칙이 아니라 구조로 막는다"였는데, **실전 덱 19장이
+# 단 한 번도 부르지 않았다.** 정렬은 조판이 좌표로 직접 잡아서 해결됐다.
+#
+# 대신 계약만 받은 새 컨텍스트 6회는 **6/6이 불렀다.** 기본값이 `fill=PANEL, line=LINE`이라
+# 부르는 순간 회색 면이 딸려 왔고, 그때마다 본문 면적의 **83~94%가 회색 덩어리**가 됐다
+# (완성본 19장의 같은 수치는 0%). 2026-07-29의 `figures/*.LAYOUT` 사고와 같은 구조다 —
+# **기본값이 장 구성을 정한다.**
+#
+# 면을 뺀 "자리 배분기"로 남기지도 않았다. 배분기도 결국 칸이고, 칸이 있으면 재료를 칸에
+# 맞춰 휘게 된다. 자리는 매번 내용이 정한다.

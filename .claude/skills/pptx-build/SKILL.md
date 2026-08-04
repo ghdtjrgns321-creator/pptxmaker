@@ -13,13 +13,14 @@ description: PPT 슬라이드를 파이썬으로 직접 조판하는 도구함(d
 
 ## 도구함 (`scripts/goldenfab/`)
 
-| 모듈         | 주는 것                                                                                                            |
-| ------------ | ------------------------------------------------------------------------------------------------------------------ |
-| `kit.py`     | `load_kit()`(brand-kit) · `new_presentation()` · `add_box` · `add_text` · `fit_picture` · `set_shape_text` · `mix` |
-| `deckkit/brand.yaml` | 토큰 — 색 9·글꼴 9단·여백·게이트 임계. 이 파일만 고치면 전 덱 반영 |
-| `deckkit/kit.py` | 원시도구·정형 장(표지·목차·간지)·`Panel`·커넥터·한글 줄바꿈 |
-| `deckkit/blocks.py` | 블록 8종. 도해 부품은 없다 — 사각과 커넥터로 매번 새로 그린다 |
-| `audit.py`   | `generic_checks`(전역 규칙) · `density_band`(골든 스냅샷에서 파생한 밀도 하한)                                     |
+| 모듈                 | 주는 것                                                                                                            |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `kit.py`             | `load_kit()`(brand-kit) · `new_presentation()` · `add_box` · `add_text` · `fit_picture` · `set_shape_text` · `mix` |
+| `deckkit/brand.yaml` | 토큰 — 색 9·글꼴 9단·여백·게이트 임계. 이 파일만 고치면 전 덱 반영                                                 |
+| `deckkit/kit.py`     | 원시도구·정형 장(표지·목차·간지)·`header`(제목+부 내비)·커넥터·한글 줄바꿈                                         |
+| `deckkit/blocks.py`  | 블록 8종. 도해 부품은 없다 — 사각과 커넥터로 매번 새로 그린다                                                      |
+| `deckkit/outline.py` | 계약에서 부 목록(`parts`)·장별 부(`part_of`)를 읽는다. 내비 문구의 단일 출처                                       |
+| `audit.py`           | `generic_checks`(전역 규칙) · `density_band`(골든 스냅샷에서 파생한 밀도 하한)                                     |
 
 차트·다이어그램은 `pptx-visuals` 스킬이 단일 출처다. 여기에 차트 코드를 중복 작성하지 않는다.
 

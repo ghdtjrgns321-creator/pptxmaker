@@ -11,10 +11,12 @@
 | 밀도(덮은 면적) | 137~200% | 172% | 안 갈린다 → 안 함 |
 | 블록 경계 정렬 | 46·53쌍 어긋남 | 15쌍 | 안 갈린다(반대) → 안 함 |
 
-뒤 둘은 부품 쪽에서 구조로 막는다 — 표는 `blocks.compare_table`의 행 높이 상한이, 정렬은
-`kit.Panel.row()`가 폭을 소유하는 것이 맡는다. 규칙을 늘리지 않는 이유는 이 저장소가 이미
-겪었기 때문이다: "이 장 밋밋해"(한 장의 지적) → "카드 4장으로 채워라"(모든 장의 명령) →
-36장이 동일한 4카드.
+뒤 둘은 검사하지 않는다. 표 행 높이는 `blocks.compare_table`이 경고만 내고, **정렬은 조판이
+좌표로 직접 잡는다** — 이걸 구조로 막겠다고 만든 `kit.Panel`은 실전 19장이 0회 부른 채
+새 컨텍스트만 6/6이 불러 화면을 회색으로 덮었고, 2026-08-03에 삭제했다(근거는 kit.py 주석).
+
+규칙을 늘리지 않는 이유는 이 저장소가 이미 겪었기 때문이다: "이 장 밋밋해"(한 장의 지적)
+→ "카드 4장으로 채워라"(모든 장의 명령) → 36장이 동일한 4카드.
 
     uv run python .claude/skills/pptx-build/scripts/check_deck.py <경로.pptx>
 """
@@ -28,8 +30,12 @@ from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
 from pptx.util import Emu
 
+sys.path.insert(0, str(Path(__file__).parent))
+from deckkit import outline as O  # noqa: E402
+
 _B = yaml.safe_load((Path(__file__).parent / "deckkit/brand.yaml").read_text("utf-8"))
 FR, LIM = _B["frame"], _B["limits"]
+ACC = _B["colors"]["accent"]
 RIGHT = FR["slide_w"] - FR["margin"]
 BOT = FR["bottom"]
 MATERIAL = None  # --material=<README> 를 주면 재료 커버리지를 보고한다
@@ -117,6 +123,42 @@ def formal(outline: Path) -> list[str]:
     return want
 
 
+def nav(prs, outline: Path) -> list[str]:
+    """부 내비게이션이 계약과 같은가 — 문구·순서·**강조된 부**까지.
+
+    본문 전 장의 상단에 5줄이 깔리므로, 틀리면 한 장이 아니라 덱 전체가 틀린다. 강조까지 보는
+    이유는 문구만 맞고 강조가 엉뚱한 부에 붙으면 내비가 오히려 위치를 속이기 때문이다.
+    """
+    want = [f"{r} {t}" for r, t, _ in O.parts(outline)]
+    of = O.part_of(outline)
+    if not want or not of:
+        return []
+    bad = []
+    for n, sl in enumerate(prs.slides, 1):
+        lines = [sh for sh in sl.shapes if sh.name.startswith("부내비:")]
+        if not lines and n in of:
+            bad.append(f"s{n:02d} 부 내비가 없다 — 계약은 이 장을 「{of[n]}」부로 둔다")
+            continue
+        if not lines:
+            continue
+        got = [sh.text_frame.text.strip() for sh in lines]
+        if got != want:
+            bad.append(f"s{n:02d} 부 내비가 계약과 다르다 — 계약 {want} / 조판 {got}")
+            continue
+        cur = [
+            sh.name.split(":", 1)[1]
+            for sh in lines
+            for p in sh.text_frame.paragraphs
+            for r in p.runs
+            if r.font.color and r.font.color.type is not None and str(r.font.color.rgb) == ACC
+        ]
+        if len(set(cur)) != 1:
+            bad.append(f"s{n:02d} 부 내비 강조가 {len(set(cur))}개다 — 정확히 하나여야 한다")
+        elif n in of and cur[0] != of[n]:
+            bad.append(f"s{n:02d} 부 내비 강조 「{cur[0]}」 ≠ 계약 「{of[n]}」")
+    return bad
+
+
 def check(path: Path, body=()) -> int:
     prs = Presentation(str(path))
     bad = []
@@ -155,12 +197,15 @@ def check(path: Path, body=()) -> int:
         for n, sl in enumerate(prs.slides, 1):
             if n not in want:
                 continue
+            # 머리띠 = 헤더 밑줄 위. 좌표를 박지 않고 토큰에서 뽑는다 — 2026-08-03에 밑줄을
+            # 1.18에서 올렸더니 `0.4 < top < 1.1`로 박아둔 창이 제목을 통째로 놓쳤다.
             got = [
                 sh.text_frame.text.strip()
                 for sh in sl.shapes
                 if sh.has_text_frame
                 and sh.top is not None
-                and 0.4 < Emu(sh.top).inches < 1.1
+                and Emu(sh.top).inches < FR["rule"]
+                and not sh.name.startswith("부내비:")
                 and sh.text_frame.text.strip()
             ]
             if want[n] not in got:
@@ -175,6 +220,7 @@ def check(path: Path, body=()) -> int:
         for w in formal(OUTLINE):
             if w not in all_txt:
                 bad.append(f"정형 장 문구가 덱에 없다 — 계약 「{w[:44]}」")
+        bad += nav(prs, OUTLINE)
     print(f"{path.name} — {len(prs.slides._sldIdLst)}장 · 결함 {len(bad)}건")
     if MATERIAL:
         print("  ·", coverage(path, MATERIAL))

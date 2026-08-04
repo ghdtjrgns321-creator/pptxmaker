@@ -42,18 +42,18 @@
 
 | 파일 | 줄 | 공개 함수 | 주요 함수 |
 | --- | ---: | ---: | --- |
-| `.claude/skills/pptx-build/scripts/check_deck.py` | 206 | 5 | coverage, headlines, formal, check, main |
+| `.claude/skills/pptx-build/scripts/check_deck.py` | 252 | 6 | coverage, headlines, formal, nav, check, main |
 | `.claude/skills/pptx-build/scripts/deckkit/__init__.py` | 5 | 0 |  |
 | `.claude/skills/pptx-build/scripts/deckkit/blocks.py` | 350 | 8 | kpi_strip, slot_cards, numbered_steps, branch, problem_solution, compare_table |
-| `.claude/skills/pptx-build/scripts/deckkit/kit.py` | 611 | 19 | set_context, C, In, T, R, ARROW |
+| `.claude/skills/pptx-build/scripts/deckkit/kit.py` | 648 | 24 | set_context, C, In, T, R, ARROW |
+| `.claude/skills/pptx-build/scripts/deckkit/outline.py` | 88 | 3 | tables, parts, part_of |
 | `.claude/skills/pptx-build/scripts/goldenfab/__init__.py` | 8 | 0 |  |
 | `.claude/skills/pptx-build/scripts/goldenfab/audit.py` | 829 | 23 | contrast, shape_kind, fill_hex, line_hex, runs_of, box |
 | `.claude/skills/pptx-build/scripts/goldenfab/kit.py` | 157 | 7 | load_kit, new_presentation, mix, fit_picture, add_box, set_shape_text |
 | `.claude/skills/pptx-build/scripts/scan_material.py` | 204 | 2 | scan, main |
 | `.claude/skills/pptx-build/scripts/score_deck.py` | 89 | 1 | main |
-| `.claude/skills/pptx-build/scripts/verify_enforcement_tags.py` | 157 | 4 | wired_hooks, audit_symbols, module_has, main |
 
-합계 **2616줄**
+합계 **2630줄**
 
 ## 3. 기계 검사 배선
 
@@ -78,16 +78,15 @@
 
 | 파일 | 줄 | 최종 커밋 | 종류 | 없는 참조 |
 | --- | ---: | --- | --- | --- |
-| `.claude/agents/deck-smith.md` | 132 | 2026-08-03 | **살아있음** | — |
 | `.claude/skills/deck-outline-grill/SKILL.md` | 108 | 2026-08-03 | **살아있음** | — |
-| `.claude/skills/pptmaker/SKILL.md` | 223 | 2026-08-03 | **살아있음** | — |
-| `.claude/skills/pptx-build/SKILL.md` | 89 | 2026-08-02 | **살아있음** | — |
-| `.claude/skills/pptx-build/references/design-rules.md` | 647 | 2026-08-03 | **살아있음** | — |
+| `.claude/skills/pptmaker/SKILL.md` | 226 | 2026-08-03 | **살아있음** | — |
+| `.claude/skills/pptx-build/SKILL.md` | 90 | 2026-08-03 | **살아있음** | — |
+| `.claude/skills/pptx-build/references/design-rules.md` | 608 | 2026-08-03 | **살아있음** | — |
 | `.claude/skills/pptx-build/references/reference-metrics.md` | 38 | 2026-07-06 | **살아있음** | — |
 | `.claude/skills/pptx-visuals/SKILL.md` | 82 | 2026-07-29 | **살아있음** | — |
 | `.claude/skills/pptx-visuals/references/archetype-catalog.md` | 298 | 2026-08-03 | **살아있음** | — |
 | `.claude/skills/pptx-visuals/references/spec-fields.md` | 84 | 2026-07-29 | **살아있음** | — |
-| `.claude/skills/pptx-visuals/references/visual-selection.md` | 113 | 2026-07-31 | **살아있음** | — |
+| `.claude/skills/pptx-visuals/references/visual-selection.md` | 113 | 2026-08-03 | **살아있음** | — |
 | `docs/2026-07-20-dense-failure-analysis.md` | 93 | 2026-07-21 | 역사 | 8개 |
 | `docs/2026-07-24-deck-smith-inheritance-experiment.md` | 69 | 2026-08-02 | 역사 | — |
 | `docs/2026-07-25-골든-도해-어휘-인벤토리.md` | 262 | 2026-07-27 | 역사 | 12개 |
@@ -103,6 +102,7 @@
 | `docs/handoff-2026-07-20-decision-table-catalog.md` | 54 | 미커밋 | 역사 | — |
 | `docs/handoff-2026-07-20-golden-dense.md` | 68 | 미커밋 | 역사 | 19개 |
 | `docs/handoff-2026-07-24-audit-and-inheritance.md` | 41 | 미커밋 | 역사 | 2개 |
+| `docs/handoff-2026-08-03-다음-작업.md` | 148 | 미커밋 | 역사 | — |
 | `docs/superpowers/specs/2026-07-08-visual-diversity-design.md` | 40 | 2026-07-09 | 역사 | 3개 |
 | `docs/superpowers/specs/2026-07-15-gate-repair-design.md` | 362 | 2026-07-15 | 역사 | 8개 |
 | `docs/superpowers/specs/2026-07-16-golden-adaptive-wiring-design.md` | 68 | 2026-07-16 | 역사 | 7개 |

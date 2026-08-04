@@ -151,8 +151,11 @@ README를 골격·문장으로 쓰고 FINAL-REPORT는 근거 창고로 두기로
 
 ## 무엇으로 그리나
 
-- `deckkit.kit` — 토큰(`brand.yaml`)·원시도구(T·R·BAR·IMAGE·CONNECT·LINK)·정형 장(cover·toc·divider)·`Panel`
+- `deckkit.kit` — 토큰(`brand.yaml`)·원시도구(T·R·BAR·IMAGE·CONNECT·LINK)·정형 장(cover·toc·divider)
+  구역을 가두는 부품은 **없다** — 자리는 매번 내용이 정한다(`Panel` 삭제 근거는 kit.py 주석)
 - `deckkit.blocks` — 블록 8종. 도해 부품은 없다 — 사각과 커넥터로 매번 새로 그린다
+- `deckkit.outline` — 계약에서 부 목록·장별 부를 읽는다. 덱 시작에서 `set_parts(O.parts(계약))`
+  한 줄이면 본문 전 장 상단에 부 내비게이션이 깔린다 — **문구를 옮겨 적지 않는다**
 - `pptx-visuals` — 차트 6종(네이티브)·mpl 익스히빗 9종·도형 DSL 9종.
   필드는 `pptx-visuals/references/spec-fields.md`, 형식 선택은 `visual-selection.md`
 - `pptx-build/references/design-rules.md` — 물성→형식, 색 규율, 타이포 위계
