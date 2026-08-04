@@ -9,14 +9,8 @@
 ### 1. 프로젝트 소개
 **규격화된 서식으로 내용에 맞춰 슬라이드를 생성하는 파이썬 PPT 렌더링 도구**
 > **완성본 예시** : [`local-ai-assist`](https://github.com/ghdtjrgns321-creator/local-ai-journal-assist) 소개 덱 19장 ([전장 보기](#6-완성본-19장)), **수동 편집 없는 자동 생성 원본**
-<p align="center">
-  <img src="images/deck/s01.png" width="425" alt="완성본 표지 — 근흑 배경에 좌측 오렌지 세로 띠, 킥커, 표제, 부제, 리드">
-  <img src="images/deck/s08.png" width="425" alt="본문 08장 — 좌측 앵커 카드, 중앙 이상 시나리오 14종 카드 격자, 우측 연계 전표 흐름과 생성 4단계">
-</p>
-<p align="center">
-  <img src="images/deck/s11.png" width="425" alt="본문 11장 — 좌측 대상 9종과 수법 10종을 잇는 교차 커넥터, 중앙 실제 화면, 우측 프리셋 목록">
-  <img src="images/deck/s17.png" width="425" alt="본문 17장 — 좌측 ROC 화면 캡처, 중앙 4세트 점 그래프와 기여 배율 막대, 우측 주장 범위 불릿">
-</p>
+<p align="center"><img src="images/deck/s01.png" width="48%" alt="완성본 표지 — 근흑 배경에 좌측 오렌지 세로 띠, 킥커, 표제, 부제, 리드"><img src="images/deck/s08.png" width="48%" alt="본문 08장 — 좌측 앵커 카드, 중앙 이상 시나리오 14종 카드 격자, 우측 연계 전표 흐름과 생성 4단계"></p>
+<p align="center"><img src="images/deck/s11.png" width="48%" alt="본문 11장 — 좌측 대상 9종과 수법 10종을 잇는 교차 커넥터, 중앙 실제 화면, 우측 프리셋 목록"><img src="images/deck/s17.png" width="48%" alt="본문 17장 — 좌측 ROC 화면 캡처, 중앙 4세트 점 그래프와 기여 배율 막대, 우측 주장 범위 불릿"></p>
 
 ### 2. 문제 인식과 해결 방향
 
