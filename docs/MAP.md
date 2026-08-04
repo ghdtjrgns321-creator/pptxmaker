@@ -81,7 +81,7 @@
 | `.claude/skills/deck-outline-grill/SKILL.md` | 108 | 2026-08-03 | **살아있음** | — |
 | `.claude/skills/pptmaker/SKILL.md` | 226 | 2026-08-04 | **살아있음** | — |
 | `.claude/skills/pptx-build/SKILL.md` | 90 | 2026-08-04 | **살아있음** | — |
-| `.claude/skills/pptx-build/references/design-rules.md` | 608 | 2026-08-04 | **살아있음** | — |
+| `.claude/skills/pptx-build/references/design-rules.md` | 609 | 2026-08-04 | **살아있음** | — |
 | `.claude/skills/pptx-build/references/reference-metrics.md` | 38 | 2026-07-06 | **살아있음** | — |
 | `.claude/skills/pptx-visuals/SKILL.md` | 82 | 2026-07-29 | **살아있음** | — |
 | `.claude/skills/pptx-visuals/references/archetype-catalog.md` | 298 | 2026-08-03 | **살아있음** | — |
