@@ -9,7 +9,7 @@
 ### 1. 프로젝트 소개
 **규격화된 서식으로 내용에 맞춰 슬라이드를 생성하는 파이썬 PPT 렌더링 도구**
 > **완성본 예시** : [`local-ai-assist`](https://github.com/ghdtjrgns321-creator/local-ai-journal-assist) 소개 덱 19장 ([전장 보기](#6-완성본-19장)), **수동 편집 없는 자동 생성 원본**
-<p align="center"><img src="images/deck/s01.png" width="48%" alt="완성본 표지 — 근흑 배경에 좌측 오렌지 세로 띠, 킥커, 표제, 프로젝트명, 리드, 하단 지표 카드 4장"><img src="images/deck/s08.png" width="48%" alt="본문 08장 — 이상 시나리오 14종 카드 격자, 우측 생성 4단계와 연계 전표 흐름, 하단 주입 밀도 비례 막대"></p>
+<p align="center"><img src="images/deck/s01.png" width="48%" alt="완성본 표지 — 근흑 배경에 좌측 오렌지 세로 띠, 킥커, 표제, 프로젝트명, 리드, 하단 지표 카드 4장"><img src="images/deck/s07.png" width="48%" alt="본문 07장 합성 데이터 생성 — 상단 지표 4개, 좌측 생성 8단계, 우측 거래 시나리오 20종 비례 막대, 하단 무결성 검증 3관문"></p>
 <p align="center"><img src="images/deck/s11.png" width="48%" alt="본문 11장 — 조작 대상 9종과 수법 10종을 AND로 교차, 하단 프리셋 5종 비례 막대, 우측 화면 캡처 2종"><img src="images/deck/s17.png" width="48%" alt="본문 17장 — 상단 지표 4개, 4세트 재측정 막대와 항목별 기여 배율, 우측 화면 캡처, 하단 해설 3칸"></p>
 
 ### 2. 문제 인식과 해결 방향
@@ -60,9 +60,6 @@ flowchart LR
     style PICK fill:none,stroke:#c8cdd2,stroke-dasharray:5 4
     style MAKE fill:none,stroke:#c8cdd2,stroke-dasharray:5 4
 ```
-
-- ②가 축 B여야 하는 이유 : 후보끼리 주제가 다르면 후보가 아니라 목차 문제, 갤러리를 다시 그리지 말고 ①로 복귀
-- ⑥이 진짜 게이트인 이유 : ⑦이 통과시킨 것을 사용자가 반려한 전례, 최고점 97%를 받은 장이 도해 하나가 통째로 안 보이던 장
 
 #### 3-1. 계약 — 상세 [3-1. 기술 설명 - 계약](#3-1-기술-설명---계약)
 
@@ -164,8 +161,8 @@ uv run python .claude/skills/pptx-build/scripts/score_deck.py <deck.pptx>
 
 <p align="center"><img src="images/deck/s06.png" width="820" alt="Ⅱ부 간지"></p>
 
-<p align="center"><img src="images/deck/s07.png" width="820" alt="07장 — 생성 8단계를 번호 배지 목록으로, 거래 시나리오를 카드로 배치"></p>
-<p align="center"><sub>07, 번호 단계 형태</sub></p>
+<p align="center"><img src="images/deck/s08.png" width="820" alt="08장 — 이상 데이터 시나리오 14종 카드 격자, 우측 주입 생성 4단계와 연계 전표 흐름, 하단 주입 밀도 비례 막대"></p>
+<p align="center"><sub>08, 카드 격자 형태</sub></p>
 
 </details>
 
