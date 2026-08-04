@@ -418,13 +418,13 @@ README.md 문서를 원천 자료로 선택<br>
 <details>
 <summary><b>실제 스크린샷 (07장 3회) 펼치기</b></summary>
 
-<p align="center"><img src="images/variance-s07-b1.png" width="820" alt="07장 1회차 — 상단 리드와 지표 3칸, 8단계 가로 체인, 좌하 시나리오 막대, 우하 무결성 3관문과 재생성 고리"></p>
+<p align="center"><img src="images/variance-s07-b1.png" width="820" alt="07장 1회차 "></p>
 <p align="center"><sub>1회차, 8단계를 가로 체인으로 눕히고 이 장에서 안 도는 단계는 회색으로 껐다</sub></p>
 
-<p align="center"><img src="images/variance-s07-b2.png" width="820" alt="07장 2회차 — 상단 설정 표, 8단계 밴드, 무결성 4칸 가로, 하단 분개 라인 수와 기표 일자 가중 막대"></p>
+<p align="center"><img src="images/variance-s07-b2.png" width="820" alt="07장 2회차 "></p>
 <p align="center"><sub>2회차, 무결성을 가로 4칸으로 펴고 하단에 분개 라인 수와 기표 일자 가중을 막대로 추가</sub></p>
 
-<p align="center"><img src="images/variance-s07-b3.png" width="820" alt="07장 3회차 — 상단 기반 3칸, 좌측 8단계 세로 목록, 우측 시나리오 막대, 하단 무결성 흐름도"></p>
+<p align="center"><img src="images/variance-s07-b3.png" width="820" alt="07장 3회차 "></p>
 <p align="center"><sub>3회차, 8단계를 좌측 세로로 세우고 무결성은 하단 흐름도로</sub></p>
 
 </details>
