@@ -10,10 +10,14 @@ __pycache__/
 # 빌드 산출물 (생성된 발표자료)
 *.pptx
 !**/assets/**/*.pptx
-# 예외: 골든 덱은 산출물이 아니라 **고정 기준선**이다. 생산 코드(build_golden·reference)를
-# 2026-07-29에 아카이브했으므로 재생성이 불가능하다 — 잃으면 끝이라 반드시 커밋한다.
-# 같은 이유로 golden/render(17장)·golden/render-부품(27장)도 ignore하지 않는다.
-!golden/golden-deck.pptx
+# 예외: results/는 완성 덱 보관소다. README가 "산출물"로 지목하는 실물이라
+# 잘려 있으면 클론한 쪽이 README가 가리키는 파일을 못 받는다.
+!results/*.pptx
+
+# 골든 (로컬 보관 — 2026-08-04 추적 해제)
+# README가 한 번도 참조하지 않고 코드가 여는 곳도 0건인데 2.96MB를 추적하고 있었다.
+# 재생성은 불가능하지만 커밋 03e7e4d~41bbfe6 히스토리에 남아 있어 필요하면 거기서 꺼낸다.
+golden/
 
 # 로컬 상태 (세션별 계약)
 .claude/state/
