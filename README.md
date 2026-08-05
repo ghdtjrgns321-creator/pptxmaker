@@ -481,8 +481,8 @@ README.md 문서를 원천 자료로 선택<br>
 | 패키지와 가상환경 | uv, 잠금 파일          | 재현 가능, 별도 활성화 없이 실행                         |
 | 생성              | python-pptx            | 슬라이드를 파이썬으로 직접 그림                          |
 | 규격 값           | PyYAML                 | 색과 글꼴과 슬라이드 크기와 임계 33개                    |
-| 차트              | matplotlib             | 구현 완료, **현재 미배선**                               |
-| 렌더              | 파워포인트 COM, 파워셸 | 전역 뮤텍스로 직렬화, 높이는 슬라이드 크기에서 파생      |
+                           |
+| 렌더              | 파워포인트, 파워셸 | 전역 뮤텍스로 직렬화, 높이는 슬라이드 크기에서 파생      |
 | 검사              | lxml                   | 색 읽기는 읽기 전용, 쓰기 접근이 테두리를 만든 사고 이후 |
 | 개발              | ruff, pypdfium2        | 줄 길이 100자                                            |
 
@@ -501,4 +501,4 @@ uv run python .claude/skills/pptx-build/scripts/score_deck.py <deck.pptx>
 pwsh .claude/skills/pptx-build/scripts/render_deck.ps1 -Pptx <deck.pptx> -OutDir <폴더>
 ```
 
-- 렌더는 파워포인트 COM을 쓰므로 윈도우와 파워포인트 설치가 필요
+- 윈도우와 파워포인트 설치가 필요
